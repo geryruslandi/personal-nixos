@@ -7,7 +7,7 @@
 {
   # home.nix
   imports = [
-    inputs.zen-browser.homeModules.twilight
+    ./homes/zen-browser.nix
   ];
 
   home = {
@@ -23,7 +23,4 @@
     # Don't ever change this after the first build.  Don't ask questions.
     stateVersion = "23.11";
   };
-
-  # Apps
-  programs.zen-browser.enable = true;
 }

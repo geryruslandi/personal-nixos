@@ -7,7 +7,7 @@
 {
   imports =
     [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
+      /etc/nixos/hardware-configuration.nix
       ./modules/users.nix
       ./modules/audio.nix
       ./modules/hyprland/default.nix
