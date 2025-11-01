@@ -32,7 +32,7 @@
         };
       };
 
-      homeConfigurations.geryruslandi = home-manager.lib.homeManagerConfiguration {
+      homeConfigurations."geryruslandi@nixos" = home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
         modules = [
           illogical-flake.homeManagerModules.default
