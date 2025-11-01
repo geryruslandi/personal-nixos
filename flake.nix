@@ -3,17 +3,16 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+    hyprland.url = "github:hyprwm/Hyprland";
   };
 
   outputs =
     { self, nixpkgs }:
     {
-      nixosConfigurations = {
-        nixos = nixpkgs.lib.nixosSystem {
-          modules = [
-            ./configuration.nix
-          ];
-        };
+      nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
+        modules = [
+          ./configuration.nix
+        ];
       };
     };
 }
