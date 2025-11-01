@@ -22,12 +22,13 @@
       home-manager,
       illogical-flake,
       ...
-    }:
+    } @inputs:
     {
       nixosConfigurations = {
         nixos = nixpkgs.lib.nixosSystem {
           modules = [
             ./configuration.nix
+            inputs.home-manager.nixosModules.default
           ];
         };
       };
