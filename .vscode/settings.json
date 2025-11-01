@@ -3,6 +3,8 @@
     "hyprwm",
     "nixos",
     "nixpkgs",
-    "pkgs"
+    "noctalia",
+    "pkgs",
+    "quickshell"
   ]
 }

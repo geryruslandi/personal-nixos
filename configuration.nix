@@ -8,10 +8,11 @@
   imports =
     [ # Include the results of the hardware scan.
       /etc/nixos/hardware-configuration.nix
-      ./modules/users.nix
       ./modules/audio.nix
+      ./modules/users.nix
       ./modules/hyprland.nix
       ./modules/packages.nix
+      ./modules/noctalia.nix
     ];
 
   # Bootloader.
