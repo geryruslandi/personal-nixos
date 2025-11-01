@@ -10,7 +10,7 @@
       ./hardware-configuration.nix
       ./modules/users.nix
       ./modules/audio.nix
-      ./modules/hyprland.nix
+      ./modules/hyprland/default.nix
       ./modules/packages.nix
     ];
 
@@ -36,7 +36,7 @@
 
   # Enable the X11 windowing system.
   # You can disable this if you're only using the Wayland session.
-  services.xserver.enable = true;
+  # services.xserver.enable = true;
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
