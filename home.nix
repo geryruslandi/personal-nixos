@@ -8,6 +8,9 @@
   # home.nix
   imports = [
     ./homes/zen-browser.nix
+    ./homes/hyprland.nix
+    ./homes/kitty.nix
+    ./homes/dolphin.nix
   ];
 
   home = {
@@ -21,6 +24,6 @@
 
     # You do not need to change this if you're reading this in the future.
     # Don't ever change this after the first build.  Don't ask questions.
-    stateVersion = "23.11";
+    stateVersion = "25.05";
   };
 }

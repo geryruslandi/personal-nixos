@@ -13,7 +13,8 @@
       kdePackages.kate
       vscode
       nixfmt-rfc-style
-      #  thunderbird
+      kdePackages.qtsvg
+      kdePackages.dolphin
     ];
   };
 }

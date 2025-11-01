@@ -10,7 +10,7 @@
       /etc/nixos/hardware-configuration.nix
       ./modules/users.nix
       ./modules/audio.nix
-      ./modules/hyprland/default.nix
+      ./modules/hyprland.nix
       ./modules/packages.nix
     ];
 
@@ -50,7 +50,7 @@
   # };
 
   # Enable touchpad support (enabled default in most desktopManager).
-  services.xserver.libinput.enable = false;
+  services.libinput.enable = false;
 
 
   # List services that you want to enable:
