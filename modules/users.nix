@@ -16,6 +16,7 @@
       kdePackages.qtsvg
       kdePackages.dolphin
       firefox
+      bitwarden-desktop
     ];
   };
 }
