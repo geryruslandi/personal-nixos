@@ -120,7 +120,7 @@
         monitors = [ ];
       };
       appLauncher = {
-        enableClipboardHistory = false;
+        enableClipboardHistory = true;
         position = "center";
         backgroundOpacity = 1;
         pinnedExecs = [ ];
@@ -186,7 +186,7 @@
         ];
       };
       dock = {
-        enabled = true;
+        enabled = false;
         displayMode = "always_visible";
         backgroundOpacity = 1;
         floatingRatio = 1;
