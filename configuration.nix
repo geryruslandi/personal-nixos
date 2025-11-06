@@ -12,7 +12,6 @@
       ./modules/users.nix
       ./modules/hyprland.nix
       ./modules/packages.nix
-      ./modules/noctalia.nix
     ];
 
   # Bootloader.
