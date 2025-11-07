@@ -14,6 +14,7 @@
       ./modules/packages.nix
       ./modules/noctalia.nix
       ./modules/nvidia.nix
+      ./modules/tlp.nix
     ];
 
   # Bootloader.
