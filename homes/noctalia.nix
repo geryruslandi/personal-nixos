@@ -301,4 +301,18 @@
       };
     };
   };
+
+  # Keybinds
+  wayland.windowManager.hyprland = {
+    settings = {
+      bind = [
+        "$mainMod, V, exec, noctalia-shell ipc call launcher clipboard"
+        "$mainMod, SPACE, exec, noctalia-shell ipc call launcher toggle"
+        "$mainMod, R, exec, noctalia-shell ipc call controlCenter toggle"
+        "$mainMod, comma, exec, noctalia-shell ipc call settings toggle"
+        "$mainMod, L, exec, noctalia-shell ipc call lockScreen lock"
+        "$mainMod, C, exec, noctalia-shell ipc call launcher calculator"
+      ];
+    };
+  };
 }

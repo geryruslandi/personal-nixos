@@ -159,7 +159,7 @@
         "$mainMod, Q, killactive,"
         "$mainMod, M, exit,"
         "$mainMod, E, exec, $fileManager"
-        "$mainMod, V, togglefloating,"
+        "$mainMod, W, togglefloating,"
         "$mainMod, R, exec, $menu"
         "$mainMod, P, pseudo," # dwindle
         "$mainMod, J, togglesplit," # dwindle
@@ -202,9 +202,6 @@
         "$mainMod, mouse_down, workspace, e+1"
         "$mainMod, mouse_up, workspace, e-1"
 
-        "$mainMod, SPACE, exec, noctalia-shell ipc call launcher toggle"
-        # "$mainMod S, exec, qs -c noctalia-shell ipc call controlCenter toggle"
-        "$mainMod, comma, exec, noctalia-shell ipc call settings toggle"
       ];
 
       bindm = [
