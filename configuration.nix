@@ -13,6 +13,7 @@
       ./modules/hyprland.nix
       ./modules/packages.nix
       ./modules/noctalia.nix
+      ./modules/nvidia.nix
     ];
 
   # Bootloader.

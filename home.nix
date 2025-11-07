@@ -16,7 +16,7 @@
 
   home = {
     packages = with pkgs; [
-      hello
+      kanshi
     ];
 
     # This needs to actually be set to your username
