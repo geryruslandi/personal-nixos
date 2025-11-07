@@ -12,11 +12,12 @@
     ./homes/noctalia.nix
     ./homes/kitty.nix
     ./homes/dolphin.nix
+    ./homes/kanshi.nix
   ];
 
   home = {
     packages = with pkgs; [
-      kanshi
+
     ];
 
     # This needs to actually be set to your username
