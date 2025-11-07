@@ -28,6 +28,12 @@
           left = [
             {
               id = "SystemMonitor";
+              showCpuTemp = true;
+              showCpuUsage = true;
+              showDiskUsage = true;
+              showMemoryAsPercent = false;
+              showMemoryUsage = false;
+              showNetworkStats = false;
             }
             {
               id = "ActiveWindow";
@@ -42,6 +48,15 @@
             }
           ];
           right = [
+            {
+              id = "SystemMonitor";
+              showCpuTemp = false;
+              showCpuUsage = false;
+              showDiskUsage = false;
+              showMemoryAsPercent = false;
+              showMemoryUsage = false;
+              showNetworkStats = true;
+            }
             {
               id = "ScreenRecorder";
             }
@@ -84,7 +99,7 @@
         language = "";
       };
       location = {
-        name = "Tokyo";
+        name = "Batam, Indonesia";
         weatherEnabled = true;
         useFahrenheit = false;
         use12hourFormat = false;
@@ -239,7 +254,7 @@
       };
       colorSchemes = {
         useWallpaperColors = false;
-        predefinedScheme = "Noctalia (default)";
+        predefinedScheme = "Catppuccin";
         darkMode = true;
         schedulingMode = "off";
         manualSunrise = "06:30";

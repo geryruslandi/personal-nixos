@@ -11,14 +11,11 @@
     ./homes/hyprland.nix
     ./homes/noctalia.nix
     ./homes/kitty.nix
-    ./homes/dolphin.nix
     ./homes/kanshi.nix
+    ./homes/kde-associations.nix
   ];
 
   home = {
-    packages = with pkgs; [
-
-    ];
 
     # This needs to actually be set to your username
     username = "geryruslandi";
