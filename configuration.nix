@@ -11,6 +11,11 @@ let
   pkgs = import inputs.nixpkgs {
     inherit system;
     config.allowUnfree = true;
+
+    # hydenix still using old electron version
+    config.permittedInsecurePackages = [
+      "electron-36.9.5"
+    ];
     overlays = [
       inputs.hydenix.overlays.default
     ];
@@ -46,7 +51,8 @@ in
   # If enabling NVIDIA, you will be prompted to configure hardware.nvidia
   hardware.nvidia = {
     open = true; # For newer cards, you may want open drivers
-    prime = { # For hybrid graphics (laptops), configure PRIME:
+    prime = {
+      # For hybrid graphics (laptops), configure PRIME:
       # amdBusId = "PCI:0:02:0"; # Run `lspci | grep VGA` to get correct bus IDs
       intelBusId = "PCI:0:2:0";
       nvidiaBusId = "PCI:1:0:0";
@@ -87,7 +93,7 @@ in
   hydenix = {
     enable = true; # Enable Hydenix modules
     # Basic System Settings (REQUIRED):
-    hostname = "geryruslandi"; # REQUIRED: Set your computer's network name (change to something unique)
+    hostname = "nixos"; # REQUIRED: Set your computer's network name (change to something unique)
     timezone = "Asia/Jakarta"; # REQUIRED: Set timezone (examples: "America/New_York", "Europe/London", "Asia/Tokyo")
     locale = "en_US.UTF-8"; # REQUIRED: Set locale/language (examples: "en_US.UTF-8", "en_GB.UTF-8", "de_DE.UTF-8")
     # For more configuration options, see: ./docs/options.md
