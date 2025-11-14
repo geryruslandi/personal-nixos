@@ -2,13 +2,13 @@
 
 {
   imports = [
-    # ./example.nix - add your modules here
+    ./zen-browser.nix
   ];
 
   # home-manager options go here
   home.packages = [
-    pkgs.vscode
-    # pkgs.userPkgs.vscode - your personal nixpkgs version
+    # pkgs.vscode #hydenix's vscode version
+    # pkgs.userPkgs.vscode #your personal nixpkgs version
   ];
 
   # hydenix home-manager options go here
