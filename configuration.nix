@@ -14,7 +14,7 @@
       ./modules/packages.nix
       ./modules/noctalia.nix
       ./modules/nvidia.nix
-      ./modules/tlp.nix
+      ./modules/power.nix
       ./modules/bluetooth.nix
     ];
 
