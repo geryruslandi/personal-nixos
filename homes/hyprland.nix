@@ -42,7 +42,7 @@
       ## ----------------------------------------------------
       general = {
         gaps_in = 5;
-        gaps_out = 20;
+        gaps_out = 10;
         border_size = 2;
         "col.active_border" = "rgba(33ccffee) rgba(00ff99ee) 45deg";
         "col.inactive_border" = "rgba(595959aa)";
@@ -234,6 +234,7 @@
       windowrule = [
         "suppressevent maximize, class:.*" # Ignore maximize requests
         "nofocus, class:^$, title:^$, xwayland:1, floating:1, fullscreen:0, pinned:0" # Fix dragging
+        "opacity 0.80 $& 0.80 $& 1,class:^(kitty)$"
         # Add your own custom rules here, e.g.:
         # "float, class:^(kitty)$, title:^(kitty)$"
       ];

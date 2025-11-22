@@ -17,9 +17,9 @@
       setupCompleted = false;
       bar = {
         position = "top";
-        backgroundOpacity = 1;
+        backgroundOpacity = 0.5;
         monitors = [ ];
-        density = "default";
+        density = "comfortable";
         showCapsule = true;
         floating = false;
         marginVertical = 0.25;
