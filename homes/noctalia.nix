@@ -120,14 +120,14 @@
       };
       wallpaper = {
         enabled = true;
-        directory = "";
+        directory = "/home/geryruslandi/Pictures/Wallpapers";
         enableMultiMonitorDirectories = false;
         recursiveSearch = false;
         setWallpaperOnAllMonitors = true;
-        defaultWallpaper = "";
+        defaultWallpaper = "/home/geryruslandi/Pictures/Wallpapers/rain_dark_1.png";
         fillMode = "crop";
         fillColor = "#000000";
-        randomEnabled = false;
+        randomEnabled = true;
         randomIntervalSec = 300;
         transitionDuration = 1500;
         transitionType = "random";

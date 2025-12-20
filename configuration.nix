@@ -24,8 +24,10 @@
   xdg.mime.enable = true;
 
   # Bootloader.
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
+  boot.loader.grub.enable = true;
+  boot.loader.grub.device = "nodev";
+  boot.loader.grub.useOSProber = true;
+  boot.loader.grub.efiSupport = true;
 
   networking.hostName = "nixos"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
@@ -74,6 +76,8 @@
   # networking.firewall.enable = false;
 
   nix.settings.experimental-features = ["nix-command" "flakes"];
+
+  services.flatpak.enable = true;
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
