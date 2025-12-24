@@ -7,6 +7,7 @@
 {
   # home.nix
   imports = [
+    ./homes/zen-browser.nix
     ./homes/hyprland.nix
     ./homes/noctalia.nix
     ./homes/kitty.nix

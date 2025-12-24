@@ -6,6 +6,5 @@
     brightnessctl
     playerctl
     fastfetch
-    dbeaver-bin
   ];
 }
