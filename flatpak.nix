@@ -7,8 +7,9 @@
     location = "https://flathub.org/beta-repo/flathub-beta.flatpakrepo";
   }];
 
+  services.flatpak.enable = true;
   services.flatpak.update.auto.enable = false;
-  services.flatpak.uninstallUnmanaged = false;
+  services.flatpak.uninstallUnmanaged = true;
 
   # Add here the flatpaks you want to install
   services.flatpak.packages = [

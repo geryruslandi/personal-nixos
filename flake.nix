@@ -14,12 +14,15 @@
     noctalia.url = "github:noctalia-dev/noctalia-shell";
     noctalia.inputs.nixpkgs.follows = "nixpkgs";
     noctalia.inputs.quickshell.follows = "quickshell"; # Use same quickshell version
+
+    nix-flatpak.url = "github:gmodena/nix-flatpak/?ref=latest";
   };
 
   outputs =
     inputs@{
       nixpkgs,
       home-manager,
+      nix-flatpak,
       ...
     }:
     let
@@ -32,7 +35,9 @@
         specialArgs = { inherit inputs; }; # this is the important part
         modules = [
           ./configuration.nix
+          ./flatpak.nix
           home-manager.nixosModules.home-manager
+          nix-flatpak.nixosModules.nix-flatpak
           {
             home-manager.extraSpecialArgs = { inherit inputs; };
             home-manager.useGlobalPkgs = true;
