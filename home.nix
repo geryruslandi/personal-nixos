@@ -7,16 +7,18 @@
 {
   # home.nix
   imports = [
-    ./homes/zen-browser.nix
-    ./homes/hyprland.nix
-    ./homes/noctalia.nix
-    ./homes/kitty.nix
-    ./homes/kanshi.nix
-    ./homes/kde-associations.nix
+    ./nix/homes/zen-browser.nix
+    ./nix/homes/hyprland.nix
+    ./nix/homes/noctalia.nix
+    ./nix/homes/kitty.nix
+    ./nix/homes/kanshi.nix
+    ./nix/homes/kde-associations.nix
   ];
 
   home = {
-
+    file = {
+      ".config/gery".source = ./homedir/.config/gery;
+    };
     # This needs to actually be set to your username
     username = "geryruslandi";
     homeDirectory = "/home/geryruslandi";
