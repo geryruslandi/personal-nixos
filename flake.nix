@@ -16,6 +16,8 @@
     noctalia.inputs.quickshell.follows = "quickshell"; # Use same quickshell version
 
     nix-flatpak.url = "github:gmodena/nix-flatpak/?ref=latest";
+
+    catppuccin.url = "github:catppuccin/nix";
   };
 
   outputs =
@@ -23,6 +25,7 @@
       nixpkgs,
       home-manager,
       nix-flatpak,
+      catppuccin,
       ...
     }:
     let
@@ -34,6 +37,7 @@
       nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
         specialArgs = { inherit inputs; }; # this is the important part
         modules = [
+          catppuccin.nixosModules.catppuccin
           ./configuration.nix
           ./flatpak.nix
           home-manager.nixosModules.home-manager
@@ -43,7 +47,10 @@
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
 
-            home-manager.users.geryruslandi = import ./home.nix;
+            home-manager.users.geryruslandi.imports = [
+              catppuccin.homeModules.catppuccin
+              ./home.nix
+            ];
           }
         ];
       };

@@ -5,18 +5,19 @@
 { config, pkgs, ... }:
 
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      /etc/nixos/hardware-configuration.nix
-      ./nix/modules/audio.nix
-      ./nix/modules/users.nix
-      ./nix/modules/hyprland.nix
-      ./nix/modules/packages.nix
-      ./nix/modules/noctalia.nix
-      ./nix/modules/nvidia.nix
-      ./nix/modules/power.nix
-      ./nix/modules/bluetooth.nix
-    ];
+  imports = [
+    # Include the results of the hardware scan.
+    /etc/nixos/hardware-configuration.nix
+    ./nix/modules/audio.nix
+    ./nix/modules/users.nix
+    ./nix/modules/hyprland.nix
+    ./nix/modules/packages.nix
+    ./nix/modules/noctalia.nix
+    ./nix/modules/nvidia.nix
+    ./nix/modules/power.nix
+    ./nix/modules/bluetooth.nix
+    ./nix/modules/theme.nix
+  ];
 
   xdg.menus.enable = true;
   xdg.mime.enable = true;
@@ -24,7 +25,6 @@
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-
 
   networking.hostName = "nixos"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
@@ -60,7 +60,6 @@
   # Enable touchpad support (enabled default in most desktopManager).
   services.libinput.enable = false;
 
-
   # List services that you want to enable:
 
   # Enable the OpenSSH daemon.
@@ -72,7 +71,10 @@
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
 
-  nix.settings.experimental-features = ["nix-command" "flakes"];
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions

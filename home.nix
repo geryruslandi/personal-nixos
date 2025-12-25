@@ -12,6 +12,7 @@
     ./nix/homes/kitty.nix
     ./nix/homes/kanshi.nix
     ./nix/homes/kde-associations.nix
+    ./nix/homes/theme.nix
   ];
 
   home = {
