@@ -35,6 +35,7 @@
             {
               diskPath = "/";
               id = "SystemMonitor";
+              compactMode = false;
               showCpuTemp = true;
               showCpuUsage = true;
               showDiskUsage = true;
@@ -65,6 +66,7 @@
           right = [
             {
               id = "SystemMonitor";
+              compactMode = false;
               showCpuTemp = false;
               showCpuUsage = false;
               showDiskUsage = false;
@@ -187,7 +189,7 @@
         fillMode = "crop";
         fillColor = "#000000";
         randomEnabled = true;
-        randomIntervalSec = 300;
+        randomIntervalSec = 600;
         transitionDuration = 1500;
         transitionType = "random";
         transitionEdgeSmoothness = 0.05;

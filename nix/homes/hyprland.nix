@@ -161,7 +161,6 @@
         "$mainMod, E, exec, $fileManager"
         "$mainMod, W, togglefloating,"
         "$mainMod, R, exec, $menu"
-        "$mainMod, P, pseudo," # dwindle
         "$mainMod, J, togglesplit," # dwindle
 
         # Move focus
@@ -202,6 +201,9 @@
         "$mainMod, mouse_down, workspace, e+1"
         "$mainMod, mouse_up, workspace, e-1"
 
+        # screenshot
+        "$mainMod, P, exec, grimblast copy area"
+        "$mainMod SHIFT, P, exec, grimblast --freeze copy area"
       ];
 
       bindm = [
