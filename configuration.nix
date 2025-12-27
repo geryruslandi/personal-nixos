@@ -19,6 +19,12 @@
     ./nix/modules/theme.nix
   ];
 
+  # remove power saving for sound card
+  # to prevent buzzing noise when idle
+  boot.extraModprobeConfig = ''
+    options snd_hda_intel power_save=0 power_save_controller=N
+  '';
+
   xdg.menus.enable = true;
 
   # set zsh as default shell for user geryruslandi
