@@ -20,7 +20,26 @@
   ];
 
   xdg.menus.enable = true;
+
+  # set zsh as default shell for user geryruslandi
+  programs.zsh.enable = true;
+  users.users.geryruslandi = {
+    # <--- Change to your actual username
+    isNormalUser = true;
+    shell = pkgs.zsh;
+  };
+
   xdg.mime.enable = true;
+  xdg.mime.defaultApplications = {
+    "text/html" = "app.zen_browser.zen.desktop";
+    "x-scheme-handler/http" = "app.zen_browser.zen.desktop";
+    "x-scheme-handler/https" = "app.zen_browser.zen.desktop";
+    "x-scheme-handler/about" = "app.zen_browser.zen.desktop";
+    "x-scheme-handler/unknown" = "app.zen_browser.zen.desktop";
+  };
+
+  # Ensures system-level environment variables point to the flatpak
+  environment.sessionVariables.DEFAULT_BROWSER = "flatpak run app.zen_browser.zen";
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;

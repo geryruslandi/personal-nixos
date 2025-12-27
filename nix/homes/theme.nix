@@ -22,5 +22,11 @@
       enable = true;
       apply = true;
     };
+    zsh-syntax-highlighting = {
+      enable = true;
+    };
+    vesktop = {
+      enable = true;
+    };
   };
 }

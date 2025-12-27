@@ -18,7 +18,7 @@
     #"im.riot.Riot"
     "net.nokyan.Resources"
     "app.zen_browser.zen"
-    "com.discordapp.Discord"
+    "dev.vencord.Vesktop"
     "com.valvesoftware.Steam"
     "org.videolan.VLC"
     "net.davidotek.pupgui2"

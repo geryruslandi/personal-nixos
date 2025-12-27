@@ -7,7 +7,7 @@
   catppuccin = {
     enable = true;
     sddm = {
-      enable = false;
+      enable = true;
     };
   };
 }

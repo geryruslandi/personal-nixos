@@ -9,11 +9,21 @@
   imports = [
     ./nix/homes/hyprland.nix
     ./nix/homes/noctalia.nix
-    ./nix/homes/kitty.nix
     ./nix/homes/kanshi.nix
     ./nix/homes/kde-associations.nix
     ./nix/homes/theme.nix
+    ./nix/homes/zsh.nix
   ];
+
+  # General setup
+  programs.kitty = {
+    enable = true;
+    settings = {
+      background_opacity = "1";
+      font_size = 18.0;
+      window_padding_width = 10;
+    };
+  };
 
   home = {
     file = {

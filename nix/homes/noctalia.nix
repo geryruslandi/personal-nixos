@@ -10,6 +10,8 @@
     inputs.noctalia.homeModules.default
   ];
 
+
+
   # configure options
   programs.noctalia-shell = {
     enable = true;
@@ -412,7 +414,7 @@
         qt = true;
         kcolorscheme = true;
         alacritty = false;
-        kitty = true;
+        kitty = false;
         ghostty = false;
         foot = false;
         wezterm = false;
@@ -458,6 +460,10 @@
       };
     };
   };
+
+  home.packages = with pkgs; [
+    cliphist
+  ];
 
   # Keybinds
   wayland.windowManager.hyprland = {

@@ -7,6 +7,7 @@
   # install package
   environment.systemPackages = with pkgs; [
     inputs.noctalia.packages.${system}.default
+    cliphist
     # ... maybe other stuff
   ];
 
