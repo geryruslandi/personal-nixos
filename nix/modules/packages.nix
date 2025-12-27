@@ -5,6 +5,8 @@
     git
     fastfetch
     dbeaver-bin
+    fnm
+
     # For dolphin open app menu fixes
     shared-mime-info
     kdePackages.kservice
