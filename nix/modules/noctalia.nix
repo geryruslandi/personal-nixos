@@ -6,8 +6,9 @@
 
   # install package
   environment.systemPackages = with pkgs; [
-    inputs.noctalia.packages.${system}.default
+    inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default
     cliphist
+    wl-clipboard
     # ... maybe other stuff
   ];
 
