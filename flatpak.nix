@@ -41,6 +41,7 @@
     "de.z_ray.OptimusUI"
     "io.github.fabrialberio.pinapp"
     "org.kde.koko"
+    "chat.rocket.RocketChat"
   ];
 
 }

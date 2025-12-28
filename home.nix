@@ -13,6 +13,7 @@
     ./nix/homes/kde-associations.nix
     ./nix/homes/theme.nix
     ./nix/homes/zsh.nix
+    ./nix/homes/react-native-setup.nix
   ];
 
   # General setup

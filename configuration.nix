@@ -17,6 +17,7 @@
     ./nix/modules/power.nix
     ./nix/modules/bluetooth.nix
     ./nix/modules/theme.nix
+    ./nix/modules/waydroid.nix
   ];
 
   # remove power saving for sound card
