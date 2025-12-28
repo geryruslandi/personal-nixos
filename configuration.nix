@@ -36,6 +36,7 @@
     shell = pkgs.zsh;
   };
 
+  # Resolve default browser
   xdg.mime.enable = true;
   xdg.mime.defaultApplications = {
     "text/html" = "app.zen_browser.zen.desktop";
@@ -67,6 +68,22 @@
       "kde"
     ];
   };
+
+  # Resolve missing libraries for some applications using nix-ld
+  # as of now it resolve nodejs dependencies
+  programs.nix-ld.enable = true;
+  programs.nix-ld.libraries = with pkgs; [
+    # Add common libraries that Node.js and other binaries need
+    stdenv.cc.cc
+    zlib
+    fuse3
+    icu
+    nss
+    openssl
+    curl
+    expat
+    # Add any other libraries you find missing
+  ];
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;

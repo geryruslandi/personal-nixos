@@ -21,7 +21,8 @@
       ];
     };
     initContent = ''
-      source ${pkgs.spaceship-prompt}/share/zsh/themes/spaceship.zsh-theme
+      source ${pkgs.spaceship-prompt}/share/zsh/themes/spaceship.zsh-theme;
+      eval "$(fnm env --use-on-cd)";
     '';
   };
 }
