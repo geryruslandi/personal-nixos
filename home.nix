@@ -14,6 +14,7 @@
     ./nix/homes/theme.nix
     ./nix/homes/zsh.nix
     ./nix/homes/react-native-setup.nix
+    ./nix/homes/php.nix
   ];
 
   # General setup
