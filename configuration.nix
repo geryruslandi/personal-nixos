@@ -20,6 +20,9 @@
     ./nix/modules/waydroid.nix
   ];
 
+# compatibility for /bin/* binaries
+  services.envfs.enable = true;
+
   # remove power saving for sound card
   # to prevent buzzing noise when idle
   boot.extraModprobeConfig = ''
