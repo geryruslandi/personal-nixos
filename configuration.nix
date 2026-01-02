@@ -20,7 +20,7 @@
     ./nix/modules/waydroid.nix
   ];
 
-# compatibility for /bin/* binaries
+  # compatibility for /bin/* binaries
   services.envfs.enable = true;
 
   # remove power saving for sound card
@@ -64,12 +64,19 @@
     extraPortals = [
       pkgs.kdePackages.xdg-desktop-portal-kde
       pkgs.xdg-desktop-portal-hyprland
+      pkgs.xdg-desktop-portal-gtk
     ];
     # Recommended: specify which portal to use for certain tasks
-    config.common.default = [
-      "hyprland"
-      "kde"
-    ];
+    config = {
+      common = {
+        default = [
+          "hyprland"
+          "kde"
+        ];
+        # Explicitly tell the system to use the GTK portal for settings
+        "org.freedesktop.impl.portal.Settings" = [ "gtk" ];
+      };
+    };
   };
 
   # Resolve missing libraries for some applications using nix-ld
@@ -87,6 +94,8 @@
     expat
     # Add any other libraries you find missing
   ];
+
+  services.udisks2.enable = true;
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;

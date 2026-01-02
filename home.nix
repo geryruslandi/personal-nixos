@@ -21,11 +21,11 @@
   # General setup
   programs.kitty = {
     enable = true;
-    settings = {
-      background_opacity = "1";
-      font_size = 18.0;
-      window_padding_width = 10;
-    };
+    # settings = {
+    #   background_opacity = "1";
+    #   font_size = 18.0;
+    #   window_padding_width = 10;
+    # };
   };
 
   home = {

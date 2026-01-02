@@ -416,7 +416,7 @@
         qt = true;
         kcolorscheme = true;
         alacritty = false;
-        kitty = false;
+        kitty = true;
         ghostty = false;
         foot = false;
         wezterm = false;

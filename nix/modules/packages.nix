@@ -5,6 +5,7 @@
     git
     fastfetch
     dbeaver-bin
+    mariadb
     fnm
     htop
 
