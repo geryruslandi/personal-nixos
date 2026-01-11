@@ -5,19 +5,25 @@
   ...
 }:
 let
-# This function now creates a list of "Include" objects
+  # This function now creates a list of "Include" objects
   mkGitInclude = project: {
     condition = "gitdir:${project.path}";
     contents = {
       user = {
         name = project.name;
         email = project.email;
-      } // (if project ? gpg then {
-        signingkey = project.gpg.key;
-      } else {});
+      }
+      // (
+        if project ? gpg then
+          {
+            signingkey = project.gpg.key;
+          }
+        else
+          { }
+      );
 
       # If GPG is present, also add the commit section
-      commit = if project ? gpg then { gpgsign = true; } else {};
+      commit = if project ? gpg then { gpgsign = true; } else { };
     };
   };
 in
@@ -35,12 +41,17 @@ in
 
   programs.git = {
     enable = true;
-    settings = {
-      user = {
-        name = secrets.git.defaultUser.name;
-        email = secrets.git.defaultUser.email;
-      };
-    };
-    includes = map mkGitInclude secrets.git.projects;
+
+    settings =
+      if secrets ? git then
+        {
+          user = {
+            name = secrets.git.defaultUser.name;
+            email = secrets.git.defaultUser.email;
+          };
+        }
+      else
+        { };
+    includes = if secrets ? git ? projects  then map mkGitInclude secrets.git.projects else [];
   };
 }

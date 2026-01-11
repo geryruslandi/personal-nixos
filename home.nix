@@ -6,8 +6,8 @@
 }:
 let
   # Import it once here
-  secrets = import ./secrets.nix;
-  # secrets = if builtins.pathExists ./secrets.nix then import ./secrets.nix else { }; # Fallback
+  # secrets = import ./secrets.nix;
+  secrets = if builtins.pathExists ./secrets.nix then import ./secrets.nix else { ssh = []; }; # Fallback
 in
 {
   # home.nix
