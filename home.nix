@@ -17,6 +17,7 @@
     ./nix/homes/php.nix
     ./nix/homes/podman.nix
     ./nix/homes/mysql.nix
+    ./nix/homes/git.nix
   ];
 
   # General setup
@@ -37,7 +38,7 @@
     username = "geryruslandi";
     homeDirectory = "/home/geryruslandi";
 
-    packages = with pkgs;[
+    packages = with pkgs; [
       # screenshot tools
       grimblast
       libnotify
