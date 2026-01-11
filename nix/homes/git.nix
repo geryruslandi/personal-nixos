@@ -1,26 +1,10 @@
 {
   pkgs,
   lib,
+  secrets,
   ...
 }:
 let
-  # Reach up from /nix/homes/ to the root /secrets.nix
-  secretPath = ../../secrets.nix;
-
-  secrets =
-    if builtins.pathExists secretPath then
-      import secretPath
-    else
-      {
-        git = {
-          defaultUser = {
-            name = "";
-            email = "";
-          };
-          projects = [ ];
-        };
-      };
-
   # Function to generate Git [includeIf] blocks
   mkGitInclude = project: {
     name = "includeIf.\"gitdir:${project.path}\"";

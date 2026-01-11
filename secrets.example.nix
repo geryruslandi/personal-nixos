@@ -24,11 +24,13 @@
   ssh = [
     {
       host = "github.com";
+      hostName = "github.com";
       user = "git";
       identityFile = "~/.ssh/id_github_personal";
     }
     {
       host = "gitlab.work.com";
+      hostName = "gitlab.work.com";
       user = "git";
       identityFile = "~/.ssh/id_work";
       extraOptions = {

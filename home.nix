@@ -4,6 +4,11 @@
   inputs,
   ...
 }:
+let
+  # Import it once here
+  secrets = import ./secrets.nix;
+  # secrets = if builtins.pathExists ./secrets.nix then import ./secrets.nix else { }; # Fallback
+in
 {
   # home.nix
   imports = [
@@ -18,7 +23,12 @@
     ./nix/homes/podman.nix
     ./nix/homes/mysql.nix
     ./nix/homes/git.nix
+    ./nix/homes/ssh.nix
   ];
+
+  # This is the magic part:
+  # It passes the 'secrets' variable as an argument to ALL imported modules.
+  _module.args = { inherit secrets; };
 
   # General setup
   programs.kitty = {
