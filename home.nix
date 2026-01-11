@@ -16,6 +16,7 @@
     ./nix/homes/react-native-setup.nix
     ./nix/homes/php.nix
     ./nix/homes/podman.nix
+    ./nix/homes/mysql.nix
   ];
 
   # General setup

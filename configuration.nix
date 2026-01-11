@@ -18,6 +18,8 @@
     ./nix/modules/bluetooth.nix
     ./nix/modules/theme.nix
     ./nix/modules/waydroid.nix
+    ./nix/modules/xdg.nix
+    ./nix/modules/mysql.nix
   ];
 
   # compatibility for /bin/* binaries
@@ -29,54 +31,12 @@
     options snd_hda_intel power_save=0 power_save_controller=N
   '';
 
-  xdg.menus.enable = true;
-
   # set zsh as default shell for user geryruslandi
   programs.zsh.enable = true;
   users.users.geryruslandi = {
     # <--- Change to your actual username
     isNormalUser = true;
     shell = pkgs.zsh;
-  };
-
-  # Resolve default browser
-  xdg.mime.enable = true;
-  xdg.mime.defaultApplications = {
-    "text/html" = "app.zen_browser.zen.desktop";
-    "x-scheme-handler/http" = "app.zen_browser.zen.desktop";
-    "x-scheme-handler/https" = "app.zen_browser.zen.desktop";
-    "x-scheme-handler/about" = "app.zen_browser.zen.desktop";
-    "x-scheme-handler/unknown" = "app.zen_browser.zen.desktop";
-  };
-
-  environment.sessionVariables = {
-    DEFAULT_BROWSER = "flatpak run app.zen_browser.zen";
-    XDG_MENU_PREFIX = "plasma-";
-    QT_QPA_PLATFORMTHEME = "kde"; # Or "qt6ct" if you use that for styling
-  };
-
-  environment.etc."xdg/menus/applications.menu".source =
-    "${pkgs.kdePackages.plasma-workspace}/etc/xdg/menus/plasma-applications.menu";
-
-  # Ensure portals are enabled for Hyprland
-  xdg.portal = {
-    enable = true;
-    extraPortals = [
-      pkgs.kdePackages.xdg-desktop-portal-kde
-      pkgs.xdg-desktop-portal-hyprland
-      pkgs.xdg-desktop-portal-gtk
-    ];
-    # Recommended: specify which portal to use for certain tasks
-    config = {
-      common = {
-        default = [
-          "hyprland"
-          "kde"
-        ];
-        # Explicitly tell the system to use the GTK portal for settings
-        "org.freedesktop.impl.portal.Settings" = [ "gtk" ];
-      };
-    };
   };
 
   # Resolve missing libraries for some applications using nix-ld
