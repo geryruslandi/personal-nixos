@@ -16,14 +16,14 @@ A fully declarative, Flake-based NixOS configuration featuring a high-performanc
 
 ```text
 .
-├── configuration.nix       # Core system-level configuration
-├── flake.lock              # Lockfile for nix inputs
-├── flake.nix               # System entry point & input definitions
-├── flatpak.nix             # Declarative Flatpak applications
-├── homedir/                # Static assets/files for the home directory
-├── home.nix                # Main Home Manager entry point
+├── configuration.nix        # Core system-level configuration
+├── flake.lock               # Lockfile for nix inputs
+├── flake.nix                # System entry point & input definitions
+├── flatpak.nix              # Declarative Flatpak applications
+├── homedir/                 # Static assets/files for the home directory
+├── home.nix                 # Main Home Manager entry point
 ├── nix
-│   ├── homes/              # Home Manager modules (User-space)
+│   ├── homes/               # Home Manager modules (User-space)
 │   │   ├── hyprland.nix
 │   │   ├── kanshi.nix
 │   │   ├── kde-associations.nix
@@ -34,7 +34,7 @@ A fully declarative, Flake-based NixOS configuration featuring a high-performanc
 │   │   ├── react-native-setup.nix
 │   │   ├── theme.nix
 │   │   └── zsh.nix
-│   └── modules/            # System-level modules (Root-space)
+│   └── modules/             # System-level modules (Root-space)
 │       ├── audio.nix
 │       ├── bluetooth.nix
 │       ├── hyprland.nix
@@ -49,6 +49,25 @@ A fully declarative, Flake-based NixOS configuration featuring a high-performanc
 │       └── xdg.nix
 └── readme.md
 ```
+
+---
+
+## 🏁 Getting Started
+
+Follow these steps to initialize the configuration on a new system:
+
+1. **Handle Secrets:**
+   Create your local secrets file by referencing the example provided:
+   ```bash
+   cp secrets.example.nix secrets.nix
+   ```
+   *Note: Edit `secrets.nix` with your specific credentials/keys.*
+
+2. **Register Secrets with Git:**
+   Since Flakes only see files tracked by Git, run:
+   ```bash
+   git add --intent-to-add secrets.nix -f
+   ```
 
 ---
 
@@ -91,3 +110,5 @@ System-wide consistency is maintained through the `theme.nix` modules found in b
 - [ ] **Flatpak Theming:** Integrate Home Manager GTK and QT themes into Flatpak environment.
 - [ ] **Kanshi Update:** Refactor deprecated declarations in `nix/homes/kanshi.nix` to the new syntax.
 - [ ] **Idle Management:** Debug and fix the non-functional idle/sleep features.
+- [ ] **SDDM Multi-screen:** Make sddm work on multi screen.
+- [ ] **Bootloader Migration:** Change bootloader to grub.

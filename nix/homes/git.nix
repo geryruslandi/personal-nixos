@@ -5,23 +5,19 @@
   ...
 }:
 let
-  # Function to generate Git [includeIf] blocks
+# This function now creates a list of "Include" objects
   mkGitInclude = project: {
-    name = "includeIf.\"gitdir:${project.path}\"";
-    value = {
-      contents = {
-        user.name = project.name;
-        user.email = project.email;
-      }
-      // (
-        if project ? gpg then
-          {
-            user.signingkey = project.gpg.key;
-            commit.gpgsign = true;
-          }
-        else
-          { }
-      );
+    condition = "gitdir:${project.path}";
+    contents = {
+      user = {
+        name = project.name;
+        email = project.email;
+      } // (if project ? gpg then {
+        signingkey = project.gpg.key;
+      } else {});
+
+      # If GPG is present, also add the commit section
+      commit = if project ? gpg then { gpgsign = true; } else {};
     };
   };
 in
@@ -32,15 +28,19 @@ in
 
   services.gpg-agent = {
     enable = true;
-    pinentryPackage = pkgs.pinentry-qt;
     enableSshSupport = true;
     defaultCacheTtl = 3600;
+    pinentry.package = pkgs.pinentry-qt;
   };
 
   programs.git = {
     enable = true;
-    userName = secrets.git.defaultUser.name;
-    userEmail = secrets.git.defaultUser.email;
-    extraConfig = lib.listToAttrs (map mkGitInclude secrets.git.projects);
+    settings = {
+      user = {
+        name = secrets.git.defaultUser.name;
+        email = secrets.git.defaultUser.email;
+      };
+    };
+    includes = map mkGitInclude secrets.git.projects;
   };
 }
