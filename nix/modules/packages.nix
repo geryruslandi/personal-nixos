@@ -8,6 +8,7 @@
     mariadb
     fnm
     htop
+    tree
 
     # for media keyboard shortcut
     playerctl
