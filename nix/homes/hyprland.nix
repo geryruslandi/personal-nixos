@@ -234,9 +234,9 @@
       ## WINDOW RULES
       ## ----------------------------------------------------
       windowrule = [
-        "suppressevent maximize, class:.*" # Ignore maximize requests
-        "nofocus, class:^$, title:^$, xwayland:1, floating:1, fullscreen:0, pinned:0" # Fix dragging
-        "opacity 0.80 $& 0.80 $& 1,class:^(kitty)$"
+        # "suppressevent maximize, class:.*" # Ignore maximize requests
+        # "nofocus, class:^$, title:^$, xwayland:1, floating:1, fullscreen:0, pinned:0" # Fix dragging
+        # "opacity 0.80 $& 0.80 $& 1,class:^(kitty)$"
         # Add your own custom rules here, e.g.:
         # "float, class:^(kitty)$, title:^(kitty)$"
       ];

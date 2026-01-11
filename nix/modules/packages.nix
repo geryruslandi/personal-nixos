@@ -9,6 +9,9 @@
     fnm
     htop
 
+    # for media keyboard shortcut
+    playerctl
+
     # For dolphin open app menu fixes
     shared-mime-info
     kdePackages.kservice
