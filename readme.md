@@ -19,6 +19,7 @@ A fully declarative, Flake-based NixOS configuration featuring a high-performanc
 ├── configuration.nix        # Core system-level configuration
 ├── flake.lock               # Lockfile for nix inputs
 ├── flake.nix                # System entry point & input definitions
+├── secrets.nix              # Local configuration, refer to secrets.example.nix
 ├── flatpak.nix              # Declarative Flatpak applications
 ├── homedir/                 # Static assets/files for the home directory
 ├── home.nix                 # Main Home Manager entry point
@@ -112,3 +113,5 @@ System-wide consistency is maintained through the `theme.nix` modules found in b
 - [ ] **Idle Management:** Debug and fix the non-functional idle/sleep features.
 - [ ] **SDDM Multi-screen:** Make sddm work on multi screen.
 - [ ] **Bootloader Migration:** Change bootloader to grub.
+- [ ] **Flatpak app open url:** Fix flatpak app to open url with default browser.
+- [ ] **Screen Brightness keybind:** Add hyprland keyboard binding to increase/decrease screen brightness.
