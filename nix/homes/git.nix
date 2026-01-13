@@ -43,7 +43,7 @@ in
     enable = true;
 
     settings =
-      if secrets ? git then
+      if secrets.git ? defaultUser then
         {
           user = {
             name = secrets.git.defaultUser.name;
@@ -52,6 +52,6 @@ in
         }
       else
         { };
-    includes = if secrets ? git ? projects  then map mkGitInclude secrets.git.projects else [];
+    includes = if secrets.git ? projects then map mkGitInclude secrets.git.projects else [ ];
   };
 }
