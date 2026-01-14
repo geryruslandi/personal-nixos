@@ -11,6 +11,8 @@
 
     # for media keyboard shortcut
     playerctl
+    # for brightness keyboard shortcut
+    brightnessctl
 
     # For dolphin open app menu fixes
     shared-mime-info

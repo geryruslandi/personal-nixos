@@ -7,7 +7,14 @@
 let
   # Import it once here
   # secrets = import ./secrets.nix;
-  secrets = if builtins.pathExists ./secrets.nix then import ./secrets.nix else { ssh = []; git = {}; }; # Fallback
+  secrets =
+    if builtins.pathExists ./secrets.nix then
+      import ./secrets.nix
+    else
+      {
+        ssh = [ ];
+        git = { };
+      }; # Fallback
 in
 {
   # home.nix
@@ -40,6 +47,8 @@ in
     # };
   };
 
+  fonts.fontconfig.enable = true;
+
   home = {
     file = {
       ".config/gery".source = ./homedir/.config/gery;
@@ -52,6 +61,10 @@ in
       # screenshot tools
       grimblast
       libnotify
+
+      # chinese character support
+      wqy_zenhei
+      wqy_microhei
     ];
 
     # You do not need to change this if you're reading this in the future.

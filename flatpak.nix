@@ -49,4 +49,20 @@
     "runtime/org.kde.KStyle.Kvantum/x86_64/6.6"
   ];
 
+  services.flatpak.overrides = {
+    # global = {
+    #   # Force Wayland by default
+    #   Context.sockets = [
+    #     "wayland"
+    #     "!x11"
+    #     "!fallback-x11"
+    #   ];
+
+    #   Environment = {
+    #     # Force correct theme for some GTK apps
+    #     GTK_THEME = "Adwaita:dark";
+    #   };
+    # };
+  };
+
 }
