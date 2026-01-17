@@ -50,19 +50,24 @@
   ];
 
   services.flatpak.overrides = {
-    # global = {
-    #   # Force Wayland by default
-    #   Context.sockets = [
-    #     "wayland"
-    #     "!x11"
-    #     "!fallback-x11"
-    #   ];
-
-    #   Environment = {
-    #     # Force correct theme for some GTK apps
-    #     GTK_THEME = "Adwaita:dark";
-    #   };
-    # };
+    global = {
+      Context = {
+        # Allow apps to read your Nix themes/icons
+        filesystems = [
+          "xdg-config/gtk-3.0:ro"
+          "xdg-config/gtk-4.0:ro"
+          "~/.icons:ro"
+          "~/.themes:ro"
+          "/nix/store:ro"
+        ];
+      };
+      Environment = {
+        # Force Qt apps to use the portal for settings
+        GTK_USE_PORTAL = "1";
+        # Tell Qt to mimic GTK (most reliable for Flatpak)
+        QT_QPA_PLATFORMTHEME = "gtk3";
+      };
+    };
   };
 
 }

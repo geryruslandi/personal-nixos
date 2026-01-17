@@ -18,7 +18,6 @@
     ./nix/modules/bluetooth.nix
     ./nix/modules/theme.nix
     ./nix/modules/waydroid.nix
-    ./nix/modules/xdg.nix
     ./nix/modules/mysql.nix
   ];
 
@@ -30,6 +29,12 @@
   boot.extraModprobeConfig = ''
     options snd_hda_intel power_save=0 power_save_controller=N
   '';
+
+  # GTK portal requirement
+  environment.pathsToLink = [
+    "/share/xdg-desktop-portal"
+    "/share/applications"
+  ];
 
   # set zsh as default shell for user geryruslandi
   programs.zsh.enable = true;

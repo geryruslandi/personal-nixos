@@ -52,6 +52,7 @@ in
   home = {
     file = {
       ".config/gery".source = ./homedir/.config/gery;
+      ".config/dolphinrc".source = ./homedir/.config/dolphinrc;
     };
     # This needs to actually be set to your username
     username = "geryruslandi";

@@ -108,7 +108,7 @@ System-wide consistency is maintained through the `theme.nix` modules found in b
 
 ## 📝 To-Do List
 
-- [ ] **Flatpak Theming:** Integrate Home Manager GTK and QT themes into Flatpak environment.
+- [x] **Flatpak Theming:** Integrate Home Manager GTK and QT themes into Flatpak environment.
 - [ ] **Kanshi Update:** Refactor deprecated declarations in `nix/homes/kanshi.nix` to the new syntax.
 - [ ] **Idle Management:** Debug and fix the non-functional idle/sleep features.
 - [ ] **SDDM Multi-screen:** Make sddm work on multi screen.

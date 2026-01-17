@@ -12,6 +12,23 @@
     XDG_CACHE_HOME = "$HOME/.cache";
   };
 
+  xdg.portal = {
+    enable = true;
+
+    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+    config = {
+      common = {
+        # Use the GTK portal for everything by default
+        default = [ "gtk" ];
+      };
+    };
+  };
+
+  # Ensure Qt apps are forced to look at the portal
+  home.sessionVariables = {
+    GTK_USE_PORTAL = "1";
+  };
+
   qt = {
     enable = true;
     platformTheme = "qtct"; # makes Qt respect qt5ct
