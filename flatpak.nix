@@ -52,6 +52,11 @@
   services.flatpak.overrides = {
     global = {
       Context = {
+        sockets = [
+          "wayland"
+          "!x11"
+          "!fallback-x11"
+        ];
         # Allow apps to read your Nix themes/icons
         filesystems = [
           "xdg-config/gtk-3.0:ro"
@@ -66,6 +71,42 @@
         GTK_USE_PORTAL = "1";
         # Tell Qt to mimic GTK (most reliable for Flatpak)
         QT_QPA_PLATFORMTHEME = "gtk3";
+      };
+    };
+
+    "dev.vencord.Vesktop" = {
+      Context = {
+        sockets = [
+          "wayland"
+          "!x11"
+          "!fallback-x11"
+          "pulseaudio"
+        ];
+      };
+      Environment = {
+        # Force Electron to use the Wayland backend (Ozone)
+        ELECTRON_OZONE_PLATFORM_HINT = "auto";
+        NIXOS_OZONE_WL = "1";
+      };
+    };
+
+    "chat.rocket.RocketChat" = {
+      Context = {
+        sockets = [
+          "wayland"
+          "!x11"
+          "!fallback-x11"
+          "pulseaudio"
+          "system-bus"
+        ];
+      };
+    };
+
+    "app.zen_browser.zen" = {
+      Context = {
+        filesystems = [
+          "home"
+        ];
       };
     };
   };

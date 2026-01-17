@@ -113,5 +113,6 @@ System-wide consistency is maintained through the `theme.nix` modules found in b
 - [ ] **Idle Management:** Debug and fix the non-functional idle/sleep features.
 - [ ] **SDDM Multi-screen:** Make sddm work on multi screen.
 - [ ] **Bootloader Migration:** Change bootloader to grub.
-- [ ] **Flatpak app open url:** Fix flatpak app to open url with default browser.
+- [x] **Flatpak ZenBrowser:** Fix downloaded files appears and stored on `~/Downloads`
+- [x] **Flatpak app open url:** Fix flatpak app to open url with default browser.
 - [x] **Screen Brightness keybind:** Add hyprland keyboard binding to increase/decrease screen brightness.
