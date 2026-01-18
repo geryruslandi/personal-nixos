@@ -15,7 +15,6 @@
       nixfmt-rfc-style
       kdePackages.qtsvg
       firefox
-      bitwarden-desktop
     ];
   };
 }

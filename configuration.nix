@@ -19,6 +19,8 @@
     ./nix/modules/theme.nix
     ./nix/modules/waydroid.nix
     ./nix/modules/mysql.nix
+    ./nix/modules/dolphin.nix
+    ./nix/modules/bitwarden.nix
   ];
 
   # compatibility for /bin/* binaries
