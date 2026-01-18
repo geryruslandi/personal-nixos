@@ -88,6 +88,11 @@ To compile and apply the configuration, run the following command from the root 
 sudo nixos-rebuild switch --flake . --impure
 ```
 
+### 3. Populate dolphin XDG Application menus (dolphin 'open with' application entries)
+To populate app entries on dolphin, you need to run commands:
+
+- `rm -rf ~/.cache/ksycoca6*`
+- `kbuildsycoca6 --noincremental`
 ---
 
 ## 💻 Development Environment

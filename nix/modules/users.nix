@@ -14,7 +14,6 @@
       vscode
       nixfmt-rfc-style
       kdePackages.qtsvg
-      kdePackages.dolphin
       firefox
       bitwarden-desktop
     ];
