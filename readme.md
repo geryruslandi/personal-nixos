@@ -116,3 +116,5 @@ System-wide consistency is maintained through the `theme.nix` modules found in b
 - [x] **Flatpak ZenBrowser:** Fix downloaded files appears and stored on `~/Downloads`
 - [x] **Flatpak app open url:** Fix flatpak app to open url with default browser.
 - [x] **Screen Brightness keybind:** Add hyprland keyboard binding to increase/decrease screen brightness.
+- [ ] **Flatpak Apps Timezone:** Change flatpak apps timezone to local timezone instead of UTC timezone
+- [ ] **Integrate Optimus:** For seamless graphic card switching, integrate optimus app and prime-select
