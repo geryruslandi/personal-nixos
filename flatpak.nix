@@ -64,6 +64,7 @@
           "~/.icons:ro"
           "~/.themes:ro"
           "/nix/store:ro"
+          "/etc/localtime:ro"
         ];
       };
       Environment = {
