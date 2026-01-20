@@ -64,14 +64,17 @@
           "~/.icons:ro"
           "~/.themes:ro"
           "/nix/store:ro"
-          "/etc/localtime:ro"
         ];
       };
       Environment = {
+        TZ = "Asia/Jakarta";
         # Force Qt apps to use the portal for settings
         GTK_USE_PORTAL = "1";
         # Tell Qt to mimic GTK (most reliable for Flatpak)
         QT_QPA_PLATFORMTHEME = "gtk3";
+        # Force Electron to use the Wayland backend (Ozone)
+        ELECTRON_OZONE_PLATFORM_HINT = "auto";
+        NIXOS_OZONE_WL = "1";
       };
     };
 
@@ -83,11 +86,6 @@
           "!fallback-x11"
           "pulseaudio"
         ];
-      };
-      Environment = {
-        # Force Electron to use the Wayland backend (Ozone)
-        ELECTRON_OZONE_PLATFORM_HINT = "auto";
-        NIXOS_OZONE_WL = "1";
       };
     };
 

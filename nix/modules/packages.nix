@@ -3,11 +3,14 @@
 {
   environment.systemPackages = with pkgs; [
     fastfetch
-    dbeaver-bin
     mariadb
     fnm
     htop
     tree
+
+    # Dbeaver with postgres drriver
+    dbeaver-bin
+    postgresql_jdbc
 
     # for media keyboard shortcut
     playerctl
@@ -18,5 +21,8 @@
     shared-mime-info
     kdePackages.kservice
     kdePackages.kio-extras
+
+    file
+    mpv
   ];
 }
