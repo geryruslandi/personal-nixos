@@ -22,7 +22,6 @@
     "net.nokyan.Resources"
     "app.zen_browser.zen"
     "dev.vencord.Vesktop"
-    "com.valvesoftware.Steam"
     "org.videolan.VLC"
     "net.davidotek.pupgui2"
     "com.github.tchx84.Flatseal"

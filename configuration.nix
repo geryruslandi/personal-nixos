@@ -21,6 +21,7 @@
     ./nix/modules/mysql.nix
     ./nix/modules/dolphin.nix
     ./nix/modules/bitwarden.nix
+    ./nix/modules/steam.nix
   ];
 
   # compatibility for /bin/* binaries
