@@ -38,4 +38,5 @@
       };
     }
   ];
+  wallhavenKey = "someSecretKeyHere";
 }

@@ -2,6 +2,7 @@
   pkgs,
   inputs,
   config,
+  secrets,
   ...
 }:
 {
@@ -195,8 +196,8 @@
         transitionEdgeSmoothness = 0.05;
         panelPosition = "follow_bar";
         hideWallpaperFilenames = false;
-        useWallhaven = false;
-        wallhavenQuery = "";
+        useWallhaven = if secrets ? wallhavenKey then true else false;
+        wallhavenQuery = if secrets ? wallhavenKey then secrets.wallhavenKey else false;
         wallhavenSorting = "relevance";
         wallhavenOrder = "desc";
         wallhavenCategories = "111";
