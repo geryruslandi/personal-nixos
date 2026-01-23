@@ -7,6 +7,7 @@
     fnm
     htop
     tree
+    scrcpy
 
     # Dbeaver with postgres drriver
     dbeaver-bin

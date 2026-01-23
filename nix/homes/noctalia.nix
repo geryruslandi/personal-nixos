@@ -187,9 +187,9 @@
         recursiveSearch = false;
         setWallpaperOnAllMonitors = true;
         # defaultWallpaper = "/home/geryruslandi/.config/gery/Pictures/Wallpapers/rain_dark_1.png";
-        fillMode = "crop";
+        fillMode = "fit";
         fillColor = "#000000";
-        randomEnabled = true;
+        randomEnabled = false;
         randomIntervalSec = 600;
         transitionDuration = 1500;
         transitionType = "random";

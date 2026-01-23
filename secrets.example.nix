@@ -39,4 +39,8 @@
     }
   ];
   wallhavenKey = "someSecretKeyHere";
+  servers = {
+    redis = false;
+    postgres = false;
+  };
 }

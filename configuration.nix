@@ -3,7 +3,22 @@
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
 { config, pkgs, ... }:
-
+let
+  # Import it once here
+  # secrets = import ./secrets.nix;
+  secrets =
+    if builtins.pathExists ./secrets.nix then
+      import ./secrets.nix
+    else
+      {
+        ssh = [ ];
+        git = { };
+        server = {
+          redis = false;
+          postgres = false;
+        };
+      }; # Fallback
+in
 {
   imports = [
     # Include the results of the hardware scan.
@@ -22,7 +37,10 @@
     ./nix/modules/dolphin.nix
     ./nix/modules/bitwarden.nix
     ./nix/modules/steam.nix
+    ./nix/modules/postgresql.nix
   ];
+
+  _module.args = { inherit secrets; };
 
   # compatibility for /bin/* binaries
   services.envfs.enable = true;
@@ -109,7 +127,10 @@
   # services.openssh.enable = true;
 
   # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
+  networking.firewall.allowedTCPPorts = [
+    8000
+    5173
+  ];
   # networking.firewall.allowedUDPPorts = [ ... ];
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
