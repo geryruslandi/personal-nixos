@@ -2,6 +2,7 @@
   lib,
   pkgs,
   inputs,
+  config,
   ...
 }:
 let
@@ -49,6 +50,14 @@ in
   };
 
   fonts.fontconfig.enable = true;
+
+  xdg.userDirs = {
+    enable = true;
+    createDirectories = true;
+    download = "${config.home.homeDirectory}/Downloads";
+    documents = "${config.home.homeDirectory}/Documents";
+    desktop = "${config.home.homeDirectory}/Desktop";
+  };
 
   home = {
     file = {

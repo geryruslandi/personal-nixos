@@ -114,13 +114,13 @@ System-wide consistency is maintained through the `theme.nix` modules found in b
 ## 📝 To-Do List
 
 - [x] **Flatpak Theming:** Integrate Home Manager GTK and QT themes into Flatpak environment.
-- [ ] **Kanshi Update:** Refactor deprecated declarations in `nix/homes/kanshi.nix` to the new syntax.
 - [x] **Idle Management:** Debug and fix the non-functional idle/sleep features.
-- [ ] **SDDM Multi-screen:** Make sddm work on multi screen.
-- [ ] **Bootloader Migration:** Change bootloader to grub.
 - [x] **Flatpak ZenBrowser:** Fix downloaded files appears and stored on `~/Downloads`
 - [x] **Flatpak app open url:** Fix flatpak app to open url with default browser.
 - [x] **Screen Brightness keybind:** Add hyprland keyboard binding to increase/decrease screen brightness.
 - [x] **Flatpak Apps Timezone:** Change flatpak apps timezone to local timezone instead of UTC timezone
-- [ ] **Integrate Optimus:** For seamless graphic card switching, integrate optimus app and prime-select
 - [x] **XDG App Menu Integration:** Integrate XDG App Menu with dolphin, so entries of `open with` on dolphin will be populated with existing apps
+- [ ] **Kanshi Update:** Refactor deprecated declarations in `nix/homes/kanshi.nix` to the new syntax.
+- [ ] **SDDM Multi-screen:** Make sddm work on multi screen.
+- [ ] **Bootloader Migration:** Change bootloader to grub.
+- [ ] **Integrate Optimus:** For seamless graphic card switching, integrate optimus app and prime-select
