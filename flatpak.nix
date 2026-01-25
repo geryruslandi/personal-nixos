@@ -44,6 +44,7 @@
     "io.github.fabrialberio.pinapp"
     "org.kde.koko"
     "chat.rocket.RocketChat"
+    "com.opera.Opera"
     # Kvantum integration
     "runtime/org.kde.KStyle.Kvantum/x86_64/6.6"
   ];
