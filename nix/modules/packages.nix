@@ -9,6 +9,11 @@
     tree
     scrcpy
 
+    # Fix bad storage block, steps:
+    # lsblk
+    # e2fsck /dev/sd***
+    e2fsprogs
+
     # Dbeaver with postgres drriver
     dbeaver-bin
     postgresql_jdbc

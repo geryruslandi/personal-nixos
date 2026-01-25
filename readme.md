@@ -111,6 +111,10 @@ System-wide consistency is maintained through the `theme.nix` modules found in b
 
 ---
 
+## Common Issues & Fixes (Personal Notes)
+### Bad Storage Block
+If you encounter storage issues, run `lsblk`, then execute `e2fsck /dev/sd***` with the correct device id given from `lsblk`.
+
 ## 📝 To-Do List
 
 - [x] **Flatpak Theming:** Integrate Home Manager GTK and QT themes into Flatpak environment.
