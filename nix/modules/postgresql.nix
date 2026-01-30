@@ -1,6 +1,10 @@
 { pkgs, secrets, ... }:
 {
-  config.services.postgresql = {
+  environment.systemPackages = with pkgs; [
+    postgresql
+  ];
+
+  services.postgresql = {
     enable = secrets.server.postgres;
     authentication = pkgs.lib.mkOverride 10 ''
       #type database  DBuser  auth-method
