@@ -25,7 +25,6 @@
     "org.videolan.VLC"
     "net.davidotek.pupgui2"
     "com.github.tchx84.Flatseal"
-    "net.lutris.Lutris"
     "md.obsidian.Obsidian"
     "org.qbittorrent.qBittorrent"
     "io.github.peazip.PeaZip"

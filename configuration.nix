@@ -38,6 +38,7 @@ in
     ./nix/modules/bitwarden.nix
     ./nix/modules/steam.nix
     ./nix/modules/postgresql.nix
+    ./nix/modules/lutris.nix
   ];
 
   _module.args = { inherit secrets; };
