@@ -5,7 +5,6 @@
 {
   environment.systemPackages = with pkgs; [
     # fix lutris icon not showing on launcher
-    adwaita-icon-theme
     (lutris.override {
       extraLibraries = pkgs: [
         # List library dependencies here

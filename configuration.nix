@@ -51,6 +51,8 @@ in
   boot.extraModprobeConfig = ''
     options snd_hda_intel power_save=0 power_save_controller=N
   '';
+  boot.loader.systemd-boot.configurationLimit = 10; # Keep only 10 entries
+  boot.loader.timeout = 5; # 5 second timeout
 
   # GTK portal requirement
   environment.pathsToLink = [
@@ -97,6 +99,11 @@ in
 
   # Enable networking
   networking.networkmanager.enable = true;
+
+  # /etc/hosts mapper
+  networking.hosts = {
+    # "127.0.0.1" = [ "mysql" "redis" "localhost" ];
+  };
 
   # Set your time zone.
   time.timeZone = "Asia/Jakarta";
