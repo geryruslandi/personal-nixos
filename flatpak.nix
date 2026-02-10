@@ -45,6 +45,7 @@
     "chat.rocket.RocketChat"
     "com.opera.Opera"
     "org.libreoffice.LibreOffice"
+    "org.telegram.desktop"
     # Kvantum integration
     "runtime/org.kde.KStyle.Kvantum/x86_64/6.6"
   ];
