@@ -10,7 +10,7 @@
         # List library dependencies here
       ];
       extraPkgs = pkgs: [
-        wineWowPackages.stable # Adds a system-wide Wine that Lutris can detect
+        wineWow64Packages.stable # Adds a system-wide Wine that Lutris can detect
         winetricks # Fixes "winetricks not found" errors
       ];
     })
