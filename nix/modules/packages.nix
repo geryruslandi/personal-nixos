@@ -28,9 +28,6 @@
     kdePackages.kservice
     kdePackages.kio-extras
 
-    # Kubernetes client
-    kubectl
-
     file
     mpv
   ];

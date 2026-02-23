@@ -28,7 +28,6 @@ in
     ./nix/homes/zsh.nix
     ./nix/homes/react-native-setup.nix
     ./nix/homes/php.nix
-    ./nix/homes/podman.nix
     ./nix/homes/mysql.nix
     ./nix/homes/git.nix
     ./nix/homes/ssh.nix

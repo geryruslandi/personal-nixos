@@ -33,7 +33,6 @@
     "com.getpostman.Postman"
     "io.github.ilya_zlobintsev.LACT"
     "com.github.IsmaelMartinez.teams_for_linux"
-    "io.podman_desktop.PodmanDesktop"
     "com.wps.Office"
     "io.github.wiiznokes.fan-control"
     "org.gnome.Calendar"

@@ -39,6 +39,7 @@ in
     ./nix/modules/steam.nix
     ./nix/modules/postgresql.nix
     ./nix/modules/lutris.nix
+    ./nix/modules/podman.nix
   ];
 
   _module.args = { inherit secrets; };
