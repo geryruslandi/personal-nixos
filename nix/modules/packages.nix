@@ -28,6 +28,9 @@
     kdePackages.kservice
     kdePackages.kio-extras
 
+    # DIsk usage analyzer
+    ncdu
+
     file
     mpv
   ];
