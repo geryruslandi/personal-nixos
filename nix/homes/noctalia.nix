@@ -208,6 +208,7 @@
         wallhavenResolutionHeight = "";
       };
       appLauncher = {
+        autoPasteClipboard = true;
         enableClipboardHistory = true;
         enableClipPreview = true;
         position = "center";

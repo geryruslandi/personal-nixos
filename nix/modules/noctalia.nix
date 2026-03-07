@@ -8,6 +8,7 @@
   environment.systemPackages = with pkgs; [
     inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default
     cliphist
+    wtype
     wl-clipboard
     # ... maybe other stuff
   ];
