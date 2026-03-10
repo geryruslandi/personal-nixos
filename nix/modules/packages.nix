@@ -31,6 +31,8 @@
     # DIsk usage analyzer
     ncdu
 
+    gparted
+
     file
     mpv
   ];
