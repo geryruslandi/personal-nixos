@@ -17,6 +17,7 @@ let
           redis = false;
           postgres = false;
         };
+        storageMount = [];
       }; # Fallback
 in
 {
@@ -41,6 +42,7 @@ in
     ./nix/modules/lutris.nix
     ./nix/modules/podman.nix
     ./nix/modules/polkit.nix
+    ./nix/modules/ssd-mounter.nix
   ];
 
   _module.args = { inherit secrets; };

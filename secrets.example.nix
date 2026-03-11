@@ -43,4 +43,11 @@
     redis = false;
     postgres = false;
   };
+  storageMount = [
+    {
+      mountPath = "/mnt/data-ssd";
+      fsType = "ext4";
+      storageUUID = "09e384ed-b4aa-4a15-bab5-8d94e27349ca";
+    }
+  ]
 }
