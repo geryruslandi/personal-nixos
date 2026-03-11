@@ -180,6 +180,8 @@
         "$mainMod, 8, workspace, 8"
         "$mainMod, 9, workspace, 9"
         "$mainMod, 0, workspace, 10"
+        "$mainMod, left, workspace, -1"
+        "$mainMod, right, workspace, +1"
 
         # Move active window to a workspace
         "$mainMod SHIFT, 1, movetoworkspace, 1"
