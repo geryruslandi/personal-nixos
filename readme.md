@@ -111,6 +111,39 @@ System-wide consistency is maintained through the `theme.nix` modules found in b
 
 ---
 
+## Automatic Mount of SSD
+
+To automatically mount SSDs or other storage devices in your NixOS configuration, follow these steps:
+
+1. **Identify Available Devices:**
+  Run `lsblk` to list all block devices and identify your SSD (e.g., `/dev/sda1` or `/dev/nvme0n1p1`).
+
+2. **Retrieve the UUID:**
+  Use `lsblk -f /dev/{storagePath}` (replace `{storagePath}` with the actual path, like `sda1`) to get the filesystem UUID. This ensures reliable mounting even if device names change.
+
+3. **Configure in Secrets:**
+  Add the mount configuration to your `secrets.nix` file under a `storageMount` list. Each entry should include:
+  - `mountPath`: The directory where the device will be mounted (ensure it exists or is created).
+  - `fsType`: The filesystem type (e.g., `ext4`, `btrfs`).
+  - `storageUUID`: The UUID obtained from the previous step.
+
+  Example configuration:
+  ```nix
+  storageMount = [
+    {
+     mountPath = "/mnt/data-ssd";
+     fsType = "ext4";
+     storageUUID = "09e384ed-b4aa-4a15-bab5-8d94e27349ca";
+    }
+  ];
+  ```
+
+4. **Additional Notes:**
+  - Ensure the mount path is created if it doesn't exist (you can add it to your NixOS config).
+  - Test the mount manually first with `sudo mount UUID={storageUUID} {mountPath}` to verify.
+  - For encrypted devices, additional setup may be required (e.g., via LUKS).
+  - Rebuild your NixOS configuration after changes: `sudo nixos-rebuild switch --flake . --impure`.
+
 ## Common Issues & Fixes (Personal Notes)
 ### Bad Storage Block
 If you encounter storage issues, run `lsblk`, then execute `e2fsck /dev/sd***` with the correct device id given from `lsblk`.
