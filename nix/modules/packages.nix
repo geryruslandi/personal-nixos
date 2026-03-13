@@ -30,8 +30,10 @@
 
     # DIsk usage analyzer
     ncdu
-
+    # Disk manager
     gparted
+
+    vivaldi
 
     file
     mpv
