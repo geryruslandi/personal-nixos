@@ -33,7 +33,11 @@
     # Disk manager
     gparted
 
+    # okay-is browser
     vivaldi
+
+    # PDF reader
+    kdePackages.okular
 
     file
     mpv
