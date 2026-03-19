@@ -18,6 +18,11 @@
     nix-flatpak.url = "github:gmodena/nix-flatpak/?ref=latest";
 
     catppuccin.url = "github:catppuccin/nix";
+
+    silentSDDM = {
+      url = "github:uiriansan/SilentSDDM";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
