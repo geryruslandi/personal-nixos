@@ -15,11 +15,14 @@
   xdg.portal = {
     enable = true;
 
-    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+    extraPortals = [
+      pkgs.xdg-desktop-portal-gtk
+      pkgs.kdePackages.xdg-desktop-portal-kde # This is the modern attribute name
+    ];
     config = {
       common = {
         # Use the GTK portal for everything by default
-        default = [ "gtk" ];
+        default = [ "kde" ];
       };
     };
   };
