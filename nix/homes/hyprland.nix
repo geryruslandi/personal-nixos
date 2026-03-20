@@ -196,8 +196,12 @@
         "$mainMod SHIFT, 0, movetoworkspace, 10"
 
         # Special workspace
-        "$mainMod, S, togglespecialworkspace, magic"
-        "$mainMod SHIFT, S, movetoworkspace, special:magic"
+        "$mainMod, S, togglespecialworkspace, magic-s"
+        "$mainMod SHIFT, S, movetoworkspace, special:magic-s"
+        "$mainMod, A, togglespecialworkspace, magic-a"
+        "$mainMod SHIFT, A, movetoworkspace, special:magic-a"
+        "$mainMod, D, togglespecialworkspace, magic-d"
+        "$mainMod SHIFT, D, movetoworkspace, special:magic-d"
 
         # Scroll through workspaces
         "$mainMod, mouse_down, workspace, e+1"
