@@ -2,6 +2,7 @@
   lib,
   pkgs,
   inputs,
+  config,
   ...
 }:
 {
@@ -9,12 +10,17 @@
   programs.silentSDDM = {
     enable = true;
     theme = "default";
-    # settings = { ... }; see example in module
-  };
-  catppuccin = {
-    enable = true;
-    sddm = {
-      enable = false;
+    profileIcons = {
+      geryruslandi = ../../homedir/.config/gery/Pictures/avatar.png;
+    };
+    settings = {
+      General = {
+        scale = 3.0;
+        EnableHiDPI = true;
+      };
+      "LockScreen.Message" = {
+        spacing = 30;
+      };
     };
   };
 }

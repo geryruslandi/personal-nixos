@@ -32,8 +32,6 @@
     GTK_USE_PORTAL = "1";
   };
 
-  home.file.".face".source = ../../homedir/.config/gery/Pictures/avatar.png;
-
   qt = {
     enable = true;
     platformTheme = "qtct"; # makes Qt respect qt5ct
