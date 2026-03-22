@@ -17,7 +17,7 @@ let
           redis = false;
           postgres = false;
         };
-        storageMount = [];
+        storageMount = [ ];
       }; # Fallback
 in
 {
@@ -57,6 +57,15 @@ in
   '';
   boot.loader.systemd-boot.configurationLimit = 10; # Keep only 10 entries
   boot.loader.timeout = 5; # 5 second timeout
+
+# handle power button and lid close
+  services.logind.settings = {
+    Login = {
+      HandlePowerKey = "ignore";
+      HandleLidSwitch = "suspend";
+      HandleLidSwitchExternalPower = "ignore";
+    };
+  };
 
   # GTK portal requirement
   environment.pathsToLink = [

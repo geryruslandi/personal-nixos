@@ -479,6 +479,7 @@
         "$mainMod, comma, exec, noctalia-shell ipc call settings toggle"
         "$mainMod, L, exec, noctalia-shell ipc call lockScreen lock"
         "$mainMod, C, exec, noctalia-shell ipc call launcher calculator"
+        ", XF86PowerOff, exec, noctalia-shell ipc call sessionMenu toggle"
       ];
     };
   };
