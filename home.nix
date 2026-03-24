@@ -31,7 +31,6 @@ in
     ./nix/homes/mysql.nix
     ./nix/homes/git.nix
     ./nix/homes/ssh.nix
-    ./nix/homes/hypridle.nix
   ];
 
   # This is the magic part:

@@ -11,8 +11,6 @@
     inputs.noctalia.homeModules.default
   ];
 
-
-
   # configure options
   programs.noctalia-shell = {
     enable = true;
@@ -461,6 +459,13 @@
         editMode = false;
         gridSnap = false;
         monitorWidgets = [ ];
+      };
+      idle = {
+        enabled = true;
+        screenOffTimeout = 300;
+        lockTimeout = 600;
+        suspendTimeout = 1800;
+        fadeDuration = 5;
       };
     };
   };
