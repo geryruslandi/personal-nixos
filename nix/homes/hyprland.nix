@@ -245,6 +245,7 @@
         # "opacity 0.80 $& 0.80 $& 1,class:^(kitty)$"
         # Add your own custom rules here, e.g.:
         # "float, class:^(kitty)$, title:^(kitty)$"
+        "match:class ^steam_app_.*$, idle_inhibit always" # treat all of steam games as non idle, to prevent sleep during gaming with gamepad
       ];
 
       # The commented-out 'workspace' and 'windowrule' blocks for smart gaps are omitted
