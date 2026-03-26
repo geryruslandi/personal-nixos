@@ -62,8 +62,8 @@ in
   services.logind.settings = {
     Login = {
       HandlePowerKey = "ignore";
-      # HandleLidSwitch = "suspend";
-      # HandleLidSwitchExternalPower = "ignore";
+      HandleLidSwitch = "suspend";
+      HandleLidSwitchExternalPower = "ignore";
     };
   };
 
