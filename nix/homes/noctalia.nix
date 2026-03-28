@@ -11,6 +11,8 @@
     inputs.noctalia.homeModules.default
   ];
 
+  home.file.".face".source = ../../homedir/.config/gery/Pictures/avatar.png;
+
   # configure options
   programs.noctalia-shell = {
     enable = true;
@@ -101,7 +103,7 @@
         };
       };
       general = {
-        avatarImage = "";
+        avatarImage = "~/.face";
         dimmerOpacity = 0.2;
         showScreenCorners = false;
         forceBlackScreenCorners = false;
