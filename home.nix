@@ -15,6 +15,7 @@ let
       {
         ssh = [ ];
         git = { };
+        swapAltWin = false;
       }; # Fallback
 in
 {

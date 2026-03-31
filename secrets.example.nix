@@ -49,5 +49,6 @@
       fsType = "ext4";
       storageUUID = "09e384ed-b4aa-4a15-bab5-8d94e27349ca";
     }
-  ]
+  ];
+  swapAltWin = false; # to swap alt and super keys, set this to true and uncomment the kb_options in the hyprland.nix input
 }

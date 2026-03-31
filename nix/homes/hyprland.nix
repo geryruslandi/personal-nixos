@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, secrets,... }:
 
 {
   wayland.windowManager.hyprland = {
@@ -126,7 +126,8 @@
         kb_layout = "us";
         kb_variant = "";
         kb_model = "";
-        kb_options = "";
+        # swap alt to super, super to alt. my super key broken :(
+        kb_options = if secrets.swapAltWin then "altwin:swap_alt_win" else "";
         kb_rules = "";
 
         follow_mouse = 1;
