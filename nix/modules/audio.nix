@@ -15,5 +15,22 @@
     # use the example session manager (no others are packaged yet so this is enabled by default,
     # no need to redefine it in your config for now)
     #media-session.enable = true;
+
+    # As of now we exclude ldac
+    # because on current nixos stable, it has ldac bug
+    # https://discourse.nixos.org/t/bluetooth-audio-broken-after-recent-update-likely-ldac-pipewire-1-6-2/76805
+    wireplumber.extraConfig = {
+      "bluetooth" = {
+        "monitor.bluez.properties" = {
+          "bluez5.codecs" = [
+            "sbc"
+            "sbc_xq"
+            "aac"
+            "aptx"
+            "aptx_hd"
+          ];
+        };
+      };
+    };
   };
 }
