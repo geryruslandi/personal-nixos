@@ -1,4 +1,9 @@
-{ config, pkgs, secrets,... }:
+{
+  config,
+  pkgs,
+  secrets,
+  ...
+}:
 
 {
   wayland.windowManager.hyprland = {
@@ -247,6 +252,8 @@
         # Add your own custom rules here, e.g.:
         # "float, class:^(kitty)$, title:^(kitty)$"
         "match:class ^steam_app_.*$, idle_inhibit always" # treat all of steam games as non idle, to prevent sleep during gaming with gamepad
+        "match:class ^app\\.zen_browser\\.zen$, match:title ^Meet, idle_inhibit always" # idle on all of google meet meeting on zen browser
+        "match:class ^app\\.zen_browser\\.zen$, match:title ^Microsoft Teams, idle_inhibit always" # idle on all of ms teams meeting on zen browser
       ];
 
       # The commented-out 'workspace' and 'windowrule' blocks for smart gaps are omitted
