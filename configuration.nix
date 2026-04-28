@@ -39,7 +39,7 @@ in
     ./nix/modules/bitwarden.nix
     ./nix/modules/steam.nix
     ./nix/modules/postgresql.nix
-    ./nix/modules/lutris.nix
+    # ./nix/modules/lutris.nix
     ./nix/modules/podman.nix
     ./nix/modules/polkit.nix
     ./nix/modules/ssd-mounter.nix
