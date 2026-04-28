@@ -35,6 +35,7 @@
 
     # okay-is browser
     vivaldi
+    chromium
 
     # PDF reader
     kdePackages.okular
