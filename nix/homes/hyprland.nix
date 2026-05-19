@@ -111,7 +111,6 @@
       };
 
       dwindle = {
-        pseudotile = true;
         preserve_split = true;
       };
 
@@ -167,7 +166,7 @@
         "$mainMod, E, exec, $fileManager"
         "$mainMod, W, togglefloating,"
         "$mainMod, R, exec, $menu"
-        "$mainMod, J, togglesplit," # dwindle
+        "$mainMod, J, layoutmsg, togglesplit" # dwindle
 
         # Move focus
         "$mainMod, left, movefocus, l"
@@ -255,6 +254,7 @@
         "match:class ^app\\.zen_browser\\.zen$, match:title ^Meet, idle_inhibit always" # idle on all of google meet meeting on zen browser
         "match:class ^app\\.zen_browser\\.zen$, match:title ^Microsoft Teams, idle_inhibit always" # idle on all of ms teams meeting on zen browser
       ];
+
 
       # The commented-out 'workspace' and 'windowrule' blocks for smart gaps are omitted
       # as they were commented out in the source.

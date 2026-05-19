@@ -95,6 +95,28 @@ in
     curl
     expat
     # Add any other libraries you find missing
+
+     # RPGMAKER game Core System Libraries
+    # glib
+    # nss
+    # nspr
+    # atk
+    # at-spi2-atk
+    # cups
+    # libdrm
+    # dbus
+    # xorg.libX11
+    # xorg.libXext
+    # xorg.libXext
+    # xorg.libXrender
+    # xorg.libXcomposite
+    # xorg.libXdamage
+    # xorg.libXfixes
+    # xorg.libXrandr
+    # xorg.libxcb
+    # mesa
+    # libgbm
+    # libGL
   ];
 
   services.udisks2.enable = true;
