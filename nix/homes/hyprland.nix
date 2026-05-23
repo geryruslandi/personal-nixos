@@ -135,11 +135,18 @@
         kb_rules = "";
 
         follow_mouse = 1;
-        sensitivity = 0;
+        sensitivity = 0.2;
 
         touchpad = {
           natural_scroll = true;
+
+          # Ensures two-finger tap works perfectly for right-clicks
+          clickfinger_behavior = true;
+
+          # Optional: prevents accidental palms jumping the cursor while coding
+          disable_while_typing = true;
         };
+
       };
 
       # Gestures are not in a sub-section
@@ -254,7 +261,6 @@
         "match:class ^app\\.zen_browser\\.zen$, match:title ^Meet, idle_inhibit always" # idle on all of google meet meeting on zen browser
         "match:class ^app\\.zen_browser\\.zen$, match:title ^Microsoft Teams, idle_inhibit always" # idle on all of ms teams meeting on zen browser
       ];
-
 
       # The commented-out 'workspace' and 'windowrule' blocks for smart gaps are omitted
       # as they were commented out in the source.
