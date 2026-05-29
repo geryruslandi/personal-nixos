@@ -135,7 +135,7 @@
         kb_rules = "";
 
         follow_mouse = 1;
-        sensitivity = 0.2;
+        # sensitivity = 0.2;
 
         touchpad = {
           natural_scroll = true;
@@ -222,6 +222,8 @@
         # screenshot
         "$mainMod, P, exec, grimblast copy area"
         "$mainMod SHIFT, P, exec, grimblast --freeze copy area"
+
+        "$mainMod, f,  fullscreen, 2"
       ];
 
       bindm = [
@@ -255,11 +257,17 @@
         # "suppressevent maximize, class:.*" # Ignore maximize requests
         # "nofocus, class:^$, title:^$, xwayland:1, floating:1, fullscreen:0, pinned:0" # Fix dragging
         # "opacity 0.80 $& 0.80 $& 1,class:^(kitty)$"
-        # Add your own custom rules here, e.g.:
-        # "float, class:^(kitty)$, title:^(kitty)$"
-        "match:class ^steam_app_.*$, idle_inhibit always" # treat all of steam games as non idle, to prevent sleep during gaming with gamepad
-        "match:class ^app\\.zen_browser\\.zen$, match:title ^Meet, idle_inhibit always" # idle on all of google meet meeting on zen browser
-        "match:class ^app\\.zen_browser\\.zen$, match:title ^Microsoft Teams, idle_inhibit always" # idle on all of ms teams meeting on zen browser
+
+        # --- THE FIX FOR STEAM FULLSCREEN ---
+        # Forces any running steam game to stretch and natively fill the screen space
+        "tile on, match:class ^(steam_app_.*)$"
+        "fullscreen 2, match:class ^(steam_app_.*)$"
+
+        # --- UPDATED IDLE INHIBIT RULES ---
+        # Added explicit anchors (.*) to match full text strings properly
+        "idle_inhibit always, match:class ^(steam_app_.*)$"
+        "idle_inhibit always, match:class ^(app\\.zen_browser\\.zen)$, match:title ^(.*Meet.*)$"
+        "idle_inhibit always, match:class ^(app\\.zen_browser\\.zen)$, match:title ^(.*Microsoft Teams.*)$"
       ];
 
       # The commented-out 'workspace' and 'windowrule' blocks for smart gaps are omitted
