@@ -43,6 +43,7 @@ in
     ./nix/modules/podman.nix
     ./nix/modules/polkit.nix
     ./nix/modules/ssd-mounter.nix
+    ./nix/modules/cloudflare-warp.nix
   ];
 
   _module.args = { inherit secrets; };
