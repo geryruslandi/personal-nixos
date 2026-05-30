@@ -37,9 +37,6 @@
               id = "plugin:special-workspaces";
             }
             {
-              id = "plugin:cloudflare-warp";
-            }
-            {
               id = "plugin:port-monitor";
             }
             {
@@ -491,10 +488,6 @@
           enabled = true;
           sourceUrl = "https://github.com/noctalia-dev/noctalia-plugins";
         };
-        cloudflare-warp = {
-          enabled = true;
-          sourceUrl = "https://github.com/noctalia-dev/noctalia-plugins";
-        };
         port-monitor = {
           enabled = true;
           sourceUrl = "https://github.com/noctalia-dev/noctalia-plugins";
@@ -507,7 +500,7 @@
           enabled = true;
           sourceUrl = "https://github.com/noctalia-dev/noctalia-plugins";
         };
-        todo-list = {
+        todo = {
           enabled = true;
           sourceUrl = "https://github.com/noctalia-dev/noctalia-plugins";
         };
