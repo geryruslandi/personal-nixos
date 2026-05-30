@@ -34,29 +34,31 @@
         widgets = {
           left = [
             {
-              diskPath = "/";
-              id = "SystemMonitor";
-              compactMode = false;
-              showCpuTemp = true;
-              showCpuUsage = true;
-              showDiskUsage = true;
-              showGpuTemp = false;
-              showMemoryAsPercent = false;
-              showMemoryUsage = true;
-              showNetworkStats = false;
-              usePrimaryColor = false;
+              id = "plugin:special-workspaces";
+            }
+            {
+              id = "plugin:cloudflare-warp";
+            }
+            {
+              id = "plugin:port-monitor";
+            }
+            {
+              id = "plugin:todo";
             }
             {
               colorizeIcons = false;
               hideMode = "hidden";
               id = "ActiveWindow";
-              maxWidth = 350;
+              maxWidth = 200;
               scrollingMode = "hover";
               showIcon = true;
               useFixedWidth = false;
             }
             {
               id = "MediaMini";
+            }
+            {
+              id = "plugin:privacy-indicator";
             }
           ];
           center = [
@@ -66,35 +68,37 @@
           ];
           right = [
             {
+              id = "plugin:mawaqit";
+            }
+            {
               id = "SystemMonitor";
-              compactMode = false;
-              showCpuTemp = false;
+              compactMode = true;
+              showCpuTemp = true;
+              showMemoryUsage = true;
+              showNetworkStats = true;
               showCpuUsage = false;
               showDiskUsage = false;
+              showGpuTemp = false;
               showMemoryAsPercent = false;
-              showMemoryUsage = false;
-              showNetworkStats = true;
+              usePrimaryColor = false;
             }
             {
               id = "ScreenRecorder";
+            }
+            {
+              id = "Volume";
+            }
+            {
+              id = "plugin:battery-monitor-plus";
+            }
+            {
+              id = "Clock";
             }
             {
               id = "Tray";
             }
             {
               id = "NotificationHistory";
-            }
-            {
-              id = "Battery";
-            }
-            {
-              id = "Volume";
-            }
-            {
-              id = "Brightness";
-            }
-            {
-              id = "Clock";
             }
             {
               id = "ControlCenter";
@@ -107,7 +111,7 @@
         dimmerOpacity = 0.2;
         showScreenCorners = false;
         forceBlackScreenCorners = false;
-        scaleRatio = 1.2;
+        scaleRatio = 1;
         radiusRatio = 1;
         iRadiusRatio = 1;
         boxRadiusRatio = 1;
@@ -128,7 +132,7 @@
       ui = {
         fontDefault = "DejaVu Sans";
         fontFixed = "DejaVu Sans Mono";
-        fontDefaultScale = 1.1;
+        fontDefaultScale = 1;
         fontFixedScale = 1.1;
         tooltipsEnabled = true;
         panelBackgroundOpacity = 0.85;
@@ -468,6 +472,46 @@
         lockTimeout = 600;
         suspendTimeout = 1800;
         fadeDuration = 5;
+      };
+    };
+    plugins = {
+      sources = [
+        {
+          enabled = true;
+          name = "Official Noctalia Plugins";
+          url = "https://github.com/noctalia-dev/noctalia-plugins";
+        }
+      ];
+      states = {
+        special-workspaces = {
+          enabled = true;
+          sourceUrl = "https://github.com/noctalia-dev/noctalia-plugins";
+        };
+        battery-monitor-plus = {
+          enabled = true;
+          sourceUrl = "https://github.com/noctalia-dev/noctalia-plugins";
+        };
+        cloudflare-warp = {
+          enabled = true;
+          sourceUrl = "https://github.com/noctalia-dev/noctalia-plugins";
+        };
+        port-monitor = {
+          enabled = true;
+          sourceUrl = "https://github.com/noctalia-dev/noctalia-plugins";
+        };
+        privacy-indicator = {
+          enabled = true;
+          sourceUrl = "https://github.com/noctalia-dev/noctalia-plugins";
+        };
+        mawaqit = {
+          enabled = true;
+          sourceUrl = "https://github.com/noctalia-dev/noctalia-plugins";
+        };
+        todo-list = {
+          enabled = true;
+          sourceUrl = "https://github.com/noctalia-dev/noctalia-plugins";
+        };
+        version = 2;
       };
     };
   };
