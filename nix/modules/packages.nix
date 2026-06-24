@@ -42,5 +42,7 @@
 
     file
     mpv
+
+    lsof
   ];
 }

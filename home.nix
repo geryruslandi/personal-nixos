@@ -29,10 +29,8 @@ in
     ./nix/homes/zsh.nix
     ./nix/homes/react-native-setup.nix
     ./nix/homes/php.nix
-    ./nix/homes/mysql.nix
     ./nix/homes/git.nix
     ./nix/homes/ssh.nix
-    ./nix/homes/app-images.nix
   ];
 
   # This is the magic part:
@@ -63,7 +61,6 @@ in
     file = {
       ".config/gery".source = ./homedir/.config/gery;
       ".config/dolphinrc".source = ./homedir/.config/dolphinrc;
-      "AppImages".source = ./homedir/AppImages;
     };
     # This needs to actually be set to your username
     username = "geryruslandi";
