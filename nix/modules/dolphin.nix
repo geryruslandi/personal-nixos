@@ -10,6 +10,9 @@
     kdePackages.kio-extras
     # dolphin package it self
     kdePackages.dolphin
+    # Archive integration — "Extract Here" context menu
+    kdePackages.ark
+    p7zip
   ];
   # 1. Provide the menu file
   environment.etc."xdg/menus/applications.menu".source =
