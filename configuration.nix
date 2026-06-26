@@ -44,6 +44,7 @@ in
     ./nix/modules/polkit.nix
     ./nix/modules/ssd-mounter.nix
     ./nix/modules/cloudflare-warp.nix
+    ./nix/modules/k-wallet.nix
   ];
 
   _module.args = { inherit secrets; };
