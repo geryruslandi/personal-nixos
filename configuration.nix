@@ -58,8 +58,13 @@ in
   boot.extraModprobeConfig = ''
     options snd_hda_intel power_save=0 power_save_controller=N
   '';
-  boot.loader.systemd-boot.configurationLimit = 10; # Keep only 10 entries
-  boot.loader.timeout = 5; # 5 second timeout
+  boot.loader.timeout = 5;
+
+  # Bootloader (GRUB)
+  boot.loader.grub.enable = true;
+  boot.loader.grub.efiSupport = true;
+  boot.loader.grub.device = "nodev";
+  boot.loader.grub.gfxmodeEfi = "1920x1080";
 
 # handle power button and lid close
   services.logind.settings = {
@@ -124,8 +129,7 @@ in
 
   services.udisks2.enable = true;
 
-  # Bootloader.
-  boot.loader.systemd-boot.enable = true;
+  # Bootloader EFI configuration
   boot.loader.efi.canTouchEfiVariables = true;
 
   networking.hostName = "nixos"; # Define your hostname.

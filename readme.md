@@ -88,7 +88,21 @@ To compile and apply the configuration, run the following command from the root 
 sudo nixos-rebuild switch --flake . --impure
 ```
 
-### 3. Populate dolphin XDG Application menus (dolphin 'open with' application entries)
+### 3. Fingerprint Enrollment
+If your system has a fingerprint reader, enroll your fingerprints to enable fingerprint authentication for sudo and SDDM login:
+
+```bash
+fprintd-enroll
+```
+
+This will guide you through scanning your fingers. After enrollment:
+- Sudo will prompt for fingerprint authentication when required
+- SDDM login screen will offer fingerprint as an authentication option
+- Terminal login (TTY) will also support fingerprint authentication
+
+**Note:** Fingerprint authentication is enabled by default if `services.fprintd.enable` is set to `true`. Check your fingerprint reader compatibility and ensure your fingerprints are enrolled before attempting to use fingerprint-based authentication.
+
+### 4. Populate dolphin XDG Application menus (dolphin 'open with' application entries)
 To populate app entries on dolphin, you need to run commands:
 
 - `rm -rf ~/.cache/ksycoca6*`
@@ -157,7 +171,7 @@ If you encounter storage issues, run `lsblk`, then execute `e2fsck /dev/sd***` w
 - [x] **Screen Brightness keybind:** Add hyprland keyboard binding to increase/decrease screen brightness.
 - [x] **Flatpak Apps Timezone:** Change flatpak apps timezone to local timezone instead of UTC timezone
 - [x] **XDG App Menu Integration:** Integrate XDG App Menu with dolphin, so entries of `open with` on dolphin will be populated with existing apps
+- [x] **Bootloader Migration:** Change bootloader to grub.
+- [x] **SDDM Multi-screen:** Make sddm work on multi screen.
 - [ ] **Kanshi Update:** Refactor deprecated declarations in `nix/homes/kanshi.nix` to the new syntax.
-- [ ] **SDDM Multi-screen:** Make sddm work on multi screen.
-- [ ] **Bootloader Migration:** Change bootloader to grub.
 - [ ] **Integrate Optimus:** For seamless graphic card switching, integrate optimus app and prime-select
