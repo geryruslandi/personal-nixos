@@ -15,18 +15,20 @@
     enable = true;
     systemdTarget = "hyprland-session.target";
 
-    profiles = {
-      laptop = {
-        outputs = [
+    settings = [
+      {
+        profile.name = "laptop";
+        profile.outputs = [
           {
             criteria = "eDP-1";
             scale = 2.0;
             status = "enable";
           }
         ];
-      };
-      dockedAtHome = {
-        outputs = [
+      }
+      {
+        profile.name = "dockedAtHome";
+        profile.outputs = [
           {
             criteria = "eDP-1";
             status = "disable";
@@ -36,7 +38,7 @@
             status = "enable";
           }
         ];
-      };
-    };
+      }
+    ];
   };
 }

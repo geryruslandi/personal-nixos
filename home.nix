@@ -89,6 +89,8 @@ in
   xdg.userDirs = {
     enable = true;
     createDirectories = true;
+    # Explicitly set to true to silence the warning about the default changing
+    setSessionVariables = true;
     download = "${config.home.homeDirectory}/Downloads";
     documents = "${config.home.homeDirectory}/Documents";
     desktop = "${config.home.homeDirectory}/Desktop";

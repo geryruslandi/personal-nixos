@@ -173,5 +173,5 @@ If you encounter storage issues, run `lsblk`, then execute `e2fsck /dev/sd***` w
 - [x] **XDG App Menu Integration:** Integrate XDG App Menu with dolphin, so entries of `open with` on dolphin will be populated with existing apps
 - [x] **Bootloader Migration:** Change bootloader to grub.
 - [x] **SDDM Multi-screen:** Make sddm work on multi screen.
-- [ ] **Kanshi Update:** Refactor deprecated declarations in `nix/homes/kanshi.nix` to the new syntax.
+- [x] **Kanshi Update:** Refactor deprecated declarations in `nix/homes/kanshi.nix` to the new syntax.
 - [ ] **Integrate Optimus:** For seamless graphic card switching, integrate optimus app and prime-select

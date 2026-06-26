@@ -13,5 +13,7 @@
     # ... maybe other stuff
   ];
 
-  services.noctalia-shell.enable = true;
+  # Systemd startup is deprecated for Noctalia.
+  # Noctalia is now launched via Hyprland's exec-once instead.
+  # services.noctalia-shell.enable = true;
 }

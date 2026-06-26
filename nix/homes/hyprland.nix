@@ -8,6 +8,9 @@
 {
   wayland.windowManager.hyprland = {
     enable = true;
+    # Explicitly set to "hyprlang" to keep legacy behavior and silence the warning
+    # about the default changing from "hyprlang" to "lua"
+    configType = "hyprlang";
     settings = {
       # Custom Variables
       "$mainMod" = "SUPER";
@@ -28,6 +31,8 @@
       ## AUTOSTART (exec-once)
       ## ----------------------------------------------------
       exec-once = [
+        # Launch noctalia-shell (systemd service is deprecated)
+        "noctalia-shell"
         # Inhibit sleep while audio is playing (YouTube, Spotify, etc.)
         "sway-audio-idle-inhibit"
       ];

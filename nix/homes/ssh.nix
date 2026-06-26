@@ -8,8 +8,9 @@
   # --- SSH Configuration (Transportation/Connection) ---
   programs.ssh = {
     enable = true;
-    # Map the new top-level ssh list to matchBlocks
-    matchBlocks = lib.listToAttrs (
+    enableDefaultConfig = false;
+    # Use settings instead of deprecated matchBlocks
+    settings = lib.listToAttrs (
       map (h: {
         name = h.host;
         value = {

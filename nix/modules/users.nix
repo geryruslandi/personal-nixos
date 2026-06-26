@@ -12,7 +12,7 @@
     packages = with pkgs; [
       kdePackages.kate
       vscode
-      nixfmt-rfc-style
+      nixfmt
       kdePackages.qtsvg
       firefox
       antigravity

@@ -57,7 +57,7 @@
   # Qt Configuration (Kept exactly as you had it)
   qt = {
     enable = true;
-    platformTheme = "qtct";
+    platformTheme.name = "qtct";
     style = {
       name = "kvantum";
     };
