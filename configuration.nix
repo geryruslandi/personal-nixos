@@ -45,6 +45,7 @@ in
     ./nix/modules/ssd-mounter.nix
     ./nix/modules/cloudflare-warp.nix
     ./nix/modules/k-wallet.nix
+    ./nix/modules/fingerprint-setup.nix
   ];
 
   _module.args = { inherit secrets; };
