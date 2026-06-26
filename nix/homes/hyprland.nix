@@ -28,10 +28,8 @@
       ## AUTOSTART (exec-once)
       ## ----------------------------------------------------
       exec-once = [
-        # You would uncomment and update these with your actual startup commands
-        # "$terminal"
-        # "nm-applet &"
-        # "waybar & hyprpaper & firefox"
+        # Inhibit sleep while audio is playing (YouTube, Spotify, etc.)
+        "sway-audio-idle-inhibit"
       ];
 
       ## ----------------------------------------------------

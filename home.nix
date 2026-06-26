@@ -126,6 +126,9 @@ in
       grimblast
       libnotify
 
+      # Prevent sleep when audio is playing (YouTube, Spotify, etc.)
+      sway-audio-idle-inhibit
+
       # catppuccin color schemes for KDE apps (dolphin etc.)
       catppuccin-kde
       catppuccin-kvantum
