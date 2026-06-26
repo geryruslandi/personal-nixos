@@ -44,6 +44,7 @@ in
     ./nix/modules/polkit.nix
     ./nix/modules/ssd-mounter.nix
     ./nix/modules/cloudflare-warp.nix
+    ./nix/modules/kdeconnect.nix
     ./nix/modules/k-wallet.nix
     ./nix/modules/fingerprint-setup.nix
   ];
