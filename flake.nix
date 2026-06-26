@@ -11,13 +11,10 @@
     quickshell.url = "git+https://git.outfoxxed.me/outfoxxed/quickshell";
     quickshell.inputs.nixpkgs.follows = "nixpkgs";
 
-    noctalia.url = "github:noctalia-dev/noctalia-shell";
+    noctalia.url = "github:noctalia-dev/noctalia/legacy-v4";
     noctalia.inputs.nixpkgs.follows = "nixpkgs";
-    noctalia.inputs.quickshell.follows = "quickshell"; # Use same quickshell version
 
     nix-flatpak.url = "github:gmodena/nix-flatpak/?ref=latest";
-
-    catppuccin.url = "github:catppuccin/nix";
 
     silentSDDM.url = "github:uiriansan/SilentSDDM";
     silentSDDM.inputs.nixpkgs.follows = "nixpkgs";
@@ -28,7 +25,6 @@
       nixpkgs,
       home-manager,
       nix-flatpak,
-      catppuccin,
       ...
     }:
     let
@@ -40,7 +36,6 @@
       nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
         specialArgs = { inherit inputs; }; # this is the important part
         modules = [
-          catppuccin.nixosModules.catppuccin
           ./configuration.nix
           ./flatpak.nix
           home-manager.nixosModules.home-manager
@@ -51,7 +46,6 @@
             home-manager.useUserPackages = true;
 
             home-manager.users.geryruslandi.imports = [
-              catppuccin.homeModules.catppuccin
               ./home.nix
             ];
           }

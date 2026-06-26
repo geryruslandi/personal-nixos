@@ -55,21 +55,4 @@
     };
   };
 
-  # Catppuccin Theming (Kept exactly as you had it)
-  catppuccin = {
-    enable = true;
-    cursors = {
-      enable = true;
-    };
-    kvantum = {
-      enable = true;
-      apply = true;
-    };
-    zsh-syntax-highlighting = {
-      enable = true;
-    };
-    vesktop = {
-      enable = true;
-    };
-  };
 }

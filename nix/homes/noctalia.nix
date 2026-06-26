@@ -127,8 +127,8 @@
         allowPanelsOnScreenWithoutBar = true;
       };
       ui = {
-        fontDefault = "DejaVu Sans";
-        fontFixed = "DejaVu Sans Mono";
+        fontDefault = "JetBrainsMono Nerd Font";
+        fontFixed = "JetBrainsMono Nerd Font";
         fontDefaultScale = 1;
         fontFixedScale = 1.1;
         tooltipsEnabled = true;
