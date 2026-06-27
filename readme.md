@@ -102,7 +102,16 @@ This will guide you through scanning your fingers. After enrollment:
 
 **Note:** Fingerprint authentication is enabled by default if `services.fprintd.enable` is set to `true`. Check your fingerprint reader compatibility and ensure your fingerprints are enrolled before attempting to use fingerprint-based authentication.
 
-### 4. Populate dolphin XDG Application menus (dolphin 'open with' application entries)
+### 4. Test SDDM Theme Changes
+To preview SilentSDDM theme changes without rebooting, run:
+
+```bash
+sddm-greeter-qt6 --test-mode --theme /run/current-system/sw/share/sddm/themes/silent/
+```
+
+Press `Ctrl+C` or close the window to exit the preview.
+
+### 5. Populate dolphin XDG Application menus (dolphin 'open with' application entries)
 To populate app entries on dolphin, you need to run commands:
 
 - `rm -rf ~/.cache/ksycoca6*`

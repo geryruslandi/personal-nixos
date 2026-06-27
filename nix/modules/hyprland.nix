@@ -7,11 +7,20 @@
 
 {
   services.displayManager.sddm = {
-    enable = true; # Enable SDDM.
+    enable = true;
     wayland = {
       enable = true;
-      compositor = "kwin"; # Use KWin compositor for better multi-monitor support
+      compositor = "kwin";
+    };
+    settings = {
+      Cursor = {
+        Theme = "Bibata-Modern-Classic";
+        Size = 24;
+      };
     };
   };
   programs.hyprland.enable = true;
+  environment.systemPackages = with pkgs; [
+    bibata-cursors
+  ];
 }

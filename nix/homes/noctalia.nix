@@ -187,7 +187,7 @@
         enableMultiMonitorDirectories = false;
         recursiveSearch = false;
         setWallpaperOnAllMonitors = true;
-        # defaultWallpaper = "/home/geryruslandi/.config/gery/Pictures/Wallpapers/rain_dark_1.png";
+        # defaultWallpaper = "/home/geryruslandi/.config/gery/Pictures/Wallpapers/assassins-creed.png";
         fillMode = "fit";
         fillColor = "#000000";
         randomEnabled = false;
