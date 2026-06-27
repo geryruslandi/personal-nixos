@@ -34,9 +34,6 @@
         widgets = {
           left = [
             {
-              id = "plugin:special-workspaces";
-            }
-            {
               id = "plugin:port-monitor";
             }
             {
@@ -65,11 +62,8 @@
           ];
           right = [
             {
-              id = "plugin:mawaqit";
-            }
-            {
               id = "SystemMonitor";
-              compactMode = true;
+              compactMode = false;
               showCpuTemp = true;
               showMemoryUsage = true;
               showNetworkStats = true;
@@ -480,10 +474,6 @@
         }
       ];
       states = {
-        special-workspaces = {
-          enabled = true;
-          sourceUrl = "https://github.com/noctalia-dev/noctalia-plugins";
-        };
         battery-monitor-plus = {
           enabled = true;
           sourceUrl = "https://github.com/noctalia-dev/noctalia-plugins";
