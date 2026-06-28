@@ -44,5 +44,9 @@
     mpv
 
     lsof
+
+    # Run AppImages on NixOS
+    appimage-run
+    squashfsTools
   ];
 }
