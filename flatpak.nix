@@ -48,6 +48,7 @@
     # Kvantum integration
     "runtime/org.kde.KStyle.Kvantum/x86_64/6.6"
     "org.pulseaudio.pavucontrol"
+    "com.redis.RedisInsight"
   ];
 
   services.flatpak.overrides = {

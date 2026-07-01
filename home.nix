@@ -124,7 +124,13 @@ in
     username = "geryruslandi";
     homeDirectory = "/home/geryruslandi";
 
+    sessionPath = [
+      "$HOME/.opencode/bin"
+    ];
+
     packages = with pkgs; [
+      python3
+
       # screenshot tools
       grimblast
       libnotify
