@@ -32,6 +32,7 @@ in
     ./nix/homes/git.nix
     ./nix/homes/ssh.nix
     ./nix/homes/appimages.nix
+    ./nix/homes/python.nix
   ];
 
   # This is the magic part:
@@ -129,8 +130,6 @@ in
     ];
 
     packages = with pkgs; [
-      python3
-
       # screenshot tools
       grimblast
       libnotify
