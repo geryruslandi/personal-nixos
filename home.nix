@@ -33,6 +33,7 @@ in
     ./nix/homes/ssh.nix
     ./nix/homes/appimages.nix
     ./nix/homes/python.nix
+    ./nix/homes/opencode.nix
   ];
 
   # This is the magic part:
@@ -125,10 +126,6 @@ in
     username = "geryruslandi";
     homeDirectory = "/home/geryruslandi";
 
-    sessionPath = [
-      "$HOME/.opencode/bin"
-    ];
-
     packages = with pkgs; [
       # screenshot tools
       grimblast
@@ -145,7 +142,6 @@ in
       wqy_zenhei
       wqy_microhei
 
-      # Nerd Font for terminal icons/glyphs (spaceship-prompt, etc.)
       nerd-fonts.jetbrains-mono
     ];
 
