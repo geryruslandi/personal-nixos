@@ -45,7 +45,13 @@ description: Use when editing or managing secrets.nix — adding git projects, S
       password = null;                 # optional — requirepass (null = no password)
       user = "redis";                  # optional — System user to run Redis
     };
-    postgres = false;                  # Enable PostgreSQL server
+    postgres = {                       # PostgreSQL server config
+      enable = false;                  # Enable PostgreSQL server
+      user = "";                       # Database user to create
+      password = "";                   # Password for the user
+      superuser = false;               # Whether user is superuser
+      databases = [ ];                 # Databases to create (owned by user)
+    };
   };
   storageMount = [
     {
@@ -67,7 +73,7 @@ description: Use when editing or managing secrets.nix — adding git projects, S
 | `ssh` | SSH host configurations | `nix/homes/ssh.nix:13-23` |
 | `wallhavenKey` | Noctalia wallpaper source | `nix/homes/noctalia.nix:194-195` |
 | `server.redis` | Redis server enablement | `nix/modules/redis.nix:3` |
-| `server.postgres` | PostgreSQL server enablement | `nix/modules/postgresql.nix:8` |
+ | `server.postgres` | PostgreSQL server config | `nix/modules/postgresql.nix:3` |
 | `storageMount` | Automatic SSD mounting | `nix/modules/ssd-mounter.nix:3-16` |
 | `swapAltWin` | Hyprland Alt/Win swap | `nix/homes/hyprland.nix:137` |
 

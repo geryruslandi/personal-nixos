@@ -55,7 +55,7 @@ Secrets are passed to all modules via `_module.args = { inherit secrets; }` in b
 ```nix
 { pkgs, secrets, ... }:
 {
-  services.postgresql.enable = secrets.server.postgres;
+  services.postgresql.enable = (secrets.server.postgres or {}).enable or false;
 }
 ```
 
@@ -70,7 +70,7 @@ secrets =
   if builtins.pathExists ./secrets.nix then
     import ./secrets.nix
   else
-    { ssh = []; git = {}; server = { redis = false; postgres = false; }; storageMount = []; };
+    { ssh = []; git = {}; server = { redis = false; postgres = { enable = false; }; }; storageMount = []; };
 ```
 
 ### Secrets schema (`secrets.nix`)
@@ -83,7 +83,7 @@ secrets =
   };
   ssh = [{ host, hostName, user, identityFile, extraOptions? }];
   wallhavenKey = "...";
-  server = { redis = false; postgres = false; };
+  server = { redis = false; postgres = { enable = false; user = ""; password = ""; superuser = false; databases = []; }; };
   storageMount = [{ mountPath, fsType, storageUUID }];
   swapAltWin = false;
 }
@@ -118,7 +118,7 @@ Catppuccin theming is applied at multiple layers:
 
 ## Module Examples
 
-- **Conditional enablement**: `nix/modules/postgresql.nix:8` (`enable = secrets.server.postgres;`)
+- **Conditional enablement + secrets**: `nix/modules/postgresql.nix:11` (`pg.enable or false`)
 - **List-to-attrs pattern**: `nix/modules/ssd-mounter.nix:3` and `nix/homes/ssh.nix:13`
 - **Flake input import**: `nix/modules/noctalia.nix:4` and `nix/homes/noctalia.nix:11`
 - **GPG conditional includes**: `nix/homes/git.nix:55` (conditional `?:` on `secrets.git.projects`)
