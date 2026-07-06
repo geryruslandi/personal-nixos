@@ -15,7 +15,7 @@ let
         git = { };
         server = {
           redis = false;
-          postgres = false;
+          postgres = { enable = false; };
         };
         storageMount = [ ];
       }; # Fallback

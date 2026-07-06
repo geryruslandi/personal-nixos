@@ -41,7 +41,13 @@
   wallhavenKey = "someSecretKeyHere";
   servers = {
     redis = false;
-    postgres = false;
+    postgres = {
+      enable = true;
+      user = "postgres";
+      password = "postgres";
+      superuser = true;
+      databases = ["postgres"];
+    };
   };
   storageMount = [
     {
