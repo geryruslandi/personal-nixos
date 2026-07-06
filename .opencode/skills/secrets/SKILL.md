@@ -39,7 +39,12 @@ description: Use when editing or managing secrets.nix — adding git projects, S
   ];
   wallhavenKey = "someSecretKeyHere";  # Wallhaven API key for Noctalia wallpaper
   server = {
-    redis = false;                     # Enable Redis server
+    redis = {
+      enable = false;                  # Enable Redis server
+      port = 6379;                     # optional — Listening port
+      password = null;                 # optional — requirepass (null = no password)
+      user = "redis";                  # optional — System user to run Redis
+    };
     postgres = false;                  # Enable PostgreSQL server
   };
   storageMount = [
@@ -61,7 +66,7 @@ description: Use when editing or managing secrets.nix — adding git projects, S
 | `git.projects` | Conditional Git includes | `nix/homes/git.nix:55` |
 | `ssh` | SSH host configurations | `nix/homes/ssh.nix:13-23` |
 | `wallhavenKey` | Noctalia wallpaper source | `nix/homes/noctalia.nix:194-195` |
-| `server.redis` | (future use) | — |
+| `server.redis` | Redis server enablement | `nix/modules/redis.nix:3` |
 | `server.postgres` | PostgreSQL server enablement | `nix/modules/postgresql.nix:8` |
 | `storageMount` | Automatic SSD mounting | `nix/modules/ssd-mounter.nix:3-16` |
 | `swapAltWin` | Hyprland Alt/Win swap | `nix/homes/hyprland.nix:137` |

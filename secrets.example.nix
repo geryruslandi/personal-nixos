@@ -40,7 +40,12 @@
   ];
   wallhavenKey = "someSecretKeyHere";
   servers = {
-    redis = false;
+    redis = {
+      enable = false;
+      port = 6379;       # optional
+      password = null;   # optional
+      user = "redis";    # optional
+    };
     postgres = {
       enable = true;
       user = "postgres";

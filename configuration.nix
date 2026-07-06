@@ -14,7 +14,7 @@ let
         ssh = [ ];
         git = { };
         server = {
-          redis = false;
+          redis = { enable = false; };
           postgres = { enable = false; };
         };
         storageMount = [ ];
@@ -39,6 +39,7 @@ in
     ./nix/modules/bitwarden.nix
     ./nix/modules/steam.nix
     ./nix/modules/postgresql.nix
+    ./nix/modules/redis.nix
     ./nix/modules/lutris.nix
     ./nix/modules/podman.nix
     ./nix/modules/polkit.nix
