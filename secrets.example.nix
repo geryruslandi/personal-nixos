@@ -20,6 +20,13 @@
         # gpg is optional here
       }
     ];
+    # Per-folder gitignore patterns — applies to ALL repos under the given path
+    ignores = [
+      {
+        path = "~/code/work/";
+        patterns = [".opencode" ".env" "*.log"];
+      }
+    ];
   };
   ssh = [
     {

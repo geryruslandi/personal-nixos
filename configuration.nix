@@ -36,6 +36,7 @@ in
     ./nix/modules/waydroid.nix
     ./nix/modules/mysql.nix
     ./nix/modules/dolphin.nix
+    ./nix/modules/fan-control.nix
     ./nix/modules/bitwarden.nix
     ./nix/modules/steam.nix
     ./nix/modules/postgresql.nix
