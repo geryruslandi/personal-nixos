@@ -77,6 +77,9 @@ in
             name = secrets.git.defaultUser.name;
             email = secrets.git.defaultUser.email;
           };
+          init = {
+            defaultBranch = secrets.git.defaultBranch or "main";
+          };
         }
       else
         { };

@@ -1,5 +1,6 @@
 {
   git = {
+    defaultBranch = "main";
     defaultUser = {
       name = "Your Name";
       email = "personal@email.com";
