@@ -34,6 +34,8 @@ in
     ./nix/homes/appimages.nix
     ./nix/homes/python.nix
     ./nix/homes/opencode.nix
+    ./nix/homes/tmux.nix
+    ./nix/homes/go.nix
   ];
 
   # This is the magic part:

@@ -49,6 +49,7 @@
     "runtime/org.kde.KStyle.Kvantum/x86_64/6.6"
     "org.pulseaudio.pavucontrol"
     "com.redis.RedisInsight"
+    "com.github.Murmele.Gittyup"
   ];
 
   services.flatpak.overrides = {
