@@ -32,6 +32,7 @@ in
     ./nix/homes/git.nix
     ./nix/homes/ssh.nix
     ./nix/homes/appimages.nix
+    ./nix/homes/bruno.nix
     ./nix/homes/python.nix
     ./nix/homes/opencode.nix
     ./nix/homes/tmux.nix
