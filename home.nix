@@ -36,6 +36,7 @@ in
     ./nix/homes/opencode.nix
     ./nix/homes/tmux.nix
     ./nix/homes/go.nix
+    ./nix/homes/fastfetch.nix
   ];
 
   # This is the magic part:
@@ -145,6 +146,7 @@ in
       wqy_microhei
 
       nerd-fonts.jetbrains-mono
+      go-task
     ];
 
     # You do not need to change this if you're reading this in the future.

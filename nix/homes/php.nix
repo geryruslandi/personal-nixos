@@ -29,7 +29,7 @@ let
 
     # Add your custom memory limit here
     extraConfig = ''
-      memory_limit = 2G
+      memory_limit = -1
     '';
   };
 in

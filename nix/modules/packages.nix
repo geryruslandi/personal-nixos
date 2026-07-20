@@ -2,7 +2,6 @@
 
 {
   environment.systemPackages = with pkgs; [
-    fastfetch
     mariadb
     fnm
     htop
