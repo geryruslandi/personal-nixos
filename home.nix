@@ -147,6 +147,18 @@ in
 
       nerd-fonts.jetbrains-mono
       go-task
+
+      neovim
+
+      # LazyVim external dependencies
+      ripgrep
+      fd
+      lazygit
+      fzf
+
+      # treesitter compilation
+      gcc
+      tree-sitter
     ];
 
     # You do not need to change this if you're reading this in the future.
