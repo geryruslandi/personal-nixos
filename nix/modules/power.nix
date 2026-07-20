@@ -3,6 +3,8 @@
 {
   services.upower.enable = true;
   services.power-profiles-daemon.enable = true;
+  powerManagement.powertop.enable = true;
+
   services.tlp = {
     enable = false;
     settings = {

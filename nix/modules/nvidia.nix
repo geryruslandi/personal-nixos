@@ -48,26 +48,42 @@
       nvidiaBusId = "PCI:1:0:0";
       # amdgpuBusId = "PCI:54:0:0"; For AMD GPU
 
-      # OFFLOAD MODE (better battery)
-      # offload = {
-      #   enable = true;
-      #   enableOffloadCmd = true;
-      # };
+      # OFFLOAD MODE (better battery) — default
+      offload = {
+        enable = true;
+        enableOffloadCmd = true;
+      };
 
-      # SYNC MODE (better performance)
+      # SYNC MODE (better performance) — enabled via nvidia-only specialisation
       # sync.enable = true;
     };
   };
 
-  # OFFLOAD on battery
-  # SYNC on charge
+  # GPU mode switching via NixOS specialisations (boot-selectable)
   specialisation = {
-    on-the-go.configuration = {
-      system.nixos.tags = [ "on-the-go" ];
+    # Intel iGPU only — NVIDIA fully disabled
+    integrated.configuration = {
+      system.nixos.tags = [ "integrated" ];
+      boot.blacklistedKernelModules = [
+        "nvidia" "nvidia_drm" "nvidia_modeset" "nvidia_uvm"
+      ];
       hardware.nvidia = {
-        prime.offload.enable = lib.mkForce true;
-        prime.offload.enableOffloadCmd = lib.mkForce true;
+        prime.offload.enable = lib.mkForce false;
+        prime.offload.enableOffloadCmd = lib.mkForce false;
         prime.sync.enable = lib.mkForce false;
+        powerManagement.enable = lib.mkForce false;
+        powerManagement.finegrained = lib.mkForce false;
+        modesetting.enable = lib.mkForce false;
+      };
+    };
+
+    # NVIDIA dGPU only — PRIME Sync, maximum performance
+    nvidia-only.configuration = {
+      system.nixos.tags = [ "nvidia-only" ];
+      hardware.nvidia = {
+        prime.offload.enable = lib.mkForce false;
+        prime.offload.enableOffloadCmd = lib.mkForce false;
+        prime.sync.enable = lib.mkForce true;
       };
     };
   };
