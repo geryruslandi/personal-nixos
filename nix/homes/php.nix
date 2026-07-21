@@ -6,7 +6,7 @@ let
     extensions =
       { all, enabled }:
       with all;
-      enabled
+      (builtins.filter (e: e != xml) enabled)
       ++ [
         bcmath
         ctype
@@ -22,7 +22,6 @@ let
         pdo_mysql # Change to pdo_pgsql or pdo_sqlite as needed
         session
         tokenizer
-        xml
         xmlwriter
         zip
       ];
@@ -37,6 +36,7 @@ in
   home.packages = [
     phpWithLaravel
     pkgs.php82Packages.composer
+    pkgs.php82Packages.php-codesniffer
   ];
 
   # Optional: Add global Composer binaries to your PATH
