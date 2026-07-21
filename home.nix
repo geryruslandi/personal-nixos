@@ -38,6 +38,7 @@ in
     ./nix/homes/tmux.nix
     ./nix/homes/go.nix
     ./nix/homes/fastfetch.nix
+    ./nix/homes/nvim.nix
   ];
 
   # This is the magic part:
@@ -152,17 +153,6 @@ in
       nerd-fonts.jetbrains-mono
       go-task
 
-      neovim
-
-      # LazyVim external dependencies
-      ripgrep
-      fd
-      lazygit
-      fzf
-
-      # treesitter compilation
-      gcc
-      tree-sitter
     ];
 
     # You do not need to change this if you're reading this in the future.
