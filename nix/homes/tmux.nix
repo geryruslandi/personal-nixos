@@ -17,6 +17,9 @@
       # Pass through Kitty keyboard protocol sequences (e.g. Shift+Enter)
       set -g extended-keys on
 
+      # Shift+Enter → insert newline
+      bind -T root S-Enter send-keys \n
+
       # --- Simple Catppuccin (Frappe) theme ---
       set -g status-style               "fg=#c6d0f5,bg=#303446"
       set -g status-left                "#[fg=#ca9ee6,bold] #S "
