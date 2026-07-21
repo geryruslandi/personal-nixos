@@ -89,6 +89,9 @@ in
       color14 = "#81c8be";
       color15 = "#c6d0f5";
     };
+    keybindings = {
+      "shift+enter" = "send_text all \\x1b[13;2u";
+    };
   };
 
   fonts.fontconfig.enable = true;
