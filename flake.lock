@@ -523,6 +523,23 @@
         "url": "https://git.outfoxxed.me/outfoxxed/quickshell"
       }
     },
+    "reasonix": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1784659944,
+        "narHash": "sha256-PwNxwtY4ay6neXkzGjFkpe7/S7bSnLT9KhLEjrXypSU=",
+        "owner": "esengine",
+        "repo": "DeepSeek-Reasonix",
+        "rev": "5480019c4f74a8cf6cf416885928eddeb3f57100",
+        "type": "github"
+      },
+      "original": {
+        "owner": "esengine",
+        "ref": "main-v2",
+        "repo": "DeepSeek-Reasonix",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "home-manager": "home-manager",
@@ -531,6 +548,7 @@
         "nixpkgs": "nixpkgs_2",
         "noctalia": "noctalia",
         "quickshell": "quickshell",
+        "reasonix": "reasonix",
         "silentSDDM": "silentSDDM"
       }
     },

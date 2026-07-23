@@ -2,6 +2,7 @@
   lib,
   pkgs,
   inputs,
+  reasonixPkg,
   config,
   ...
 }:
@@ -153,6 +154,7 @@ in
       nerd-fonts.jetbrains-mono
       go-task
 
+      reasonixPkg
     ];
 
     # You do not need to change this if you're reading this in the future.
