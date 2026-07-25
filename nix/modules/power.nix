@@ -1,6 +1,15 @@
 { config, pkgs, ... }:
 
 {
+  # Kernel power-saving parameters (applied at boot)
+  boot.kernelParams = [
+    "nohz=on"                   # disable periodic timer ticks on idle CPUs
+    "i915.enable_dc=4"          # display deep C-states
+    "i915.enable_fbc=1"         # frame buffer compression
+    "i915.enable_psr=1"         # panel self refresh
+    "pcie_aspm.policy=powersupersave" # PCIe ASPM deepest L1 state
+  ];
+
   services.upower.enable = true;
   services.power-profiles-daemon.enable = true;
   powerManagement.powertop.enable = true;
@@ -72,14 +81,26 @@
             ;;
         esac
       fi
+
+      # Services: background daemons not needed on battery
+      case "$profile" in
+        power-saver|low-power|quiet)
+          systemctl stop cloudflare-warp.service 2>/dev/null || true
+          systemctl stop redis.service 2>/dev/null || true
+          caps="$caps,services-stop"
+          ;;
+        *)
+          systemctl start cloudflare-warp.service 2>/dev/null || true
+          systemctl start redis.service 2>/dev/null || true
+          caps="$caps,services-start"
+          ;;
+      esac
     '';
   };
   systemd.paths."cpu-max-perf-pct" = {
     wantedBy = [ "multi-user.target" ];
     pathConfig.PathModified = [ "/sys/firmware/acpi/platform_profile" ];
   };
-
-
 
   services.tlp = {
     enable = false;
