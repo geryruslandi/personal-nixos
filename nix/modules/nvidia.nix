@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, secrets, ... }:
 {
   # Enable OpenGL
   hardware.graphics = {
@@ -43,10 +43,8 @@
     package = config.boot.kernelPackages.nvidiaPackages.stable;
 
     prime = {
-      # Make sure to use the correct Bus ID values for your system!
-      intelBusId = "PCI:0:2:0";
-      nvidiaBusId = "PCI:1:0:0";
-      # amdgpuBusId = "PCI:54:0:0"; For AMD GPU
+      intelBusId = secrets.nvidia.intelBusId or "PCI:0:2:0";
+      nvidiaBusId = secrets.nvidia.nvidiaBusId or "PCI:1:0:0";
 
       # OFFLOAD MODE (better battery) — default
       offload = {

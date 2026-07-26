@@ -75,5 +75,11 @@
       storageUUID = "09e384ed-b4aa-4a15-bab5-8d94e27349ca";
     }
   ];
+  nvidia = {
+    # Intel Bus ID — run `lspci | grep -i "VGA" | grep -i intel` → e.g. "00:02.0" → PCI:0:2:0
+    intelBusId = "PCI:0:2:0";
+    # Nvidia Bus ID — run `lspci | grep -i nvidia` → e.g. "01:00.0" → PCI:1:0:0
+    nvidiaBusId = "PCI:1:0:0";
+  };
   swapAltWin = false; # to swap alt and super keys, set this to true and uncomment the kb_options in the hyprland.nix input
 }
