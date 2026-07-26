@@ -13,7 +13,7 @@
     fi
   '';
 
-  programs.zsh.initExtra = ''
+  programs.zsh.initContent = ''
     export LD_LIBRARY_PATH="${lib.makeLibraryPath (with pkgs; [
       stdenv.cc.cc
       zlib

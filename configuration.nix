@@ -16,6 +16,7 @@ let
         server = {
           redis = { enable = false; };
           postgres = { enable = false; };
+          mysql = { enable = false; };
         };
         storageMount = [ ];
       }; # Fallback
@@ -73,8 +74,9 @@ in
   services.logind.settings = {
     Login = {
       HandlePowerKey = "ignore";
-      # HandleLidSwitch = "suspend";
-      # HandleLidSwitchExternalPower = "ignore";
+      HandleLidSwitch = "suspend";
+      HandleLidSwitchExternalPower = "suspend";
+      HandleLidSwitchDocked = "ignore";
     };
   };
 

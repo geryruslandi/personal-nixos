@@ -1,15 +1,24 @@
-{
-  pkgs,
-  lib,
-  ...
-}:
+{ pkgs, lib, secrets, ... }:
+let
+  mysql = secrets.server.mysql or { enable = false; };
+in
 {
   services.mysql = {
-    enable = true;
+    enable = mysql.enable or false;
     package = pkgs.mysql84;
+
+    ensureUsers = lib.optional mysql.enable ({
+      name = mysql.user;
+      ensurePermissions = {
+        "*.*" = "ALL PRIVILEGES";
+      };
+    } // lib.optionalAttrs (mysql ? password && mysql.password != null) {
+      password = mysql.password;
+    });
+
+    initialDatabases = lib.optionals mysql.enable (map (name: { inherit name; }) mysql.databases or []);
   };
 
-  # TO handle some mysql client UI still using mariadb instead of mysql
   environment.systemPackages = with pkgs; [
     mariadb
   ];

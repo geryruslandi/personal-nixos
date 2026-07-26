@@ -47,7 +47,7 @@
     }
   ];
   wallhavenKey = "someSecretKeyHere";
-  servers = {
+  server = {
     redis = {
       enable = false;
       port = 6379;       # optional
@@ -60,6 +60,12 @@
       password = "postgres";
       superuser = true;
       databases = ["postgres"];
+    };
+    mysql = {
+      enable = true;
+      user = "root";
+      password = "root";  # optional
+      databases = ["mydb"];
     };
   };
   storageMount = [
