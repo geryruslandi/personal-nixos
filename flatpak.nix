@@ -1,5 +1,5 @@
 # home.nix
-{ lib, ... }:
+{ lib, secrets, ... }:
 {
 
   # Add a new remote. Keep the default one (flathub)
@@ -70,7 +70,7 @@
         ];
       };
       Environment = {
-        TZ = "Asia/Jakarta";
+        TZ = secrets.timezone;
         # Force Qt apps to use the portal for settings
         GTK_USE_PORTAL = "1";
         # Tell Qt to mimic GTK (most reliable for Flatpak)

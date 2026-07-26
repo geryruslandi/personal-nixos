@@ -2,6 +2,7 @@
   lib,
   pkgs,
   inputs,
+  secrets,
   ...
 }:
 {
@@ -20,8 +21,8 @@
         profile.name = "laptop";
         profile.outputs = [
           {
-            criteria = "eDP-1";
-            scale = 2.0;
+            criteria = secrets.monitor.laptopOutput;
+            scale = secrets.monitor.laptopScale;
             status = "enable";
           }
         ];
@@ -30,11 +31,11 @@
         profile.name = "dockedAtHome";
         profile.outputs = [
           {
-            criteria = "eDP-1";
+            criteria = secrets.monitor.laptopOutput;
             status = "disable";
           }
           {
-            criteria = "Xiaomi Corporation Mi monitor 5505610017133";
+            criteria = secrets.monitor.externalOutput;
             status = "enable";
           }
         ];

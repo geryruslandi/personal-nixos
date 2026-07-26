@@ -17,6 +17,14 @@ let
         ssh = [ ];
         git = { };
         swapAltWin = false;
+        timezone = "UTC";
+        monitor = {
+          laptopOutput = "eDP-1";
+          laptopScale = 2.0;
+          externalOutput = "";
+        };
+        sddmScale = 1.0;
+        devPorts = [ ];
       }; # Fallback
 in
 {

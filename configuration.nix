@@ -23,6 +23,14 @@ let
           intelBusId = "PCI:0:2:0";
           nvidiaBusId = "PCI:1:0:0";
         };
+        timezone = "UTC";
+        monitor = {
+          laptopOutput = "eDP-1";
+          laptopScale = 2.0;
+          externalOutput = "";
+        };
+        sddmScale = 1.0;
+        devPorts = [ ];
       }; # Fallback
 in
 {
@@ -157,7 +165,7 @@ in
   };
 
   # Set your time zone.
-  time.timeZone = "Asia/Jakarta";
+  time.timeZone = secrets.timezone;
 
   # Select internationalisation properties.
   i18n.defaultLocale = "en_US.UTF-8";
@@ -189,10 +197,7 @@ in
   # services.openssh.enable = true;
 
   # Open ports in the firewall.
-  networking.firewall.allowedTCPPorts = [
-    8000
-    5173
-  ];
+  networking.firewall.allowedTCPPorts = secrets.devPorts;
   # networking.firewall.allowedUDPPorts = [ ... ];
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;

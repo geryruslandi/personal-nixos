@@ -3,6 +3,7 @@
   pkgs,
   inputs,
   config,
+  secrets,
   ...
 }:
 {
@@ -18,7 +19,7 @@
     };
     settings = {
       General = {
-        scale = 1.5;
+        scale = secrets.sddmScale;
       };
       LoginScreen = {
         background = "assassins-creed-shift-right.png";
