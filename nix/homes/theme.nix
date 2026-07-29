@@ -10,6 +10,8 @@
     XDG_CONFIG_HOME = "$HOME/.config";
     XDG_CACHE_HOME = "$HOME/.cache";
     GTK_USE_PORTAL = "1";
+    MOZ_ENABLE_WAYLAND = "1";    # Wayland backend for Firefox-based browsers
+    NIXOS_OZONE_WL = "1";        # Wayland backend for Electron/Chromium native apps
   };
 
   home.pointerCursor = {

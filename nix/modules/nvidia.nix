@@ -1,8 +1,18 @@
 { config, pkgs, lib, secrets, ... }:
 {
-  # Enable OpenGL
+  # Enable OpenGL + Hardware Video Acceleration (VA-API / NVDEC)
   hardware.graphics = {
     enable = true;
+    extraPackages = with pkgs; [
+      intel-media-driver        # VA-API for Intel iGPU (Broadwell+)
+      nvidia-vaapi-driver       # VA-API → NVDEC bridge for Nvidia dGPU
+      libva-vdpau-driver        # VDPAU backend for VA-API interop
+      libvdpau-va-gl            # VDPAU → OpenGL bridge
+    ];
+    extraPackages32 = with pkgs; [
+      intel-media-driver        # 32-bit VA-API for Steam/Proton
+      libva-vdpau-driver
+    ];
   };
 
   # Load nvidia driver for Xorg and Wayland

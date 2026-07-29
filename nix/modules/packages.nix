@@ -27,6 +27,9 @@
     kdePackages.kservice
     kdePackages.kio-extras
 
+    # Hardware video acceleration verification
+    libva-utils
+
     # DIsk usage analyzer
     ncdu
     # Disk manager

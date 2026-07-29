@@ -1,45 +1,51 @@
 { pkgs, ... }:
 let
-  # Define a PHP build with all Laravel mandatory extensions
-  phpWithLaravel = pkgs.php82.buildEnv {
-    # Specify your extensions here (same format as withExtensions)
-    extensions =
-      { all, enabled }:
-      with all;
-      (builtins.filter (e: e != xml) enabled)
-      ++ [
-        bcmath
-        ctype
-        curl
-        dom
-        fileinfo
-        filter
-        gd
-        intl
-        mbstring
-        openssl
-        pdo
-        pdo_mysql # Change to pdo_pgsql or pdo_sqlite as needed
-        session
-        tokenizer
-        xmlwriter
-        zip
-      ];
+  commonExtensions =
+    { all, enabled }:
+    with all;
+    (builtins.filter (e: e != xml) enabled)
+    ++ [
+      bcmath
+      ctype
+      curl
+      dom
+      fileinfo
+      filter
+      gd
+      intl
+      mbstring
+      openssl
+      pdo
+      pdo_mysql
+      session
+      tokenizer
+      xmlwriter
+      zip
+    ];
 
-    # Add your custom memory limit here
-    extraConfig = ''
-      memory_limit = -1
-    '';
+  phpWithLaravel = pkgs.php83.buildEnv {
+    extensions = commonExtensions;
+    extraConfig = "memory_limit = -1";
+  };
+
+  php82WithLaravel = pkgs.php82.buildEnv {
+    extensions = commonExtensions;
+    extraConfig = "memory_limit = -1";
   };
 in
 {
   home.packages = [
-    phpWithLaravel
-    pkgs.php82Packages.composer
+    phpWithLaravel                   # `php` = 8.3 with full extensions
+    (pkgs.writeShellScriptBin "php82" ''
+      exec ${php82WithLaravel}/bin/php "$@"
+    '')
+    pkgs.php83Packages.composer      # `composer` — compiled with PHP 8.3
+    (pkgs.writeShellScriptBin "composer82" ''
+      exec ${pkgs.php82Packages.composer}/bin/composer "$@"
+    '')
     pkgs.php82Packages.php-codesniffer
   ];
 
-  # Optional: Add global Composer binaries to your PATH
   home.sessionPath = [
     "$HOME/.config/composer/vendor/bin"
   ];

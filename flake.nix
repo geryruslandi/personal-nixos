@@ -19,8 +19,8 @@
     silentSDDM.url = "github:uiriansan/SilentSDDM";
     silentSDDM.inputs.nixpkgs.follows = "nixpkgs";
 
-    reasonix.url = "github:esengine/DeepSeek-Reasonix/main-v2";
-    reasonix.flake = false;
+    aethertune.url = "github:nevermore23274/AetherTune";
+
   };
 
   outputs =
@@ -28,7 +28,6 @@
       nixpkgs,
       home-manager,
       nix-flatpak,
-      reasonix,
       ...
     }:
     let
@@ -36,26 +35,17 @@
       system = "x86_64-linux";
       pkgs = import nixpkgs { inherit system; };
 
-      reasonixPkg = pkgs.buildGoModule {
-        pname = "reasonix";
-        version = "unstable-2026-07-22";
-        src = inputs.reasonix;
-        vendorHash = "sha256-aCkpuj75e4B0kC9PibDir8fo68EvVNlC5B0NQrEJK3M=";
-        subPackages = [ "./cmd/reasonix" ];
-      };
     in
     {
-      packages.${system}.default = reasonixPkg;
-
       nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
-        specialArgs = { inherit inputs reasonixPkg; }; # this is the important part
+        specialArgs = { inherit inputs; }; # this is the important part
         modules = [
           ./configuration.nix
           ./flatpak.nix
           home-manager.nixosModules.home-manager
           nix-flatpak.nixosModules.nix-flatpak
           {
-            home-manager.extraSpecialArgs = { inherit inputs reasonixPkg; };
+            home-manager.extraSpecialArgs = { inherit inputs; };
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
 
