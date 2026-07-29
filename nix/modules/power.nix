@@ -10,7 +10,15 @@
     "pcie_aspm.policy=powersupersave" # PCIe ASPM deepest L1 state
     "usbcore.autosuspend=2"          # USB autosuspend after 2s idle
     "nvme_core.default_ps_max_latency_us=5500" # NVMe deeper power states
+    "loglevel=3"                     # reduce printk wakeups
   ];
+
+  # Tune kernel dirty page behavior for fewer wakeups on battery
+  boot.kernel.sysctl = {
+    "vm.dirty_writeback_centisecs" = 6000;   # background writeback every 60s (default 1500)
+    "vm.dirty_expire_centisecs"    = 12000;  # dirty pages expire after 120s (default 3000)
+    "vm.dirty_background_ratio"    = 5;      # start writeback at 5% dirty (default 10)
+  };
 
   services.upower.enable = true;
   services.power-profiles-daemon.enable = true;
