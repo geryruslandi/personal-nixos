@@ -8,6 +8,8 @@
     "i915.enable_fbc=1"         # frame buffer compression
     "i915.enable_psr=1"         # panel self refresh
     "pcie_aspm.policy=powersupersave" # PCIe ASPM deepest L1 state
+    "usbcore.autosuspend=2"          # USB autosuspend after 2s idle
+    "nvme_core.default_ps_max_latency_us=5500" # NVMe deeper power states
   ];
 
   services.upower.enable = true;
@@ -15,6 +17,54 @@
   powerManagement.powertop.enable = true;
 
   environment.systemPackages = [ pkgs.powertop ];
+
+  # Before suspend: block radios, disable ACPI/USB wake that blocks S0ix, enable PCI runtime PM
+  # After resume: restore ACPI wake + Bluetooth
+  systemd.services.suspend-power-save = {
+    description = "Power saving hooks before suspend / restore after resume";
+    before = [ "sleep.target" ];
+    wantedBy = [ "sleep.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      Environment = "PATH=/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:/bin";
+    };
+    script = ''
+      # Disable ACPI wake for devices that block deep S0ix (s2idle)
+      # XHCI (USB controller at S0) is the most critical — keeps SoC out of C10/S0i3
+      WAKE_STATE="/var/run/suspend-power-save-wake-state"
+      mkdir -p "$(dirname "$WAKE_STATE")"
+      rm -f "$WAKE_STATE"
+      for dev in XHCI PEG0 PEG1 PEG2 RP04 TXHC TDM0 TRP0 TRP1 AWAC; do
+        state=$(grep "^$dev " /proc/acpi/wakeup 2>/dev/null | tr -s ' ' | cut -d' ' -f3)
+        if [ "$state" = "enabled" ]; then
+          echo "$dev" >> "$WAKE_STATE"
+          echo "$dev" > /proc/acpi/wakeup
+        fi
+      done
+
+      # Disable Bluetooth radio before sleep
+      rfkill block bluetooth 2>/dev/null || true
+
+      # Enable runtime power management for all PCI devices
+      for dev in /sys/bus/pci/devices/*/power/control; do
+        echo auto > "$dev" 2>/dev/null || true
+      done
+    '';
+    postStop = ''
+      # Restore ACPI wake devices that were disabled before sleep
+      WAKE_STATE="/var/run/suspend-power-save-wake-state"
+      if [ -f "$WAKE_STATE" ]; then
+        while IFS= read -r dev; do
+          echo "$dev" > /proc/acpi/wakeup 2>/dev/null || true
+        done < "$WAKE_STATE"
+        rm -f "$WAKE_STATE"
+      fi
+
+      # Restore Bluetooth after resume
+      rfkill unblock bluetooth 2>/dev/null || true
+    '';
+  };
 
   # Dynamic power capping — CPU, iGPU, and NVIDIA based on power profile
   # Power-saver → CPU @ 60%, iGPU limited, NVIDIA @ 15W
