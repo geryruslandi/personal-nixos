@@ -160,6 +160,7 @@ in
 
       nerd-fonts.jetbrains-mono
       go-task
+      posting
 
       inputs.aethertune.packages.${pkgs.system}.aethertune
     ];

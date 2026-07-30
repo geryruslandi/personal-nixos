@@ -1,5 +1,6 @@
 {
   config,
+  lib,
   pkgs,
   inputs,
   ...
@@ -13,9 +14,9 @@
       compositor = "kwin";
     };
     settings = {
-      Cursor = {
-        Theme = "Bibata-Modern-Classic";
-        Size = 24;
+      Theme = {
+        CursorTheme = "Bibata-Modern-Classic";
+        CursorSize = 24;
       };
     };
   };

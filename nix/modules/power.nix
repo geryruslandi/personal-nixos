@@ -20,6 +20,11 @@
     "vm.dirty_background_ratio"    = 5;      # start writeback at 5% dirty (default 10)
   };
 
+  # Intel PMC Core — Alder Lake S0ix tuning
+  boot.extraModprobeConfig = ''
+    options intel_pmc_core ltr_ignore_all_suspend=1 warn_on_s0ix_failures=1
+  '';
+
   services.upower.enable = true;
   services.power-profiles-daemon.enable = true;
   powerManagement.powertop.enable = true;
