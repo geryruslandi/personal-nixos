@@ -17,6 +17,7 @@ let
           redis = { enable = false; };
           postgres = { enable = false; };
           mysql = { enable = false; };
+          mailpit = { enable = false; };
         };
         storageMount = [ ];
         nvidia = {
@@ -55,6 +56,7 @@ in
     ./nix/modules/postgresql.nix
     ./nix/modules/redis.nix
     ./nix/modules/lutris.nix
+    ./nix/modules/mailpit.nix
     ./nix/modules/docker.nix
     ./nix/modules/polkit.nix
     ./nix/modules/ssd-mounter.nix

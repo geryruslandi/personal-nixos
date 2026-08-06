@@ -67,6 +67,11 @@
       password = "root";  # optional
       databases = ["mydb"];
     };
+    mailpit = {
+      enable = true;
+      smtpPort = 1025;  # optional
+      uiPort = 8025;    # optional
+    };
   };
   storageMount = [
     {
