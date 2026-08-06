@@ -45,6 +45,7 @@ in
     ./nix/homes/opencode.nix
     ./nix/homes/tmux.nix
     ./nix/homes/go.nix
+    ./nix/homes/gh.nix
     ./nix/homes/fastfetch.nix
     ./nix/homes/nvim.nix
   ];

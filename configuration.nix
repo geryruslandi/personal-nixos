@@ -55,7 +55,7 @@ in
     ./nix/modules/postgresql.nix
     ./nix/modules/redis.nix
     ./nix/modules/lutris.nix
-    ./nix/modules/podman.nix
+    ./nix/modules/docker.nix
     ./nix/modules/polkit.nix
     ./nix/modules/ssd-mounter.nix
     ./nix/modules/cloudflare-warp.nix

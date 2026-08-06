@@ -31,7 +31,12 @@
         "XDG_RUNTIME_DIR=/run/user/1000"
         "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus"
       ];
-      ExecStart = "${lib.getExe inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default} ipc call lockScreen lock";
+      ExecStart = pkgs.writeShellScript "noctalia-lock-before-suspend" ''
+        ${lib.getExe inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default} ipc call lockScreen lock
+        # Give the shell time to process the IPC and render the lock screen
+        # before systemd freezes user.slice, otherwise the desktop flashes on wake
+        sleep 2
+      '';
       TimeoutStartSec = "5s";
     };
   };

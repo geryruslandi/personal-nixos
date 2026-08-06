@@ -37,7 +37,6 @@
     "io.github.wiiznokes.fan-control"
     "org.gnome.Calendar"
     "io.github.antimicrox.antimicrox"
-    "com.github.marhkb.Pods"
     "de.z_ray.OptimusUI"
     "io.github.fabrialberio.pinapp"
     "org.kde.koko"
@@ -49,6 +48,7 @@
     "runtime/org.kde.KStyle.Kvantum/x86_64/6.6"
     "org.pulseaudio.pavucontrol"
     "com.redis.RedisInsight"
+    "io.podman_desktop.PodmanDesktop"
     "com.github.Murmele.Gittyup"
   ];
 
@@ -109,6 +109,22 @@
         filesystems = [
           "home"
         ];
+      };
+    };
+
+    "io.podman_desktop.PodmanDesktop" = {
+      Context = {
+        sockets = [
+          "wayland"
+          "!x11"
+          "!fallback-x11"
+        ];
+      };
+      Environment = {
+        # The app's manifest hardcodes XDG_SESSION_TYPE=x11 which makes
+        # Electron pick X11; force native Wayland instead
+        XDG_SESSION_TYPE = "wayland";
+        ELECTRON_OZONE_PLATFORM_HINT = "wayland";
       };
     };
   };

@@ -2,14 +2,11 @@
 
 {
   virtualisation = {
-    podman = {
+    docker = {
       enable = true;
-      dockerCompat = true;
-      dockerSocket.enable = true;
-      defaultNetwork.settings.dns_enabled = true;
+      autoPrune.enable = true;
     };
 
-    # This is the correct path for registry settings
     containers = {
       enable = true;
       registries.search = [
@@ -20,12 +17,12 @@
   };
 
   environment.systemPackages = with pkgs; [
-    podman-compose
-    podman-desktop
+    docker-compose
 
-    # Kubernetes client
     kubectl
     k3d
     just
   ];
+
+  users.users.geryruslandi.extraGroups = [ "docker" ];
 }

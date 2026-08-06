@@ -8,7 +8,7 @@ A fully declarative, Flake-based NixOS configuration featuring a high-performanc
 * **Shell & UI:** [Noctalia-shell](https://github.com/Noctalia/noctalia-shell) for the bar, widgets, and notifications.
 * **User Management:** [Home Manager](https://github.com/nix-community/home-manager) for dotfile and per-user state.
 * **Flatpaks:** Managed declaratively via [flatpak-nix](https://github.com/gjtaylor/flatpak-nix).
-* **Dev Stacks:** Out-of-the-box support for **React Native**, **PHP**, **MySQL**, and **Podman**.
+* **Dev Stacks:** Out-of-the-box support for **React Native**, **PHP**, **MySQL**, and **Docker**.
 
 ---
 
@@ -31,7 +31,6 @@ A fully declarative, Flake-based NixOS configuration featuring a high-performanc
 │   │   ├── mysql.nix
 │   │   ├── noctalia.nix
 │   │   ├── php.nix
-│   │   ├── podman.nix
 │   │   ├── react-native-setup.nix
 │   │   ├── theme.nix
 │   │   └── zsh.nix
@@ -123,7 +122,7 @@ To populate app entries on dolphin, you need to run commands:
 This setup includes specialized modules for a full-stack development workflow:
 * **Mobile:** React Native setup via `nix/homes/react-native-setup.nix`.
 * **Backend:** PHP and MySQL (managed via both System and Home modules for flexible environments).
-* **Virtualization:** Podman for rootless containers and Waydroid for running Android applications natively.
+* **Virtualization:** Docker for containers and Waydroid for running Android applications natively.
 
 ---
 
