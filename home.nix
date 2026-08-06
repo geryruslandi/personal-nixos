@@ -48,6 +48,7 @@ in
     ./nix/homes/gh.nix
     ./nix/homes/fastfetch.nix
     ./nix/homes/nvim.nix
+    ./nix/homes/azure.nix
   ];
 
   # This is the magic part:
