@@ -11,7 +11,7 @@ This is a fully declarative, Flake-based [NixOS](https://nixos.org/) configurati
 sudo nixos-generate-config --show-hardware-config > /etc/nixos/hardware-configuration.nix
 
 # Rebuild and switch
-sudo nixos-rebuild switch --flake . --impure
+./rebuild.sh
 
 # Update flake inputs
 nix flake update
@@ -30,6 +30,7 @@ git add --intent-to-add secrets.nix -f
 | `flake.nix` | Entry point, input definitions, NixOS + Home Manager module wiring |
 | `configuration.nix` | Core system configuration, imports all system modules |
 | `home.nix` | Home Manager entry point, imports all home modules |
+| `rebuild.sh` | Runs `sudo nixos-rebuild switch --flake . --impure --accept-flake-config` |
 | `secrets.nix` | Local secrets (git, ssh, wallhaven, etc.) — gitignored |
 | `flatpak.nix` | Declarative Flatpak applications and remotes |
 | `home-sync/` | Files linked into `$HOME` as **editable out-of-store symlinks** — edits write back to the repo and show up in `git status` (see `home-modules/home-sync.nix`) |
@@ -48,7 +49,7 @@ git add --intent-to-add secrets.nix -f
 ### Common Pitfalls
 
 - **Secrets not tracked by Git**: Flakes only see files tracked by Git. After creating `secrets.nix`, run `git add --intent-to-add secrets.nix -f` so the flake can read it.
-- **Noctalia-shell updates**: The project is pinned to noctalia v4 (`legacy-v4` branch) to avoid breaking changes. Do not change this URL without updating both `system-modules/noctalia.nix` and `home-modules/noctalia.nix` to match the new API.
+- **Noctalia v5**: The project is pinned to noctalia v5 via `github:noctalia-dev/noctalia/cachix` (always the latest commit with prebuilt binaries). Do **not** add `inputs.nixpkgs.follows` to the noctalia input — it disables the `noctalia.cachix.org` binary cache. Config is a TOML schema under `programs.noctalia.settings` (v5 native shell; binary is `noctalia`, IPC is `noctalia msg ...`). GUI settings overrides persist to `settings.toml` and layer over the declarative config.
 - **Dolphin MIME associations**: After changing KDE packages, run `rm -rf ~/.cache/ksycoca6* && kbuildsycoca6 --noincremental` to regenerate app menus.
 - **Imperative operations**: `--impure` allows access to `/etc/nixos/hardware-configuration.nix`. The flake cannot build in pure evaluation mode.
 

@@ -4,18 +4,20 @@
     inputs.noctalia.nixosModules.default
   ];
 
-  # install package
+  programs.noctalia = {
+    enable = true;
+    # Enables NetworkManager, Bluetooth, UPower and a power-profile service.
+    # All are already enabled elsewhere, so this is a no-op safety net.
+    recommendedServices.enable = true;
+  };
+
+  # wl-clipboard is still needed by grimblast (screenshots); cliphist and
+  # wtype are no longer needed because v5 has native Wayland clipboard.
   environment.systemPackages = with pkgs; [
-    inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default
-    cliphist
-    wtype
     wl-clipboard
-    # ... maybe other stuff
   ];
 
-  # Systemd startup is deprecated for Noctalia.
-  # Noctalia is now launched via Hyprland's exec-once instead.
-  # services.noctalia-shell.enable = true;
+  # Noctalia is launched via Hyprland's exec-once, not systemd.
 
   # Lock screen before suspend (system level — runs before user.slice is frozen)
   systemd.services.noctalia-lock-before-suspend = {
@@ -32,7 +34,7 @@
         "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus"
       ];
       ExecStart = pkgs.writeShellScript "noctalia-lock-before-suspend" ''
-        ${lib.getExe inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default} ipc call lockScreen lock
+        ${lib.getExe inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default} msg session lock
         # Give the shell time to process the IPC and render the lock screen
         # before systemd freezes user.slice, otherwise the desktop flashes on wake
         sleep 2

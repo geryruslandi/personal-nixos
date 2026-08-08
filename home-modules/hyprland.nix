@@ -31,8 +31,8 @@
       ## AUTOSTART (exec-once)
       ## ----------------------------------------------------
       exec-once = [
-        # Launch noctalia-shell (systemd service is deprecated)
-        "noctalia-shell"
+        # Launch noctalia (v5 native shell, launched via compositor autostart)
+        "noctalia"
         # Inhibit sleep while audio is playing (YouTube, Spotify, etc.)
         "sway-audio-idle-inhibit"
       ];
@@ -279,6 +279,19 @@
         "idle_inhibit always, match:class ^(steam_app_.*)$"
         "idle_inhibit always, match:class ^(app\\.zen_browser\\.zen)$, match:title ^(.*Meet.*)$"
         "idle_inhibit always, match:class ^(app\\.zen_browser\\.zen)$, match:title ^(.*Microsoft Teams.*)$"
+
+        # Noctalia settings window
+        "float on, match:class ^(dev.noctalia.Noctalia)$"
+        "size 1080 920, match:class ^(dev.noctalia.Noctalia)$"
+      ];
+
+      # Noctalia v5: blur shell surfaces, disable Hyprland layer animations
+      # so they don't interfere with Noctalia's own animations
+      layerrule = [
+        "no_anim on, match:namespace ^noctalia-(bar-.+|notification|dock|panel|attached-panel|osd|window-switcher)$"
+        "ignore_alpha 0.5, match:namespace ^noctalia-(bar-.+|notification|dock|panel|attached-panel|osd|window-switcher)$"
+        "blur on, match:namespace ^noctalia-(bar-.+|notification|dock|panel|attached-panel|osd|window-switcher)$"
+        "blur_popups on, match:namespace ^noctalia-(bar-.+|notification|dock|panel|attached-panel|osd|window-switcher)$"
       ];
 
       # The commented-out 'workspace' and 'windowrule' blocks for smart gaps are omitted
