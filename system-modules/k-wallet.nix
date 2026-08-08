@@ -6,6 +6,5 @@
   ];
 
   security.pam.services.sddm.kwallet.enable = true;
-  security.pam.services.sddm.kwallet.forceRun = true;
 
 }

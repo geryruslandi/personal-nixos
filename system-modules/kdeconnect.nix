@@ -2,16 +2,11 @@
 {
   # Enable KDE Connect daemon — pairs your phone with the desktop
   # for notifications, file transfer, remote input, etc.
-  programs.kdeconnect.enable = true;
-
-  # KDE Connect needs these ports open for device discovery and communication
-  networking.firewall = {
-    allowedTCPPortRanges = [
-      { from = 1714; to = 1764; }
-    ];
-    allowedUDPPortRanges = [
-      { from = 1714; to = 1764; }
-    ];
+  programs.kdeconnect = {
+    enable = true;
+    # Use the KDE 6/Qt 6 variant to match the rest of the KDE stack
+    # (the default pulls in a Plasma 5/Qt 5 runtime)
+    package = pkgs.kdePackages.kdeconnect-kde;
   };
 
   # Ensure kdeconnect-daemon starts on login (useful outside Plasma)

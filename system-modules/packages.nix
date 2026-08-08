@@ -22,11 +22,6 @@
     # for brightness keyboard shortcut
     brightnessctl
 
-    # For dolphin open app menu fixes
-    shared-mime-info
-    kdePackages.kservice
-    kdePackages.kio-extras
-
     # Hardware video acceleration verification
     libva-utils
 
@@ -38,9 +33,6 @@
     # okay-is browser
     vivaldi
     chromium
-
-    # PDF reader
-    kdePackages.okular
 
     file
     mpv

@@ -21,7 +21,7 @@ A fully declarative, Flake-based NixOS configuration featuring a high-performanc
 ├── flake.nix                # System entry point & input definitions
 ├── secrets.nix              # Local configuration, refer to secrets.example.nix
 ├── flatpak.nix              # Declarative Flatpak applications
-├── home-sync/               # Static assets/files for the home directory
+├── home-sync/               # Editable symlinks into $HOME (edits write back to the repo)
 ├── home.nix                 # Main Home Manager entry point
 ├── home-modules/            # Home Manager modules (User-space)
 │   ├── hyprland.nix

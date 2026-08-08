@@ -32,7 +32,7 @@ git add --intent-to-add secrets.nix -f
 | `home.nix` | Home Manager entry point, imports all home modules |
 | `secrets.nix` | Local secrets (git, ssh, wallhaven, etc.) — gitignored |
 | `flatpak.nix` | Declarative Flatpak applications and remotes |
-| `home-sync/` | Static assets/files synced into the home directory |
+| `home-sync/` | Files linked into `$HOME` as **editable out-of-store symlinks** — edits write back to the repo and show up in `git status` (see `home-modules/home-sync.nix`) |
 | `system-modules/` | System-level NixOS modules (audio, hyprland, nvidia, etc.) |
 | `home-modules/` | User-level Home Manager modules (git, zsh, hyprland, ssh, theme) |
 

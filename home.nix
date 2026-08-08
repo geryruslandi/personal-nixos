@@ -49,6 +49,7 @@ in
     ./home-modules/fastfetch.nix
     ./home-modules/nvim.nix
     ./home-modules/azure.nix
+    ./home-modules/home-sync.nix
   ];
 
   # This is the magic part:
@@ -117,30 +118,10 @@ in
     desktop = "${config.home.homeDirectory}/Desktop";
   };
 
-  # Ensure color scheme and Kvantum theme are directly accessible to Dolphin/KDE
-  xdg.dataFile = {
-    "color-schemes/CatppuccinFrappeBlue.colors".source =
-      "${pkgs.catppuccin-kde}/share/color-schemes/CatppuccinFrappeBlue.colors";
-
-    # Kvantum theme files
-    "Kvantum/catppuccin-frappe-blue/catppuccin-frappe-blue.svg".source =
-      "${pkgs.catppuccin-kvantum}/share/Kvantum/catppuccin-frappe-blue/catppuccin-frappe-blue.svg";
-    "Kvantum/catppuccin-frappe-blue/catppuccin-frappe-blue.kvconfig".source =
-      "${pkgs.catppuccin-kvantum}/share/Kvantum/catppuccin-frappe-blue/catppuccin-frappe-blue.kvconfig";
-  };
-
   home = {
-    file = {
-      ".config/gery".source = ./home-sync/.config/gery;
-      ".config/dolphinrc".source = ./home-sync/.config/dolphinrc;
-
-      # Activate the Kvantum theme
-      ".config/Kvantum/kvantum.kvconfig".text = ''
-        [General]
-        theme=catppuccin-frappe-blue
-      '';
-    };
-    # This needs to actually be set to your username
+    # Everything in home-sync/ is linked into $HOME as editable out-of-store
+    # symlinks by home-modules/home-sync.nix — do not add entries here for
+    # paths inside home-sync/.
     username = "geryruslandi";
     homeDirectory = "/home/geryruslandi";
 
@@ -151,10 +132,6 @@ in
 
       # Prevent sleep when audio is playing (YouTube, Spotify, etc.)
       sway-audio-idle-inhibit
-
-      # catppuccin color schemes for KDE apps (dolphin etc.)
-      catppuccin-kde
-      catppuccin-kvantum
 
       # chinese character support
       wqy_zenhei

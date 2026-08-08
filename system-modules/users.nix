@@ -10,10 +10,8 @@
       "wheel"
     ];
     packages = with pkgs; [
-      kdePackages.kate
       vscode
       nixfmt
-      kdePackages.qtsvg
       firefox
       antigravity
     ];

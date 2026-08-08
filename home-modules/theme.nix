@@ -55,13 +55,10 @@
     };
   };
 
-  # Qt Configuration (Kept exactly as you had it)
+  # Qt Configuration
   qt = {
     enable = true;
-    platformTheme.name = "qtct";
-    style = {
-      name = "kvantum";
-    };
+    platformTheme.name = "kde";
   };
 
 }

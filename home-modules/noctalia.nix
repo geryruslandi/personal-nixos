@@ -400,7 +400,7 @@
       };
       colorSchemes = {
         useWallpaperColors = false;
-        predefinedScheme = "Catppuccin";
+        predefinedScheme = "Nord";
         darkMode = true;
         schedulingMode = "off";
         manualSunrise = "06:30";

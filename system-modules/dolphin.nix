@@ -4,12 +4,6 @@
   # fix `open with` app entries
 
   environment.systemPackages = with pkgs; [
-    # For dolphin open app menu fixes
-    shared-mime-info
-    kdePackages.kservice
-    kdePackages.kio-extras
-    # dolphin package it self
-    kdePackages.dolphin
     # Archive integration — "Extract Here" context menu
     kdePackages.ark
     p7zip

@@ -15,7 +15,6 @@
       kdePackages.dolphin
       kdePackages.kio
       kdePackages.kate
-      kdePackages.kdf
       kdePackages.kio-fuse
       kdePackages.kio-extras
       kdePackages.kio-admin
@@ -26,7 +25,7 @@
       kdePackages.qtsvg # https://www.reddit.com/r/hyprland/comments/18ecoo3/dolphin_doesnt_work_properly_in_nixos_hyprland/
       kdePackages.kservice
       shared-mime-info
-      kdePackages.plasma-workspace
+      kdePackages.okular
     ];
   };
 }

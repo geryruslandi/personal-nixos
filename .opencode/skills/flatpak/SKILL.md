@@ -65,7 +65,7 @@ Only `flathub-beta` is added alongside the default Flathub (line 6-11). Auto-upd
 
 ### Current Applications (24 total)
 
-`net.nokyan.Resources`, `app.zen_browser.zen`, `dev.vencord.Vesktop`, `org.videolan.VLC`, `net.davidotek.pupgui2`, `com.github.tchx84.Flatseal`, `md.obsidian.Obsidian`, `org.qbittorrent.qBittorrent`, `io.github.peazip.PeaZip`, `org.gnome.Calculator`, `de.haeckerfelix.Shortwave`, `com.getpostman.Postman`, `io.github.ilya_zlobintsev.LACT`, `com.github.IsmaelMartinez.teams_for_linux`, `com.wps.Office`, `io.github.wiiznokes.fan-control`, `org.gnome.Calendar`, `io.github.antimicrox.antimicrox`, `com.github.marhkb.Pods`, `de.z_ray.OptimusUI`, `io.github.fabrialberio.pinapp`, `org.kde.koko`, `chat.rocket.RocketChat`, `com.opera.Opera`, `org.libreoffice.LibreOffice`, `org.telegram.desktop`, `org.kde.KStyle.Kvantum`, `org.pulseaudio.pavucontrol`, `com.redis.RedisInsight`.
+`net.nokyan.Resources`, `app.zen_browser.zen`, `dev.vencord.Vesktop`, `org.videolan.VLC`, `net.davidotek.pupgui2`, `com.github.tchx84.Flatseal`, `md.obsidian.Obsidian`, `org.qbittorrent.qBittorrent`, `io.github.peazip.PeaZip`, `org.gnome.Calculator`, `de.haeckerfelix.Shortwave`, `com.getpostman.Postman`, `io.github.ilya_zlobintsev.LACT`, `com.github.IsmaelMartinez.teams_for_linux`, `com.wps.Office`, `io.github.wiiznokes.fan-control`, `org.gnome.Calendar`, `io.github.antimicrox.antimicrox`, `com.github.marhkb.Pods`, `de.z_ray.OptimusUI`, `io.github.fabrialberio.pinapp`, `org.kde.koko`, `chat.rocket.RocketChat`, `com.opera.Opera`, `org.libreoffice.LibreOffice`, `org.telegram.desktop`, `org.pulseaudio.pavucontrol`, `com.redis.RedisInsight`.
 
 ### Checking What's Installed
 
