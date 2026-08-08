@@ -11,7 +11,7 @@
     inputs.noctalia.homeModules.default
   ];
 
-  home.file.".face".source = ../../homedir/.config/gery/Pictures/avatar.png;
+  home.file.".face".source = ../home-sync/.config/gery/Pictures/avatar.png;
 
   # configure options
   programs.noctalia-shell = {

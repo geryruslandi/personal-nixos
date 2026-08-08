@@ -21,32 +21,31 @@ A fully declarative, Flake-based NixOS configuration featuring a high-performanc
 ├── flake.nix                # System entry point & input definitions
 ├── secrets.nix              # Local configuration, refer to secrets.example.nix
 ├── flatpak.nix              # Declarative Flatpak applications
-├── homedir/                 # Static assets/files for the home directory
+├── home-sync/               # Static assets/files for the home directory
 ├── home.nix                 # Main Home Manager entry point
-├── nix
-│   ├── homes/               # Home Manager modules (User-space)
-│   │   ├── hyprland.nix
-│   │   ├── kanshi.nix
-│   │   ├── kde-associations.nix
-│   │   ├── mysql.nix
-│   │   ├── noctalia.nix
-│   │   ├── php.nix
-│   │   ├── react-native-setup.nix
-│   │   ├── theme.nix
-│   │   └── zsh.nix
-│   └── modules/             # System-level modules (Root-space)
-│       ├── audio.nix
-│       ├── bluetooth.nix
-│       ├── hyprland.nix
-│       ├── mysql.nix
-│       ├── noctalia.nix
-│       ├── nvidia.nix
-│       ├── packages.nix
-│       ├── power.nix
-│       ├── theme.nix
-│       ├── users.nix
-│       ├── waydroid.nix
-│       └── xdg.nix
+├── home-modules/            # Home Manager modules (User-space)
+│   ├── hyprland.nix
+│   ├── kanshi.nix
+│   ├── kde-associations.nix
+│   ├── mysql.nix
+│   ├── noctalia.nix
+│   ├── php.nix
+│   ├── react-native-setup.nix
+│   ├── theme.nix
+│   └── zsh.nix
+├── system-modules/          # System-level modules (Root-space)
+│   ├── audio.nix
+│   ├── bluetooth.nix
+│   ├── hyprland.nix
+│   ├── mysql.nix
+│   ├── noctalia.nix
+│   ├── nvidia.nix
+│   ├── packages.nix
+│   ├── power.nix
+│   ├── theme.nix
+│   ├── users.nix
+│   ├── waydroid.nix
+│   └── xdg.nix
 └── readme.md
 ```
 
@@ -120,7 +119,7 @@ To populate app entries on dolphin, you need to run commands:
 ## 💻 Development Environment
 
 This setup includes specialized modules for a full-stack development workflow:
-* **Mobile:** React Native setup via `nix/homes/react-native-setup.nix`.
+* **Mobile:** React Native setup via `home-modules/react-native-setup.nix`.
 * **Backend:** PHP and MySQL (managed via both System and Home modules for flexible environments).
 * **Virtualization:** Docker for containers and Waydroid for running Android applications natively.
 
@@ -181,5 +180,5 @@ If you encounter storage issues, run `lsblk`, then execute `e2fsck /dev/sd***` w
 - [x] **XDG App Menu Integration:** Integrate XDG App Menu with dolphin, so entries of `open with` on dolphin will be populated with existing apps
 - [x] **Bootloader Migration:** Change bootloader to grub.
 - [x] **SDDM Multi-screen:** Make sddm work on multi screen.
-- [x] **Kanshi Update:** Refactor deprecated declarations in `nix/homes/kanshi.nix` to the new syntax.
+- [x] **Kanshi Update:** Refactor deprecated declarations in `home-modules/kanshi.nix` to the new syntax.
 - [ ] **Integrate Optimus:** For seamless graphic card switching, integrate optimus app and prime-select

@@ -68,14 +68,14 @@ description: Use when editing or managing secrets.nix — adding git projects, S
 
 | Field | Consumer | File |
 |-------|----------|------|
-| `git.defaultUser` | Git config | `nix/homes/git.nix:46-55` |
-| `git.projects` | Conditional Git includes | `nix/homes/git.nix:55` |
-| `ssh` | SSH host configurations | `nix/homes/ssh.nix:13-23` |
-| `wallhavenKey` | Noctalia wallpaper source | `nix/homes/noctalia.nix:194-195` |
-| `server.redis` | Redis server enablement | `nix/modules/redis.nix:3` |
- | `server.postgres` | PostgreSQL server config | `nix/modules/postgresql.nix:3` |
-| `storageMount` | Automatic SSD mounting | `nix/modules/ssd-mounter.nix:3-16` |
-| `swapAltWin` | Hyprland Alt/Win swap | `nix/homes/hyprland.nix:137` |
+| `git.defaultUser` | Git config | `home-modules/git.nix:46-55` |
+| `git.projects` | Conditional Git includes | `home-modules/git.nix:55` |
+| `ssh` | SSH host configurations | `home-modules/ssh.nix:13-23` |
+| `wallhavenKey` | Noctalia wallpaper source | `home-modules/noctalia.nix:194-195` |
+| `server.redis` | Redis server enablement | `system-modules/redis.nix:3` |
+ | `server.postgres` | PostgreSQL server config | `system-modules/postgresql.nix:3` |
+| `storageMount` | Automatic SSD mounting | `system-modules/ssd-mounter.nix:3-16` |
+| `swapAltWin` | Hyprland Alt/Win swap | `home-modules/hyprland.nix:137` |
 
 ## Common Operations
 

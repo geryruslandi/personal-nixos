@@ -69,5 +69,11 @@
         }
       }
     }
+  },
+  "permission": {
+    "read": {
+      "secrets.nix": "deny",
+      "*": "allow"
+    }
   }
 }

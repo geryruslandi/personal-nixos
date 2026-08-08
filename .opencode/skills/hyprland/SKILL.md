@@ -1,13 +1,13 @@
 ---
 name: hyprland
-description: Use when modifying or understanding Hyprland window manager configuration — keybindings, monitors, window rules, animations, input settings. Configuration is split between the system module (nix/modules/hyprland.nix — enabling+SDDM) and the home module (nix/homes/hyprland.nix — all settings).
+description: Use when modifying or understanding Hyprland window manager configuration — keybindings, monitors, window rules, animations, input settings. Configuration is split between the system module (system-modules/hyprland.nix — enabling+SDDM) and the home module (home-modules/hyprland.nix — all settings).
 ---
 
 # Hyprland Configuration
 
 Hyprland config is split across **two files**:
 
-## System Module: `nix/modules/hyprland.nix` (lines 1-26)
+## System Module: `system-modules/hyprland.nix` (lines 1-26)
 
 Enables Hyprland and SDDM with Wayland:
 
@@ -19,7 +19,7 @@ services.displayManager.sddm = {
 };
 ```
 
-## Home Module: `nix/homes/hyprland.nix` (lines 1-280)
+## Home Module: `home-modules/hyprland.nix` (lines 1-280)
 
 All actual Hyprland settings live here. Uses `configType = "hyprlang"`.
 
@@ -60,14 +60,14 @@ All actual Hyprland settings live here. Uses `configType = "hyprlang"`.
 
 ### Window Rules
 
-Current rules in `nix/homes/hyprland.nix:259-274`:
+Current rules in `home-modules/hyprland.nix:259-274`:
 
 - Steam games: force fullscreen + tile (fixes black borders)
 - Zen Browser meets/teams: idle inhibit always
 
 ### Modifying Keybindings
 
-Add entries to the `bind` list in `nix/homes/hyprland.nix`. Available keybind types:
+Add entries to the `bind` list in `home-modules/hyprland.nix`. Available keybind types:
 
 - `bind` — normal key combo
 - `bindm` — mouse bind (move/resize)
@@ -77,4 +77,4 @@ Add entries to the `bind` list in `nix/homes/hyprland.nix`. Available keybind ty
 
 ### Modifying Monitor Setup
 
-The `kanshi` home module (`nix/homes/kanshi.nix`) handles dynamic monitor profiles for docked vs. laptop mode. Static monitor config in hyprland settings is intentionally minimal.
+The `kanshi` home module (`home-modules/kanshi.nix`) handles dynamic monitor profiles for docked vs. laptop mode. Static monitor config in hyprland settings is intentionally minimal.

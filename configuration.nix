@@ -38,32 +38,32 @@ in
   imports = [
     # Include the results of the hardware scan.
     /etc/nixos/hardware-configuration.nix
-    ./nix/modules/audio.nix
-    ./nix/modules/users.nix
-    ./nix/modules/hyprland.nix
-    ./nix/modules/packages.nix
-    ./nix/modules/noctalia.nix
-    ./nix/modules/nvidia.nix
-    ./nix/modules/power.nix
-    ./nix/modules/bluetooth.nix
-    ./nix/modules/theme.nix
-    ./nix/modules/waydroid.nix
-    ./nix/modules/mysql.nix
-    ./nix/modules/dolphin.nix
-    ./nix/modules/fan-control.nix
-    ./nix/modules/bitwarden.nix
-    ./nix/modules/steam.nix
-    ./nix/modules/postgresql.nix
-    ./nix/modules/redis.nix
-    ./nix/modules/lutris.nix
-    ./nix/modules/mailpit.nix
-    ./nix/modules/docker.nix
-    ./nix/modules/polkit.nix
-    ./nix/modules/ssd-mounter.nix
-    ./nix/modules/cloudflare-warp.nix
-    ./nix/modules/kdeconnect.nix
-    ./nix/modules/k-wallet.nix
-    ./nix/modules/fingerprint-setup.nix
+    ./system-modules/audio.nix
+    ./system-modules/users.nix
+    ./system-modules/hyprland.nix
+    ./system-modules/packages.nix
+    ./system-modules/noctalia.nix
+    ./system-modules/nvidia.nix
+    ./system-modules/power.nix
+    ./system-modules/bluetooth.nix
+    ./system-modules/theme.nix
+    ./system-modules/waydroid.nix
+    ./system-modules/mysql.nix
+    ./system-modules/dolphin.nix
+    ./system-modules/fan-control.nix
+    ./system-modules/bitwarden.nix
+    ./system-modules/steam.nix
+    ./system-modules/postgresql.nix
+    ./system-modules/redis.nix
+    ./system-modules/lutris.nix
+    ./system-modules/mailpit.nix
+    ./system-modules/docker.nix
+    ./system-modules/polkit.nix
+    ./system-modules/ssd-mounter.nix
+    ./system-modules/cloudflare-warp.nix
+    ./system-modules/kdeconnect.nix
+    ./system-modules/k-wallet.nix
+    ./system-modules/fingerprint-setup.nix
   ];
 
   _module.args = { inherit secrets; };

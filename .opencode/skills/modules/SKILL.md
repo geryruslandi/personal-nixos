@@ -1,14 +1,14 @@
 ---
 name: modules
-description: Use when creating, modifying, or understanding NixOS system modules (nix/modules/) or Home Manager home modules (nix/homes/). Covers imports, secrets pattern, Catppuccin theming wiring, and module conventions. Do NOT use for build/deploy commands — use the 'nixos' skill for that.
+description: Use when creating, modifying, or understanding NixOS system modules (system-modules/) or Home Manager home modules (home-modules/). Covers imports, secrets pattern, Catppuccin theming wiring, and module conventions. Do NOT use for build/deploy commands — use the 'nixos' skill for that.
 ---
 
 # Module Structure & Conventions
 
 This project has two module directories:
 
-- `nix/modules/` — **system-level** NixOS modules (imported by `configuration.nix`)
-- `nix/homes/` — **user-level** Home Manager modules (imported by `home.nix`)
+- `system-modules/` — **system-level** NixOS modules (imported by `configuration.nix`)
+- `home-modules/` — **user-level** Home Manager modules (imported by `home.nix`)
 
 Both directories are flat (no nesting).
 
@@ -38,12 +38,12 @@ Available arguments: `pkgs`, `lib`, `config`, `inputs`, `secrets` (via `_module.
 
 ### System module
 
-1. Create `nix/modules/<name>.nix`
+1. Create `system-modules/<name>.nix`
 2. Add it to the `imports` list in `configuration.nix` (alphabetical-ish order)
 
 ### Home module
 
-1. Create `nix/homes/<name>.nix`
+1. Create `home-modules/<name>.nix`
 2. Add it to the `imports` list in `home.nix` (alphabetical-ish order)
 
 ## Secrets Pattern
@@ -113,12 +113,12 @@ Catppuccin theming is applied at multiple layers:
 - **Terminal (Kitty)**: Manual color definitions in `home.nix:49-85`
 - **KDE color scheme**: `catppuccin-kde` package + `xdg.dataFile` copy in `home.nix:101-109`
 - **Kvantum theme**: `catppuccin-kvantum` package + `kvantum.kvconfig` in `home.nix:118-121`
-- **Noctalia**: `colorSchemes.predefinedScheme = "Catppuccin"` in `nix/homes/noctalia.nix:403`
-- **Noctalia templates**: Generates GTK, Qt, KDE color scheme, and Kitty themes (see `nix/homes/noctalia.nix:411-435`)
+- **Noctalia**: `colorSchemes.predefinedScheme = "Catppuccin"` in `home-modules/noctalia.nix:403`
+- **Noctalia templates**: Generates GTK, Qt, KDE color scheme, and Kitty themes (see `home-modules/noctalia.nix:411-435`)
 
 ## Module Examples
 
-- **Conditional enablement + secrets**: `nix/modules/postgresql.nix:11` (`pg.enable or false`)
-- **List-to-attrs pattern**: `nix/modules/ssd-mounter.nix:3` and `nix/homes/ssh.nix:13`
-- **Flake input import**: `nix/modules/noctalia.nix:4` and `nix/homes/noctalia.nix:11`
-- **GPG conditional includes**: `nix/homes/git.nix:55` (conditional `?:` on `secrets.git.projects`)
+- **Conditional enablement + secrets**: `system-modules/postgresql.nix:11` (`pg.enable or false`)
+- **List-to-attrs pattern**: `system-modules/ssd-mounter.nix:3` and `home-modules/ssh.nix:13`
+- **Flake input import**: `system-modules/noctalia.nix:4` and `home-modules/noctalia.nix:11`
+- **GPG conditional includes**: `home-modules/git.nix:55` (conditional `?:` on `secrets.git.projects`)

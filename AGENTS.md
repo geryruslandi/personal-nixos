@@ -32,14 +32,15 @@ git add --intent-to-add secrets.nix -f
 | `home.nix` | Home Manager entry point, imports all home modules |
 | `secrets.nix` | Local secrets (git, ssh, wallhaven, etc.) — gitignored |
 | `flatpak.nix` | Declarative Flatpak applications and remotes |
-| `nix/modules/` | System-level NixOS modules (audio, hyprland, nvidia, etc.) |
-| `nix/homes/` | User-level Home Manager modules (git, zsh, hyprland, ssh, theme) |
+| `home-sync/` | Static assets/files synced into the home directory |
+| `system-modules/` | System-level NixOS modules (audio, hyprland, nvidia, etc.) |
+| `home-modules/` | User-level Home Manager modules (git, zsh, hyprland, ssh, theme) |
 
 ### Architecture & Conventions
 
 - **Flake inputs** are passed via `specialArgs` and `extraSpecialArgs` as `inputs` to all modules.
 - **Secrets** are imported from `secrets.nix` and exposed via `_module.args = { inherit secrets; }` — always use `secrets ? field` guards to handle missing keys gracefully.
-- **System vs User separation**: System config lives in `nix/modules/`, user config in `nix/homes/`.
+- **System vs User separation**: System config lives in `system-modules/`, user config in `home-modules/`.
 - **Catppuccin theming**: Applied at NixOS level (`catppuccin.nixosModules.catppuccin`) and Home Manager level (`catppuccin.homeModules.catppuccin`).
 - **Flatpaks**: Declared in `flatpak.nix` using `services.flatpak.packages`.
 - **Hostname**: `nixos` — `nixosConfigurations.nixos` in `flake.nix`.
@@ -47,7 +48,7 @@ git add --intent-to-add secrets.nix -f
 ### Common Pitfalls
 
 - **Secrets not tracked by Git**: Flakes only see files tracked by Git. After creating `secrets.nix`, run `git add --intent-to-add secrets.nix -f` so the flake can read it.
-- **Noctalia-shell updates**: The project is pinned to noctalia v4 (`legacy-v4` branch) to avoid breaking changes. Do not change this URL without updating both `nix/modules/noctalia.nix` and `nix/homes/noctalia.nix` to match the new API.
+- **Noctalia-shell updates**: The project is pinned to noctalia v4 (`legacy-v4` branch) to avoid breaking changes. Do not change this URL without updating both `system-modules/noctalia.nix` and `home-modules/noctalia.nix` to match the new API.
 - **Dolphin MIME associations**: After changing KDE packages, run `rm -rf ~/.cache/ksycoca6* && kbuildsycoca6 --noincremental` to regenerate app menus.
 - **Imperative operations**: `--impure` allows access to `/etc/nixos/hardware-configuration.nix`. The flake cannot build in pure evaluation mode.
 
@@ -55,14 +56,14 @@ git add --intent-to-add secrets.nix -f
 
 - **WM**: Hyprland (enabled via `programs.hyprland.enable`)
 - **DM**: SDDM with Wayland (`services.displayManager.sddm.wayland.enable`)
-- **Shell**: Noctalia (bar, widgets, notifications — configured in `nix/homes/noctalia.nix` and `nix/modules/noctalia.nix`)
+- **Shell**: Noctalia (bar, widgets, notifications — configured in `home-modules/noctalia.nix` and `system-modules/noctalia.nix`)
 - **Flatpak**: Managed by `nix-flatpak` module
-- **Audio**: PipeWire via `nix/modules/audio.nix`
+- **Audio**: PipeWire via `system-modules/audio.nix`
 - **Theming**: Catppuccin + custom theme modules
 
 ### Nix Language Notes
 
 - This project uses `pkgs`, `lib`, `inputs`, `config`, and `secrets` as standard module arguments.
 - `lib.mkDefault` and `lib.mkIf` are used pervasively.
-- System packages are declared in `nix/modules/packages.nix`, user packages in `home.nix`.
+- System packages are declared in `system-modules/packages.nix`, user packages in `home.nix`.
 - Use `stdenv.hostPlatform.system` to reference the current system architecture (needed for flake input package access).

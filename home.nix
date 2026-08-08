@@ -29,26 +29,26 @@ in
 {
   # home.nix
   imports = [
-    ./nix/homes/hyprland.nix
-    ./nix/homes/noctalia.nix
-    ./nix/homes/kanshi.nix
-    ./nix/homes/kde-associations.nix
-    ./nix/homes/theme.nix
-    ./nix/homes/zsh.nix
-    ./nix/homes/react-native-setup.nix
-    ./nix/homes/php.nix
-    ./nix/homes/git.nix
-    ./nix/homes/ssh.nix
-    ./nix/homes/appimages.nix
-    ./nix/homes/bruno.nix
-    ./nix/homes/python.nix
-    ./nix/homes/opencode.nix
-    ./nix/homes/tmux.nix
-    ./nix/homes/go.nix
-    ./nix/homes/gh.nix
-    ./nix/homes/fastfetch.nix
-    ./nix/homes/nvim.nix
-    ./nix/homes/azure.nix
+    ./home-modules/hyprland.nix
+    ./home-modules/noctalia.nix
+    ./home-modules/kanshi.nix
+    ./home-modules/kde-associations.nix
+    ./home-modules/theme.nix
+    ./home-modules/zsh.nix
+    ./home-modules/react-native-setup.nix
+    ./home-modules/php.nix
+    ./home-modules/git.nix
+    ./home-modules/ssh.nix
+    ./home-modules/appimages.nix
+    ./home-modules/bruno.nix
+    ./home-modules/python.nix
+    ./home-modules/opencode.nix
+    ./home-modules/tmux.nix
+    ./home-modules/go.nix
+    ./home-modules/gh.nix
+    ./home-modules/fastfetch.nix
+    ./home-modules/nvim.nix
+    ./home-modules/azure.nix
   ];
 
   # This is the magic part:
@@ -131,8 +131,8 @@ in
 
   home = {
     file = {
-      ".config/gery".source = ./homedir/.config/gery;
-      ".config/dolphinrc".source = ./homedir/.config/dolphinrc;
+      ".config/gery".source = ./home-sync/.config/gery;
+      ".config/dolphinrc".source = ./home-sync/.config/dolphinrc;
 
       # Activate the Kvantum theme
       ".config/Kvantum/kvantum.kvconfig".text = ''

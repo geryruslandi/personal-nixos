@@ -12,10 +12,10 @@
     enable = true;
     theme = "rei";
     backgrounds = {
-      assassins-creed = ../../homedir/.config/gery/Pictures/Wallpapers/assassins-creed-shift-right.png;
+      assassins-creed = ../home-sync/.config/gery/Pictures/Wallpapers/assassins-creed-shift-right.png;
     };
     profileIcons = {
-      geryruslandi = ../../homedir/.config/gery/Pictures/avatar.png;
+      geryruslandi = ../home-sync/.config/gery/Pictures/avatar.png;
     };
     settings = {
       General = {
