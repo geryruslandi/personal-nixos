@@ -63,44 +63,10 @@ in
       name = "JetBrainsMono Nerd Font";
       size = 12;
     };
-    settings = {
-      # Catppuccin Frappe color scheme
-      foreground = "#c6d0f5";
-      background = "#303446";
-      selection_foreground = "#303446";
-      selection_background = "#f2d5cf";
-
-      # Cursor
-      cursor = "#c6d0f5";
-      cursor_text_color = "#303446";
-      url_color = "#8caaee";
-
-      # Tab bar
-      active_tab_foreground = "#303446";
-      active_tab_background = "#ca9ee6";
-      inactive_tab_foreground = "#c6d0f5";
-      inactive_tab_background = "#414559";
-
-      # Normal colors
-      color0 = "#51576d";
-      color1 = "#e78284";
-      color2 = "#a6d189";
-      color3 = "#e5c890";
-      color4 = "#8caaee";
-      color5 = "#ca9ee6";
-      color6 = "#81c8be";
-      color7 = "#c6d0f5";
-
-      # Bright colors
-      color8 = "#626880";
-      color9 = "#e78284";
-      color10 = "#a6d189";
-      color11 = "#e5c890";
-      color12 = "#8caaee";
-      color13 = "#ca9ee6";
-      color14 = "#81c8be";
-      color15 = "#c6d0f5";
-    };
+    # Use Noctalia's generated theme (kept in sync at login via ~/.config/kitty/current-theme.conf)
+    extraConfig = ''
+      include ~/.config/kitty/current-theme.conf
+    '';
     keybindings = {
       "shift+enter" = "send_text all \\x1b[13;2u";
     };
