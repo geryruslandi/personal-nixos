@@ -1,11 +1,12 @@
 {
   config,
   lib,
+  secrets,
   ...
 }:
 let
   # Real filesystem path to this repo's WARP plugin sources.
-  pluginReal = "${config.home.homeDirectory}/Projects/personal-nixos/noctalia-plugins/gery/warp";
+  pluginReal = "${secrets.projectPath}/noctalia-plugins/gery/warp";
 
   mkLink = file: config.lib.file.mkOutOfStoreSymlink "${pluginReal}/${file}";
 in

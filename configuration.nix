@@ -6,7 +6,7 @@
 let
   # Import it once here
   # secrets = import ./secrets.nix;
-  secrets =
+  rawSecrets =
     if builtins.pathExists ./secrets.nix then
       import ./secrets.nix
     else
@@ -33,6 +33,16 @@ let
         sddmScale = 1.0;
         devPorts = [ ];
       }; # Fallback
+
+  # `projectPath` is REQUIRED — fail the build when it is missing or empty.
+  secrets =
+    if rawSecrets ? projectPath && builtins.isString rawSecrets.projectPath && rawSecrets.projectPath != "" then
+      rawSecrets
+    else
+      throw ''
+        secrets.nix is missing the required `projectPath` field.
+        Add it, e.g.: projectPath = "/home/geryruslandi/Projects/personal-nixos";
+      '';
 in
 {
   imports = [

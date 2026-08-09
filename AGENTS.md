@@ -40,7 +40,7 @@ git add --intent-to-add secrets.nix -f
 ### Architecture & Conventions
 
 - **Flake inputs** are passed via `specialArgs` and `extraSpecialArgs` as `inputs` to all modules.
-- **Secrets** are imported from `secrets.nix` and exposed via `_module.args = { inherit secrets; }` — always use `secrets ? field` guards to handle missing keys gracefully.
+- **Secrets** are imported from `secrets.nix` and exposed via `_module.args = { inherit secrets; }` — always use `secrets ? field` guards to handle missing keys gracefully. **Exception**: `secrets.projectPath` (absolute path to this repo) is **required** — `configuration.nix`/`home.nix` throw at build time if it's missing or empty.
 - **System vs User separation**: System config lives in `system-modules/`, user config in `home-modules/`.
 - **Catppuccin theming**: Applied at NixOS level (`catppuccin.nixosModules.catppuccin`) and Home Manager level (`catppuccin.homeModules.catppuccin`).
 - **Flatpaks**: Declared in `flatpak.nix` using `services.flatpak.packages`.

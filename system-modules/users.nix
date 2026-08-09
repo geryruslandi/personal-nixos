@@ -13,7 +13,6 @@
       vscode
       nixfmt
       firefox
-      antigravity
     ];
   };
 }

@@ -7,9 +7,15 @@
   "model": "personal-deepseek/deepseek-v4-flash",
   "permission": {
     "read": {
-      "secrets.nix": "deny",
       "*": "allow",
-      "/nix/store/*": "allow"
+      "secrets.nix": "deny"
+    },
+    "bash": {
+      "/nix/store/**": "allow"
+    },
+    "external_directory": {
+      "/nix/store/**": "allow",
+      "*": "ask"
     }
   }
 }

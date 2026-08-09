@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  secrets,
   ...
 }:
 let
@@ -9,7 +10,7 @@ let
   # These are OUT-OF-STORE symlinks: `~/.config/nvim` points directly at
   # `home-sync/.config/nvim` inside this repo, so editing a file through the
   # link edits the repo file itself and `git status` here detects the change.
-  repoRoot = "${config.home.homeDirectory}/Projects/personal-nixos";
+  repoRoot = secrets.projectPath;
   homeSyncReal = "${repoRoot}/home-sync";
 
   # Nix path used for directory discovery (pure readDir of the flake source).

@@ -9,7 +9,7 @@
 
     containers = {
       enable = true;
-      registries.search = [
+      registries.settings.registries.search.registries = [
         "docker.io"
         "registry.fedoraproject.org"
       ];

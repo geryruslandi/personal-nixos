@@ -1,4 +1,6 @@
 {
+  # REQUIRED: absolute path to this NixOS project repo. Build fails if missing.
+  projectPath = "~/Projects/personal-nixos";
   git = {
     defaultBranch = "main";
     defaultUser = {
