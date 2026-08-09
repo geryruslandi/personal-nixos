@@ -11,6 +11,9 @@
     };
   };
 
+  # The bluez package already ships mpris-proxy.service with its ExecStart;
+  # redefining ExecStart here produces a "bad unit file setting" (more than
+  # one ExecStart). Only pull in the unit and start it with the session.
   systemd.user.services.mpris-proxy = {
     description = "Mpris proxy";
     after = [
@@ -18,6 +21,5 @@
       "sound.target"
     ];
     wantedBy = [ "default.target" ];
-    serviceConfig.ExecStart = "${pkgs.bluez}/bin/mpris-proxy";
   };
 }

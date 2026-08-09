@@ -1,0 +1,10 @@
+id         = "gery/warp"
+name       = "WARP Status"
+version    = "0.1.0"
+plugin_api = 3
+author     = "gery"
+icon       = "shield"
+
+[[widget]]
+id    = "warp"
+entry = "warp.luau"

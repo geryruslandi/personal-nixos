@@ -5,12 +5,24 @@
   boot.kernelParams = [
     "nohz=on"                   # disable periodic timer ticks on idle CPUs
     "i915.enable_dc=4"          # display deep C-states
-    "i915.enable_fbc=1"         # frame buffer compression
-    "i915.enable_psr=1"         # panel self refresh
+    # PSR (panel self refresh) and FBC (frame buffer compression) are common
+    # culprits for s2idle resume hangs on Intel/ADL (observed here: machine
+    # entered PM: suspend entry (s2idle) and never resumed). Disabled until
+    # suspend/resume is verified reliable; re-enable for extra battery life.
+    "i915.enable_psr=0"
+    "i915.enable_fbc=0"
     "pcie_aspm.policy=powersupersave" # PCIe ASPM deepest L1 state
     "usbcore.autosuspend=2"          # USB autosuspend after 2s idle
     "nvme_core.default_ps_max_latency_us=5500" # NVMe deeper power states
     "loglevel=3"                     # reduce printk wakeups
+    # This laptop's lid switch is not compliant to SW_LID (buggy firmware):
+    # it re-reports the same state and fires spurious close/open events that
+    # raced s2idle entry and hung the machine (PM: suspend entry, no exit).
+    # Treat the initial lid state as open, and widen the redundant-report
+    # debounce so the kernel suppresses complement events instead of passing
+    # them to userspace.
+    "button.lid_init_state=open"
+    "button.lid_report_interval=3000"
   ];
 
   # Tune kernel dirty page behavior for fewer wakeups on battery
@@ -43,9 +55,18 @@
       Environment = "PATH=/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:/bin";
     };
     script = ''
+      # RTC wake-alarm safety net: if s2idle entry hangs (observed on this
+      # laptop with its non-compliant lid switch), the RTC fires ~10 min later
+      # and pulls the machine out of the hang — no hard power-cycle needed.
+      # Cleared again on resume in postStop.
+      WAKE_STATE="/var/run/suspend-power-save-wake-state"
+      if [ -w /sys/class/rtc/rtc0/wakealarm ]; then
+        echo 0 > /sys/class/rtc/rtc0/wakealarm 2>/dev/null || true
+        echo $(( $(date +%s) + 600 )) > /sys/class/rtc/rtc0/wakealarm 2>/dev/null || true
+      fi
+
       # Disable ACPI wake for devices that block deep S0ix (s2idle)
       # XHCI (USB controller at S0) is the most critical — keeps SoC out of C10/S0i3
-      WAKE_STATE="/var/run/suspend-power-save-wake-state"
       mkdir -p "$(dirname "$WAKE_STATE")"
       rm -f "$WAKE_STATE"
       for dev in XHCI PEG0 PEG1 PEG2 RP04 TXHC TDM0 TRP0 TRP1 AWAC; do
@@ -72,6 +93,11 @@
           echo "$dev" > /proc/acpi/wakeup 2>/dev/null || true
         done < "$WAKE_STATE"
         rm -f "$WAKE_STATE"
+      fi
+
+      # Clear the RTC wake-alarm set before suspend
+      if [ -w /sys/class/rtc/rtc0/wakealarm ]; then
+        echo 0 > /sys/class/rtc/rtc0/wakealarm 2>/dev/null || true
       fi
 
       # Restore Bluetooth after resume

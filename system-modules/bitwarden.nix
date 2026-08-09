@@ -6,6 +6,7 @@
 
    environment.systemPackages = with pkgs; [
       bitwarden-desktop
+      bitwarden-cli
    ];
 
   # Enable the GNOME Keyring service

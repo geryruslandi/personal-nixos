@@ -295,8 +295,9 @@
 
         main = {
           position = "top";
-          background_opacity = 1.0;
+          background_opacity = 0.2;
           capsule = true;
+          capsule_opacity = 0.46;
           capsule_radius = 7;
           color = "primary";
           icon_color = "primary";
@@ -309,7 +310,7 @@
           reserve_space = true;
           auto_hide = false;
           font_family = "JetBrainsMono Nerd Font Propo";
-          start = [ "active_window" "media" "privacy" "w-engine" ];
+          start = [ "active_window" "media" "privacy" "w-engine" "warp" ];
           center = [ "workspaces" ];
           end = [
             "volume"
@@ -324,25 +325,28 @@
 
         bottom = {
           enabled = true;
-          position = "bottom";
+          position = "right";
           background_opacity = 0.0;
-          start = [ "network_rx" "network_tx" ];
+          start = [ ];
           center = [ ];
-          end = [ "cpu" "ram" "temp" ];
+          end = [ "cpu" "ram" "temp" "battery" "network_rx" "network_tx" ];
           capsule = true;
           capsule_border = "on_primary";
           capsule_fill = "on_primary";
           capsule_foreground = "primary";
-          capsule_opacity = 0.62;
-          capsule_padding = 13.0;
+          capsule_opacity = 0.7;
+          capsule_padding = 10.0;
           capsule_radius = 5;
+          capsule_thickness = 1.0;
           font_family = "JetBrainsMono Nerd Font Mono";
           layer = "overlay";
-          margin_edge = 10;
+          margin_edge = 0;
           margin_ends = 0;
           reserve_space = false;
           concave_edge_corners = false;
-          auto_hide = true;
+          auto_hide = false;
+          smart_auto_hide = true;
+          thickness = 66;
         };
       };
 
@@ -421,14 +425,21 @@
         "w-engine" = {
           type = "tadomika_ari/w-engine:w-engine-widget";
         };
+        "warp" = {
+          type = "gery/warp:warp";
+        };
       };
 
       plugins = {
         enabled = [
           "noctalia/screen_recorder"
           "noctalia/wallhaven"
-          "tadomika_ari/w-engine"
+          "gery/warp"
           "ycf/mawaqit"
+          "noctalia/bitwarden"
+          "dunarand/tmux-provider"
+          "nightwatch75/todo"
+          "tadomika_ari/w-engine"
         ];
         auto_update = true;
       };

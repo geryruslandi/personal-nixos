@@ -88,6 +88,9 @@ in
   services.logind.settings = {
     Login = {
       HandlePowerKey = "ignore";
+      # The lid switch is non-compliant (see system-modules/power.nix:
+      # button.lid_init_state / lid_report_interval + the RTC wake-alarm
+      # safety net in suspend-power-save.service) so lid close can suspend.
       HandleLidSwitch = "suspend";
       HandleLidSwitchExternalPower = "suspend";
       HandleLidSwitchDocked = "ignore";

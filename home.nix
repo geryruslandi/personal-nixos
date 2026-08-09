@@ -51,6 +51,7 @@ in
     ./home-modules/azure.nix
     ./home-modules/home-sync.nix
     ./home-modules/media-idle-inhibit.nix
+    ./home-modules/cloudflare-warp.nix
   ];
 
   # This is the magic part:
