@@ -33,8 +33,6 @@
       exec-once = [
         # Launch noctalia (v5 native shell, launched via compositor autostart)
         "noctalia"
-        # Inhibit sleep while audio is playing (YouTube, Spotify, etc.)
-        "sway-audio-idle-inhibit"
       ];
 
       ## ----------------------------------------------------

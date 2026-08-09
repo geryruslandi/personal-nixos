@@ -50,6 +50,7 @@ in
     ./home-modules/nvim.nix
     ./home-modules/azure.nix
     ./home-modules/home-sync.nix
+    ./home-modules/media-idle-inhibit.nix
   ];
 
   # This is the magic part:
@@ -95,9 +96,6 @@ in
       # screenshot tools
       grimblast
       libnotify
-
-      # Prevent sleep when audio is playing (YouTube, Spotify, etc.)
-      sway-audio-idle-inhibit
 
       # chinese character support
       wqy_zenhei

@@ -97,13 +97,27 @@
       theme = {
         mode = "dark";
         source = "builtin";
-        builtin = "Ayu";
+        builtin = "Nord";
+        community_palette = "Ayu Blue";
+        wallpaper_scheme = "m3-content";
 
         templates = {
           enable_builtin_templates = true;
-          builtin_ids = [ "gtk3" "gtk4" "hyprland" "kcolorscheme" "kitty" ];
+          builtin_ids = [ "gtk3" "gtk4" "hyprland" "kcolorscheme" "kitty" "qt" ];
           enable_community_templates = true;
-          community_ids = [ ];
+          community_ids = [
+            "opencode"
+            "zen-browser"
+            "discord"
+            "libreoffice"
+            "neovim"
+            "obsidian"
+            "vscode"
+            "steam"
+            "rofi"
+            "hyprtoolkit"
+            "lazygit"
+          ];
         };
       };
 
@@ -298,7 +312,6 @@
           start = [ "active_window" "media" "privacy" ];
           center = [ "workspaces" ];
           end = [
-            "rec"
             "volume"
             "battery"
             "clock"
@@ -360,13 +373,13 @@
             type = "noctalia/screen_recorder:toggle";
           }
           {
-            type = "wallpaper";
-          }
-          {
             type = "notification";
           }
           {
             type = "nightlight";
+          }
+          {
+            type = "caffeine";
           }
         ];
       };
