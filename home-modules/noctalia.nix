@@ -309,7 +309,7 @@
           reserve_space = true;
           auto_hide = false;
           font_family = "JetBrainsMono Nerd Font Propo";
-          start = [ "active_window" "media" "privacy" ];
+          start = [ "active_window" "media" "privacy" "w-engine" ];
           center = [ "workspaces" ];
           end = [
             "volume"
@@ -418,12 +418,16 @@
         "rec" = {
           type = "noctalia/screen_recorder:recorder";
         };
+        "w-engine" = {
+          type = "tadomika_ari/w-engine:w-engine-widget";
+        };
       };
 
       plugins = {
         enabled = [
           "noctalia/screen_recorder"
           "noctalia/wallhaven"
+          "tadomika_ari/w-engine"
           "ycf/mawaqit"
         ];
         auto_update = true;
@@ -433,6 +437,8 @@
 
   home.packages = with pkgs; [
     gpu-screen-recorder
+    linux-wallpaperengine
+    ffmpeg
   ];
 
   # Keybinds
