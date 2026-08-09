@@ -1,0 +1,16 @@
+id         = "gery/postgresql"
+name       = "PostgreSQL Status"
+version    = "0.1.0"
+plugin_api = 3
+author     = "gery"
+icon       = "database"
+
+[[setting]]
+key        = "port"
+type       = "int"
+label_key  = "settings.port.label"
+default    = 5432
+
+[[widget]]
+id    = "postgresql"
+entry = "postgresql.luau"

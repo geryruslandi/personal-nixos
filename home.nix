@@ -62,6 +62,7 @@ in
     ./home-modules/home-sync.nix
     ./home-modules/media-idle-inhibit.nix
     ./home-modules/cloudflare-warp.nix
+    ./home-modules/db-services.nix
   ];
 
   # This is the magic part:

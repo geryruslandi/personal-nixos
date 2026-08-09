@@ -1,0 +1,22 @@
+id         = "gery/mailpit"
+name       = "Mailpit Status"
+version    = "0.1.0"
+plugin_api = 3
+author     = "gery"
+icon       = "mail"
+
+[[setting]]
+key        = "smtpPort"
+type       = "int"
+label_key  = "settings.smtpPort.label"
+default    = 1025
+
+[[setting]]
+key        = "uiPort"
+type       = "int"
+label_key  = "settings.uiPort.label"
+default    = 8025
+
+[[widget]]
+id    = "mailpit"
+entry = "mailpit.luau"

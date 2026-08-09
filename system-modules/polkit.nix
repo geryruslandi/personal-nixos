@@ -1,6 +1,21 @@
 { pkgs, ... }:
 {
-  security.polkit.enable = true;
+  security.polkit = {
+    enable = true;
+
+    extraConfig = ''
+      // Passwordless start/stop/restart for the dev DB/mail services and WARP daemon.
+      // Used by the gery/* Noctalia bar widget toggles.
+      polkit.addRule(function(action, subject) {
+        if (
+          action.id == "org.freedesktop.systemd1.manage-units"
+          && subject.isInGroup("wheel")
+          && ["start", "stop", "restart"].indexOf(action.lookup("verb")) != -1
+          && ["redis.service", "mysql.service", "postgresql.service", "mailpit.service", "cloudflare-warp.service"].indexOf(action.lookup("unit")) != -1
+        ) { return polkit.Result.YES; }
+      });
+    '';
+  };
   systemd = {
     user.services.polkit-gnome-authentication-agent-1 = {
       description = "polkit-gnome-authentication-agent-1";

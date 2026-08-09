@@ -1,0 +1,16 @@
+id         = "gery/mysql"
+name       = "MySQL Status"
+version    = "0.1.0"
+plugin_api = 3
+author     = "gery"
+icon       = "database"
+
+[[setting]]
+key        = "port"
+type       = "int"
+label_key  = "settings.port.label"
+default    = 3306
+
+[[widget]]
+id    = "mysql"
+entry = "mysql.luau"

@@ -2,6 +2,7 @@
   pkgs,
   inputs,
   config,
+  secrets,
   ...
 }:
 {
@@ -47,7 +48,7 @@
           transparency_mode = "soft";
           borders = false;
           shadow = true;
-          control_center_placement = "attached";
+          control_center_placement = "floating";
           open_near_click_control_center = true;
           launcher_placement = "floating";
           launcher_position = "center";
@@ -60,6 +61,12 @@
           show_icons = true;
           sort_by_usage = true;
           auto_paste = "auto";
+
+          providers = {
+            calculator = {
+              prefix = "";
+            };
+          };
         };
 
         mpris = {
@@ -70,19 +77,19 @@
       wallpaper = {
         enabled = true;
         directory = "/home/geryruslandi/.config/gery/Pictures/Wallpapers";
-        fill_mode = "fit";
+        fill_mode = "crop";
         fill_color = "#000000";
         transition = [ "fade" "wipe" "disc" "stripes" "zoom" "honeycomb" ];
         transition_duration = 1500;
         edge_smoothness = 0.05;
 
         default = {
-          path = "/home/geryruslandi/.config/gery/Pictures/Wallpapers/assassins-creed.png";
+          path = "/home/geryruslandi/.config/gery/Pictures/Wallpapers/firewatch.jpg";
         };
 
         monitors = {
           "eDP-1" = {
-            path = "/home/geryruslandi/.config/gery/Pictures/Wallpapers/assassins-creed.png";
+            path = "/home/geryruslandi/.config/gery/Pictures/Wallpapers/firewatch.jpg";
           };
         };
 
@@ -291,7 +298,7 @@
       };
 
       bar = {
-        order = [ "main" "bottom" ];
+        order = [ "main" "right" "left" ];
 
         main = {
           position = "top";
@@ -310,7 +317,7 @@
           reserve_space = true;
           auto_hide = false;
           font_family = "JetBrainsMono Nerd Font Propo";
-          start = [ "active_window" "media" "privacy" "w-engine" "warp" ];
+          start = [ "active_window" "privacy" ];
           center = [ "workspaces" ];
           end = [
             "volume"
@@ -323,13 +330,15 @@
           ];
         };
 
-        bottom = {
+        right = {
           enabled = true;
           position = "right";
           background_opacity = 0.0;
           start = [ ];
           center = [ ];
           end = [ "cpu" "ram" "temp" "battery" "network_rx" "network_tx" ];
+          color = "error";
+          icon_color = "error";
           capsule = true;
           capsule_border = "on_primary";
           capsule_fill = "on_primary";
@@ -348,7 +357,36 @@
           smart_auto_hide = true;
           thickness = 66;
         };
+
+        left = {
+          enabled = true;
+          position = "left";
+          background_opacity = 0.0;
+          start = [ ];
+          center = [ ];
+          end = [ "redis" "mysql" "postgresql" "mailpit" "warp" ];
+          color = "error";
+          icon_color = "error";
+          capsule = true;
+          capsule_border = "on_primary";
+          capsule_fill = "on_primary";
+          capsule_foreground = "primary";
+          capsule_opacity = 0.7;
+          capsule_padding = 10.0;
+          capsule_radius = 5;
+          capsule_thickness = 1.0;
+          font_family = "JetBrainsMono Nerd Font Mono";
+          layer = "overlay";
+          margin_edge = 0;
+          margin_ends = 0;
+          reserve_space = false;
+          concave_edge_corners = false;
+          auto_hide = false;
+          smart_auto_hide = true;
+          thickness = 110;
+        };
       };
+
 
       dock = {
         enabled = false;
@@ -428,21 +466,53 @@
         "warp" = {
           type = "gery/warp:warp";
         };
+        "redis" = {
+          type = "gery/redis:redis";
+        };
+        "mysql" = {
+          type = "gery/mysql:mysql";
+        };
+        "postgresql" = {
+          type = "gery/postgresql:postgresql";
+        };
+        "mailpit" = {
+          type = "gery/mailpit:mailpit";
+        };
       };
 
-      plugins = {
-        enabled = [
-          "noctalia/screen_recorder"
-          "noctalia/wallhaven"
-          "gery/warp"
-          "ycf/mawaqit"
-          "noctalia/bitwarden"
-          "dunarand/tmux-provider"
-          "nightwatch75/todo"
-          "tadomika_ari/w-engine"
-        ];
-        auto_update = true;
-      };
+        plugins = {
+          enabled = [
+            "noctalia/screen_recorder"
+            "noctalia/wallhaven"
+            "gery/warp"
+            "gery/redis"
+            "gery/mysql"
+            "gery/postgresql"
+            "gery/mailpit"
+            "ycf/mawaqit"
+            "noctalia/bitwarden"
+            "dunarand/tmux-provider"
+            "nightwatch75/todo"
+            "tadomika_ari/w-engine"
+          ];
+          auto_update = true;
+        };
+
+        plugin_settings = {
+          "gery/redis" = {
+            port = (secrets.server or { }).redis.port or 6379;
+          };
+          "gery/mysql" = {
+            port = (secrets.server or { }).mysql.port or 3306;
+          };
+          "gery/postgresql" = {
+            port = (secrets.server or { }).postgres.port or 5432;
+          };
+          "gery/mailpit" = {
+            smtpPort = (secrets.server or { }).mailpit.smtpPort or 1025;
+            uiPort = (secrets.server or { }).mailpit.uiPort or 8025;
+          };
+        };
     };
   };
 

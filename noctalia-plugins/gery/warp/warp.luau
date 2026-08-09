@@ -3,29 +3,99 @@ noctalia.setUpdateInterval(5000)
 local WARP = "warp-cli"
 local DAEMON = "cloudflare-warp.service"
 
+local COLOR_RUNNING = "#4ade80"
+local COLOR_STOPPED = "#f87171"
+local COLOR_FAIL    = "#fb7185"
+local COLOR_WORKING = "#fbbf24"
+local COLOR_MISSING = "#64748b"
+
 local state = "unknown"
+local enabled = "unknown"
+local sinceSec = nil
+local busy = false
+
+local function fmtDuration(sec)
+  if not sec or sec < 0 then return nil end
+  sec = math.floor(sec + 0.5)
+  if sec < 60 then return sec .. "s" end
+  local m = math.floor(sec / 60)
+  if m < 60 then return m .. "m" end
+  local h = math.floor(m / 60)
+  local d = math.floor(h / 24)
+  m = m % 60
+  h = h % 24
+  if d > 0 then return d .. "d " .. h .. "h" end
+  return h .. "h " .. m .. "m"
+end
+
+local function splitLines(out)
+  local lines = {}
+  if out then
+    for line in (out .. "\n"):gmatch("(.-)\n") do
+      line = line:gsub("\r$", "")
+      if #line > 0 then table.insert(lines, line) end
+    end
+  end
+  return lines
+end
+
+local function detailLines()
+  local lines = {}
+  local up = fmtDuration(sinceSec)
+  if up then table.insert(lines, "Uptime: " .. up) end
+  table.insert(lines, "Enabled: " .. enabled)
+  return lines
+end
 
 local function render()
   if state == "no-cli" then
     barWidget.setGlyph("alert-triangle")
+    barWidget.setColor(COLOR_MISSING)
+    barWidget.setGlyphColor(COLOR_MISSING)
     barWidget.setText("warp-cli not installed")
     barWidget.setTooltip("warp-cli not installed\nInstall the cloudflare-warp package to use this toggle.")
-  elseif state == "daemon-off" then
-    barWidget.setGlyph("shield-off")
-    barWidget.setText("WARP")
-    barWidget.setTooltip("Cloudflare WARP daemon is stopped\nStart it with: systemctl start cloudflare-warp.service")
   elseif state == "not-setup" then
     barWidget.setGlyph("shield-x")
+    barWidget.setColor(COLOR_FAIL)
+    barWidget.setGlyphColor(COLOR_FAIL)
     barWidget.setText("warp-cli not setup")
     barWidget.setTooltip("warp-cli not setup\nRun: sudo warp-cli registration new")
+  elseif state == "connecting" then
+    barWidget.setGlyph("shield")
+    barWidget.setColor(COLOR_WORKING)
+    barWidget.setGlyphColor(COLOR_WORKING)
+    barWidget.setText("WARP")
+    barWidget.setTooltip("Turning on Cloudflare WARP\u{2026}")
+  elseif state == "disconnecting" then
+    barWidget.setGlyph("shield")
+    barWidget.setColor(COLOR_WORKING)
+    barWidget.setGlyphColor(COLOR_WORKING)
+    barWidget.setText("WARP")
+    barWidget.setTooltip("Turning off Cloudflare WARP\u{2026}")
   elseif state == "connected" then
     barWidget.setGlyph("shield-check")
+    barWidget.setColor(COLOR_RUNNING)
+    barWidget.setGlyphColor(COLOR_RUNNING)
     barWidget.setText("WARP")
-    barWidget.setTooltip("Cloudflare WARP: connected\nClick to disconnect")
+    local lines = { "Cloudflare WARP: connected" }
+    for _, l in ipairs(detailLines()) do table.insert(lines, l) end
+    table.insert(lines, "Click to turn off")
+    barWidget.setTooltip(table.concat(lines, "\n"))
+  elseif state == "daemon-off" then
+    barWidget.setGlyph("shield-off")
+    barWidget.setColor(COLOR_STOPPED)
+    barWidget.setGlyphColor(COLOR_STOPPED)
+    barWidget.setText("WARP")
+    barWidget.setTooltip("Cloudflare WARP is off\nEnabled: " .. enabled .. "\nClick to turn on")
   else
     barWidget.setGlyph("shield-off")
+    barWidget.setColor(COLOR_STOPPED)
+    barWidget.setGlyphColor(COLOR_STOPPED)
     barWidget.setText("WARP")
-    barWidget.setTooltip("Cloudflare WARP: disconnected\nClick to connect")
+    local lines = { "Cloudflare WARP: disconnected" }
+    for _, l in ipairs(detailLines()) do table.insert(lines, l) end
+    table.insert(lines, "Click to turn on")
+    barWidget.setTooltip(table.concat(lines, "\n"))
   end
 end
 
@@ -61,8 +131,24 @@ local function pollRegistration()
 end
 
 local function pollDaemon()
-  local ok = noctalia.runAsync("systemctl is-active " .. DAEMON, function(res)
-    local out = res and res.stdout or ""
+  local cmd = table.concat({
+    "systemctl is-active " .. DAEMON,
+    "systemctl is-enabled " .. DAEMON .. " 2>&1",
+    "awk '{print $1}' /proc/uptime",
+    "systemctl show " .. DAEMON .. " -p ActiveEnterTimestampMonotonic --value 2>/dev/null",
+  }, "; ")
+  local ok = noctalia.runAsync(cmd, function(res)
+    local lines = splitLines(res and res.stdout)
+    local out = lines[1] or ""
+    enabled = lines[2] or "unknown"
+    sinceSec = nil
+    if lines[3] and lines[4] then
+      local sysUp = tonumber(lines[3])
+      local monoUs = tonumber(lines[4])
+      if sysUp and monoUs and monoUs > 0 then
+        sinceSec = sysUp - monoUs / 1000000
+      end
+    end
     if out:find("active", 1, true) then
       pollRegistration()
     else
@@ -86,23 +172,48 @@ local function refresh()
 end
 
 local function afterToggle()
+  busy = false
   refresh()
 end
 
+local function toggleOff()
+  if busy then return end
+  local wasConnected = (state == "connected")
+  busy = true
+  state = "disconnecting"
+  render()
+  local cmd = "systemctl stop " .. DAEMON
+  if wasConnected then
+    cmd = WARP .. " disconnect; " .. cmd
+  end
+  noctalia.runAsync(cmd, afterToggle)
+end
+
+local function toggleOn()
+  if busy then return end
+  busy = true
+  state = "connecting"
+  render()
+  local cmd = "systemctl start " .. DAEMON
+    .. " && sleep 1"
+    .. " && for i in 1 2 3 4 5 6; do " .. WARP .. " connect 2>/dev/null && break; sleep 1; done"
+  noctalia.runAsync(cmd, afterToggle)
+end
+
 function update()
+  if busy then return end
   refresh()
 end
 
 function onClick()
-  if state == "connected" then
-    noctalia.runAsync(WARP .. " disconnect", afterToggle)
-  elseif state == "disconnected" then
-    noctalia.runAsync(WARP .. " connect", afterToggle)
+  if busy then return end
+  if state == "connected" or state == "disconnected" then
+    toggleOff()
+  elseif state == "daemon-off" then
+    toggleOn()
   elseif state == "no-cli" then
     noctalia.notify("warp-cli not installed", "Install the cloudflare-warp package to use this toggle.")
   elseif state == "not-setup" then
     noctalia.notify("warp-cli not setup", "Run: sudo warp-cli registration new")
-  elseif state == "daemon-off" then
-    noctalia.notify("WARP daemon stopped", "Start it with: systemctl start cloudflare-warp.service")
   end
 end
