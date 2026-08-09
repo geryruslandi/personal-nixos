@@ -77,7 +77,13 @@
         edge_smoothness = 0.05;
 
         default = {
-          path = "";
+          path = "/home/geryruslandi/.config/gery/Pictures/Wallpapers/assassins-creed.png";
+        };
+
+        monitors = {
+          "eDP-1" = {
+            path = "/home/geryruslandi/.config/gery/Pictures/Wallpapers/assassins-creed.png";
+          };
         };
 
         automation = {
@@ -91,7 +97,7 @@
       theme = {
         mode = "dark";
         source = "builtin";
-        builtin = "Nord";
+        builtin = "Ayu";
 
         templates = {
           enable_builtin_templates = true;
@@ -275,9 +281,11 @@
 
         main = {
           position = "top";
-          background_opacity = 0.35;
+          background_opacity = 1.0;
           capsule = true;
-          capsule_radius = 4;
+          capsule_radius = 7;
+          color = "primary";
+          icon_color = "primary";
           concave_edge_corners = false;
           margin_ends = 0;
           radius = 0;
@@ -305,20 +313,23 @@
           enabled = true;
           position = "bottom";
           background_opacity = 0.0;
-          start = [ ];
-          center = [ "cpu" "ram" "temp" "net" ];
-          end = [ ];
+          start = [ "network_rx" "network_tx" ];
+          center = [ ];
+          end = [ "cpu" "ram" "temp" ];
           capsule = true;
-          capsule_border = "tertiary";
+          capsule_border = "on_primary";
+          capsule_fill = "on_primary";
+          capsule_foreground = "primary";
           capsule_opacity = 0.62;
           capsule_padding = 13.0;
           capsule_radius = 5;
           font_family = "JetBrainsMono Nerd Font Mono";
           layer = "overlay";
           margin_edge = 10;
-          margin_ends = 600;
+          margin_ends = 0;
           reserve_space = false;
           concave_edge_corners = false;
+          auto_hide = true;
         };
       };
 
@@ -376,9 +387,20 @@
           type = "sysmon";
           stat = "ram_used";
         };
-        net = {
-          type = "sysmon";
-          stat = "net_rx";
+        network_rx = {
+          capsule = true;
+          network_speed_compact = true;
+          visualization = "none";
+        };
+        network_tx = {
+          network_speed_compact = true;
+          visualization = "none";
+        };
+        media = {
+          hide_when_no_media = true;
+        };
+        privacy = {
+          hide_inactive = true;
         };
         "rec" = {
           type = "noctalia/screen_recorder:recorder";
