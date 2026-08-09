@@ -171,19 +171,6 @@
         esac
       fi
 
-      # Services: background daemons not needed on battery
-      case "$profile" in
-        power-saver|low-power|quiet)
-          systemctl stop cloudflare-warp.service 2>/dev/null || true
-          systemctl stop redis.service 2>/dev/null || true
-          caps="$caps,services-stop"
-          ;;
-        *)
-          systemctl start cloudflare-warp.service 2>/dev/null || true
-          systemctl start redis.service 2>/dev/null || true
-          caps="$caps,services-start"
-          ;;
-      esac
     '';
   };
   systemd.paths."cpu-max-perf-pct" = {
