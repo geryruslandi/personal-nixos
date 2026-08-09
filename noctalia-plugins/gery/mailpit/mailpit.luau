@@ -58,6 +58,7 @@ local function render()
   if installed == false then
     barWidget.setGlyph(GLYPH)
     barWidget.setGlyphColor(COLOR_MISSING)
+    barWidget.setColor(COLOR_MISSING)
     barWidget.setText(LABEL)
     barWidget.setTooltip(LABEL .. "\nService not installed on this system")
     return
@@ -66,18 +67,22 @@ local function render()
   if state == "active" then
     barWidget.setGlyph(GLYPH)
     barWidget.setGlyphColor(COLOR_RUNNING)
+    barWidget.setColor(COLOR_RUNNING)
     barWidget.setTooltip(tooltip("Status: Running"))
   elseif state == "failed" then
     barWidget.setGlyph("alert-octagon")
     barWidget.setGlyphColor(COLOR_FAIL)
+    barWidget.setColor(COLOR_FAIL)
     barWidget.setTooltip(tooltip("Status: Failed"))
   elseif state == "inactive" then
     barWidget.setGlyph(GLYPH_OFF)
     barWidget.setGlyphColor(COLOR_STOPPED)
+    barWidget.setColor(COLOR_STOPPED)
     barWidget.setTooltip(tooltip("Status: Stopped"))
   else
     barWidget.setGlyph(GLYPH)
     barWidget.setGlyphColor(COLOR_WORKING)
+    barWidget.setColor(COLOR_WORKING)
     barWidget.setTooltip(tooltip("Status: " .. state))
   end
   barWidget.setText(LABEL)
