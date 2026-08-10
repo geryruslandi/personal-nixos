@@ -72,7 +72,6 @@ in
     ./system-modules/ssd-mounter.nix
     ./system-modules/cloudflare-warp.nix
     ./system-modules/kdeconnect.nix
-    ./system-modules/k-wallet.nix
     ./system-modules/fingerprint-setup.nix
   ];
 

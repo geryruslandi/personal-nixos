@@ -48,6 +48,7 @@
     "com.redis.RedisInsight"
     "io.podman_desktop.PodmanDesktop"
     "com.github.Murmele.Gittyup"
+    "org.gnome.seahorse.Application"
   ];
 
   services.flatpak.overrides = {

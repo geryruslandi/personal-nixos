@@ -534,7 +534,6 @@
         "$mainMod, R, exec, noctalia msg panel-toggle control-center"
         "$mainMod, comma, exec, noctalia msg settings-toggle"
         "$mainMod, L, exec, noctalia msg session lock"
-        "$mainMod, C, exec, noctalia msg panel-toggle launcher \"/calc\""
         ", XF86PowerOff, exec, noctalia msg panel-toggle session"
       ];
     };
