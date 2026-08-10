@@ -103,9 +103,9 @@
 
       theme = {
         mode = "dark";
-        source = "builtin";
+        source = "community";
         builtin = "Nord";
-        community_palette = "Ayu Blue";
+        community_palette = "Catppuccin Frappe Blue";
         wallpaper_scheme = "m3-content";
 
         templates = {
@@ -116,7 +116,6 @@
             "opencode"
             "discord"
             "libreoffice"
-            "neovim"
             "obsidian"
             "vscode"
             "steam"
@@ -297,7 +296,7 @@
       };
 
       bar = {
-        order = [ "main" "right" "left" ];
+        order = [ "main" "left" "right" ];
 
         main = {
           position = "top";
@@ -359,11 +358,11 @@
 
         left = {
           enabled = true;
-          position = "left";
+          position = "top";
           background_opacity = 0.0;
-          start = [ ];
+          start = [ "redis" "mysql" "postgresql" "mailpit" "docker" "warp" ];
           center = [ ];
-          end = [ "redis" "mysql" "postgresql" "mailpit" "docker" "warp" ];
+          end = [ ];
           color = "error";
           icon_color = "error";
           capsule = true;
@@ -382,7 +381,7 @@
           concave_edge_corners = false;
           auto_hide = false;
           smart_auto_hide = true;
-          thickness = 110;
+          thickness = 30;
         };
       };
 
@@ -399,7 +398,8 @@
         show_shortcut_labels = true;
 
         calendar = {
-          show_events_card = true;
+          event_date_format = "%e %A %B";
+          show_events_card = false;
           show_week_numbers = false;
         };
 
@@ -486,17 +486,17 @@
           enabled = [
             "noctalia/screen_recorder"
             "noctalia/wallhaven"
-            "gery/warp"
-            "gery/redis"
-            "gery/mysql"
-            "gery/postgresql"
-            "gery/mailpit"
-            "gery/docker"
             "ycf/mawaqit"
             "noctalia/bitwarden"
             "dunarand/tmux-provider"
             "nightwatch75/todo"
             "tadomika_ari/w-engine"
+            "gery/redis"
+            "gery/mysql"
+            "gery/postgresql"
+            "gery/mailpit"
+            "gery/warp"
+            "gery/docker"
           ];
           auto_update = true;
         };
