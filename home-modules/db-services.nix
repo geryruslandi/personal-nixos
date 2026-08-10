@@ -5,7 +5,7 @@
   ...
 }:
 let
-  services = [ "redis" "mysql" "postgresql" "mailpit" ];
+  services = [ "redis" "mysql" "postgresql" "mailpit" "docker" ];
   pluginReal = svc: "${secrets.projectPath}/noctalia-plugins/gery/${svc}";
   mkLink = real: file: config.lib.file.mkOutOfStoreSymlink "${real}/${file}";
 in

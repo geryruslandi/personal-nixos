@@ -114,7 +114,6 @@
           enable_community_templates = true;
           community_ids = [
             "opencode"
-            "zen-browser"
             "discord"
             "libreoffice"
             "neovim"
@@ -364,7 +363,7 @@
           background_opacity = 0.0;
           start = [ ];
           center = [ ];
-          end = [ "redis" "mysql" "postgresql" "mailpit" "warp" ];
+          end = [ "redis" "mysql" "postgresql" "mailpit" "docker" "warp" ];
           color = "error";
           icon_color = "error";
           capsule = true;
@@ -478,6 +477,9 @@
         "mailpit" = {
           type = "gery/mailpit:mailpit";
         };
+        "docker" = {
+          type = "gery/docker:docker";
+        };
       };
 
         plugins = {
@@ -489,6 +491,7 @@
             "gery/mysql"
             "gery/postgresql"
             "gery/mailpit"
+            "gery/docker"
             "ycf/mawaqit"
             "noctalia/bitwarden"
             "dunarand/tmux-provider"
