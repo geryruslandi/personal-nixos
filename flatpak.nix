@@ -26,7 +26,6 @@
     "net.davidotek.pupgui2"
     "com.github.tchx84.Flatseal"
     "md.obsidian.Obsidian"
-    "org.qbittorrent.qBittorrent"
     "io.github.peazip.PeaZip"
     "org.gnome.Calculator"
     "de.haeckerfelix.Shortwave"

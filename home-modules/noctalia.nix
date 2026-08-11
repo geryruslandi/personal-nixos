@@ -1,10 +1,16 @@
 {
   pkgs,
+  lib,
   inputs,
   config,
   secrets,
   ...
 }:
+let
+  seanime = secrets.server.seanime or { enable = false; };
+  seanimeEnabled = seanime.enable or false;
+  seanimePort = seanime.port or 43211;
+in
 {
   # import the home manager module
   imports = [
@@ -333,35 +339,7 @@
           position = "right";
           background_opacity = 0.0;
           start = [ ];
-          center = [ ];
-          end = [ "cpu" "ram" "temp" "battery" "network_rx" "network_tx" ];
-          color = "error";
-          icon_color = "error";
-          capsule = true;
-          capsule_border = "on_primary";
-          capsule_fill = "on_primary";
-          capsule_foreground = "primary";
-          capsule_opacity = 0.7;
-          capsule_padding = 10.0;
-          capsule_radius = 5;
-          capsule_thickness = 1.0;
-          font_family = "JetBrainsMono Nerd Font Mono";
-          layer = "overlay";
-          margin_edge = 0;
-          margin_ends = 0;
-          reserve_space = false;
-          concave_edge_corners = false;
-          auto_hide = false;
-          smart_auto_hide = true;
-          thickness = 66;
-        };
-
-        left = {
-          enabled = true;
-          position = "top";
-          background_opacity = 0.0;
-          start = [ "redis" "mysql" "postgresql" "mailpit" "docker" "warp" ];
-          center = [ ];
+          center = [ "temp" "cpu" "ram" "battery" "network_rx" "network_tx" ];
           end = [ ];
           color = "error";
           icon_color = "error";
@@ -376,12 +354,43 @@
           font_family = "JetBrainsMono Nerd Font Mono";
           layer = "overlay";
           margin_edge = 0;
-          margin_ends = 0;
+          margin_ends = 310;
+          show_on_workspace_switch = false;
           reserve_space = false;
           concave_edge_corners = false;
           auto_hide = false;
           smart_auto_hide = true;
-          thickness = 30;
+          thickness = 66;
+        };
+
+        left = {
+          enabled = true;
+          position = "left";
+          background_opacity = 0.0;
+          start = [ ];
+          center = [ "redis" "mysql" "mailpit" "postgresql" "docker" "warp" ] ++ lib.optionals seanimeEnabled [ "seanime" ];
+          end = [ ];
+          color = "error";
+          icon_color = "error";
+          capsule = true;
+          capsule_border = "on_primary";
+          capsule_fill = "on_primary";
+          capsule_foreground = "primary";
+          capsule_opacity = 0.7;
+          capsule_padding = 10.0;
+          capsule_radius = 5;
+          capsule_thickness = 1.0;
+          font_family = "JetBrainsMono Nerd Font Mono";
+          layer = "overlay";
+          margin_edge = 10;
+          margin_ends = 270;
+          panel_overlap = 3;
+          show_on_workspace_switch = false;
+          reserve_space = false;
+          concave_edge_corners = false;
+          auto_hide = false;
+          smart_auto_hide = true;
+          thickness = 70;
         };
       };
 
@@ -480,6 +489,10 @@
         "docker" = {
           type = "gery/docker:docker";
         };
+      } // lib.optionalAttrs seanimeEnabled {
+        "seanime" = {
+          type = "gery/seanime:seanime";
+        };
       };
 
         plugins = {
@@ -497,7 +510,7 @@
             "gery/mailpit"
             "gery/warp"
             "gery/docker"
-          ];
+          ] ++ lib.optionals seanimeEnabled [ "gery/seanime" ];
           auto_update = true;
         };
 
@@ -514,6 +527,10 @@
           "gery/mailpit" = {
             smtpPort = (secrets.server or { }).mailpit.smtpPort or 1025;
             uiPort = (secrets.server or { }).mailpit.uiPort or 8025;
+          };
+        } // lib.optionalAttrs seanimeEnabled {
+          "gery/seanime" = {
+            port = seanimePort;
           };
         };
     };

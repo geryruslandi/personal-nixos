@@ -63,6 +63,7 @@ in
     ./home-modules/media-idle-inhibit.nix
     ./home-modules/cloudflare-warp.nix
     ./home-modules/db-services.nix
+    ./home-modules/seanime.nix
   ];
 
   # This is the magic part:
@@ -116,6 +117,7 @@ in
       nerd-fonts.jetbrains-mono
       go-task
       posting
+      qbittorrent
 
       inputs.aethertune.packages.${pkgs.stdenv.hostPlatform.system}.aethertune
     ];

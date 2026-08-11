@@ -1,0 +1,16 @@
+id         = "gery/seanime"
+name       = "Seanime Server"
+version    = "0.1.0"
+plugin_api = 3
+author     = "gery"
+icon       = "monitor-play"
+
+[[setting]]
+key        = "port"
+type       = "int"
+label_key  = "settings.port.label"
+default    = 43211
+
+[[widget]]
+id    = "seanime"
+entry = "seanime.luau"

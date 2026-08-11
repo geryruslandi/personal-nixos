@@ -74,6 +74,10 @@
       smtpPort = 1025;  # optional
       uiPort = 8025;    # optional
     };
+    seanime = {
+        enable = true;
+        port 43211; # optional
+      }
   };
   storageMount = [
     {
