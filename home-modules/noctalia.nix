@@ -500,8 +500,6 @@ in
             "noctalia/screen_recorder"
             "noctalia/wallhaven"
             "ycf/mawaqit"
-            "noctalia/bitwarden"
-            "dunarand/tmux-provider"
             "nightwatch75/todo"
             "tadomika_ari/w-engine"
             "gery/redis"
@@ -546,8 +544,6 @@ in
   wayland.windowManager.hyprland = {
     settings = {
       bind = [
-        "$mainMod, V, exec, noctalia msg panel-toggle clipboard"
-        "$mainMod, SPACE, exec, noctalia msg panel-toggle launcher"
         "$mainMod, R, exec, noctalia msg panel-toggle control-center"
         "$mainMod, comma, exec, noctalia msg settings-toggle"
         "$mainMod, L, exec, noctalia msg session lock"
