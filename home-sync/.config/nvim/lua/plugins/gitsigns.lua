@@ -8,6 +8,6 @@ return {
       delay = 200,           -- Delay in milliseconds before text appears
     },
     current_line_blame_formatter =
-    "                                                       <author>, <author_time:%d-%m-%Y> • <summary>",
+    "             <author>, <author_time:%d-%m-%Y> • <summary>",
   },
 }

@@ -96,8 +96,16 @@ local function poll()
   }, "; ")
   local ok = noctalia.runAsync(cmd, function(res)
     local lines = splitLines(res and res.stdout)
+    local enabledOut = lines[2] or ""
+    installed = enabledOut ~= "not-found"
+      and not string.find(enabledOut, "No such file or directory", 1, true)
+      and not string.find(enabledOut, "Failed to get unit file state", 1, true)
+    if not installed then
+      render()
+      return
+    end
     state = lines[1] or "unknown"
-    enabled = lines[2] or "unknown"
+    enabled = enabledOut
     sinceSec = nil
     if lines[3] and lines[4] then
       local sysUp = tonumber(lines[3])
@@ -114,28 +122,8 @@ local function poll()
   end
 end
 
-local function discover()
-  local cmd = "systemctl --user list-unit-files --type=service --no-pager 2>/dev/null | grep -F -w " .. UNIT
-  local ok = noctalia.runAsync(cmd, function(res)
-    installed = res and res.exitCode == 0
-    if installed then poll() else render() end
-  end)
-  if not ok then
-    installed = true
-    poll()
-  end
-end
-
-local function refresh()
-  if installed == nil then
-    discover()
-  else
-    poll()
-  end
-end
-
 function update()
-  refresh()
+  poll()
 end
 
 function onClick()

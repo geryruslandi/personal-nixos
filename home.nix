@@ -52,6 +52,7 @@ in
     ./home-modules/appimages.nix
     ./home-modules/bruno.nix
     ./home-modules/python.nix
+    ./home-modules/swagger.nix
     ./home-modules/opencode.nix
     ./home-modules/tmux.nix
     ./home-modules/go.nix
