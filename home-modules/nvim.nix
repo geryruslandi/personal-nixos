@@ -18,5 +18,14 @@
     ghostscript_headless
     tectonic
     mermaid-cli
+
+    # Mason install prerequisites (nil_ls builds via cargo, stylua needs unzip)
+    cargo
+    unzip
+
+    # Nix language toolchain (LazyVim extra lang.nix)
+    statix
+    nil
+    alejandra
   ];
 }

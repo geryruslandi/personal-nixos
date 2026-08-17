@@ -49,6 +49,9 @@
     }
   ];
   wallhavenKey = "someSecretKeyHere";
+  # `enable = false` means the service/database is REGISTERED but does NOT boot
+  # at startup — you can still start it manually (`systemctl start X`) or via
+  # the Noctalia bar toggle without a password.
   server = {
     redis = {
       enable = false;
@@ -74,9 +77,19 @@
       smtpPort = 1025;  # optional
       uiPort = 8025;    # optional
     };
+    seaweedfs = {
+      enable = true;
+      masterPort = 9333;             # optional
+      volumePort = 8080;             # optional
+      filerPort = 8888;              # optional
+      dataDir = "/mnt/data-ssd/seaweedfs";  # optional
+    };
+    docker = {
+      enable = true;                 # registered even when false; only boot is gated
+    };
     seanime = {
         enable = true;
-        port 43211; # optional
+        port = 43211; # optional
       }
   };
   storageMount = [

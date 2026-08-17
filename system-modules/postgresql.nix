@@ -1,31 +1,37 @@
 { pkgs, lib, secrets, ... }:
 let
   pg = secrets.server.postgres or { enable = false; };
+  boot = pg.enable or false;
 in
 {
   environment.systemPackages = with pkgs; [
     postgresql
   ];
 
+  # Always register the unit so it can be started manually (or via the Noctalia
+  # toggle) even when auto-start is disabled; `enable` only controls boot.
+  # Users/databases are provisioned whenever the service actually starts.
   services.postgresql = {
-    enable = pg.enable or false;
+    enable = true;
 
     authentication = pkgs.lib.mkOverride 10 ''
       #type database  DBuser  auth-method
       local all       all     trust
-      host  all       all     127.0.0.1/32  trust
-      host  all       all     ::1/128       trust
+      host  all       all       [IP_ADDRESS]/32  trust
+      host  all       all      ::1/128       trust
     '';
 
-    ensureUsers = lib.optional pg.enable {
-      name = pg.user;
+    ensureUsers = [{
+      name = pg.user or "postgres";
       ensureClauses = {
         login = true;
         superuser = pg.superuser or false;
         password = pg.password;
       };
-    };
+    }];
 
-    ensureDatabases = lib.optionals pg.enable pg.databases;
+    ensureDatabases = pg.databases or [];
   };
+
+  systemd.services.postgresql.wantedBy = lib.mkForce (if boot then [ "multi-user.target" ] else [ ]);
 }

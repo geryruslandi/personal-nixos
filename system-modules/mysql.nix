@@ -1,23 +1,29 @@
 { pkgs, lib, secrets, ... }:
 let
   mysql = secrets.server.mysql or { enable = false; };
+  boot = mysql.enable or false;
 in
 {
+  # Always register the unit so it can be started manually (or via the Noctalia
+  # toggle) even when auto-start is disabled; `enable` only controls boot.
+  # Users/databases are provisioned whenever the service actually starts.
   services.mysql = {
-    enable = mysql.enable or false;
+    enable = true;
     package = pkgs.mysql84;
 
-    ensureUsers = lib.optional mysql.enable ({
-      name = mysql.user;
+    ensureUsers = [({
+      name = mysql.user or "root";
       ensurePermissions = {
         "*.*" = "ALL PRIVILEGES";
       };
     } // lib.optionalAttrs (mysql ? password && mysql.password != null) {
       password = mysql.password;
-    });
+    })];
 
-    initialDatabases = lib.optionals mysql.enable (map (name: { inherit name; }) mysql.databases or []);
+    initialDatabases = map (name: { inherit name; }) (mysql.databases or []);
   };
+
+  systemd.services.mysql.wantedBy = lib.mkForce (if boot then [ "multi-user.target" ] else [ ]);
 
   environment.systemPackages = with pkgs; [
     mariadb

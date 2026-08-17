@@ -18,6 +18,8 @@ let
           postgres = { enable = false; };
           mysql = { enable = false; };
           mailpit = { enable = false; };
+          seaweedfs = { enable = false; };
+          docker = { enable = false; };
         };
         storageMount = [ ];
         nvidia = {
@@ -73,6 +75,7 @@ in
     ./system-modules/cloudflare-warp.nix
     ./system-modules/kdeconnect.nix
     ./system-modules/fingerprint-setup.nix
+    ./system-modules/seaweedfs.nix
   ];
 
   _module.args = { inherit secrets; };

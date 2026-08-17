@@ -5,6 +5,7 @@ return {
       servers = {
         phpactor = { enabled = false },
         intelephense = {},
+        nil_ls = {},
       },
     },
   },

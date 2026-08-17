@@ -120,6 +120,7 @@ in
       go-task
       posting
       qbittorrent
+      glab
 
       inputs.aethertune.packages.${pkgs.stdenv.hostPlatform.system}.aethertune
     ];

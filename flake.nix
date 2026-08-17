@@ -31,8 +31,8 @@
 
     nix-flatpak.url = "github:gmodena/nix-flatpak/?ref=latest";
 
-    silentSDDM.url = "github:uiriansan/SilentSDDM";
-    silentSDDM.inputs.nixpkgs.follows = "nixpkgs";
+    qylock.url = "github:Darkkal44/qylock";
+    qylock.inputs.nixpkgs.follows = "nixpkgs";
 
     aethertune.url = "github:nevermore23274/AetherTune";
 
@@ -44,6 +44,7 @@
       home-manager,
       nix-flatpak,
       vicinae,
+      qylock,
       ...
     }:
     let

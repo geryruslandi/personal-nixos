@@ -7,9 +7,9 @@
   ...
 }:
 let
-  seanime = secrets.server.seanime or { enable = false; };
-  seanimeEnabled = seanime.enable or false;
+  seanime = secrets.server.seanime or { };
   seanimePort = seanime.port or 43211;
+  seaweedfs = secrets.server.seaweedfs or { enable = false; };
 in
 {
   # import the home manager module
@@ -85,7 +85,14 @@ in
         directory = "/home/geryruslandi/.config/gery/Pictures/Wallpapers";
         fill_mode = "crop";
         fill_color = "#000000";
-        transition = [ "fade" "wipe" "disc" "stripes" "zoom" "honeycomb" ];
+        transition = [
+          "fade"
+          "wipe"
+          "disc"
+          "stripes"
+          "zoom"
+          "honeycomb"
+        ];
         transition_duration = 1500;
         edge_smoothness = 0.05;
 
@@ -116,7 +123,14 @@ in
 
         templates = {
           enable_builtin_templates = true;
-          builtin_ids = [ "gtk3" "gtk4" "hyprland" "kcolorscheme" "kitty" "qt" ];
+          builtin_ids = [
+            "gtk3"
+            "gtk4"
+            "hyprland"
+            "kcolorscheme"
+            "kitty"
+            "qt"
+          ];
           enable_community_templates = true;
           community_ids = [
             "opencode"
@@ -302,7 +316,10 @@ in
       };
 
       bar = {
-        order = [ "main" "left" "right" ];
+        order = [
+          "main"
+          "services"
+        ];
 
         main = {
           position = "top";
@@ -321,9 +338,18 @@ in
           reserve_space = true;
           auto_hide = false;
           font_family = "JetBrainsMono Nerd Font Propo";
-          start = [ "active_window" "privacy" ];
+          start = [
+            "active_window"
+            "privacy"
+          ];
           center = [ "workspaces" ];
           end = [
+            "temp"
+            "cpu"
+            "ram"
+            "battery"
+            "network_rx"
+            "network_tx"
             "volume"
             "battery"
             "clock"
@@ -333,42 +359,21 @@ in
             "session"
           ];
         };
-
-        right = {
+        services = {
           enabled = true;
-          position = "right";
+          position = "top";
           background_opacity = 0.0;
           start = [ ];
-          center = [ "temp" "cpu" "ram" "battery" "network_rx" "network_tx" ];
-          end = [ ];
-          color = "error";
-          icon_color = "error";
-          capsule = true;
-          capsule_border = "on_primary";
-          capsule_fill = "on_primary";
-          capsule_foreground = "primary";
-          capsule_opacity = 0.7;
-          capsule_padding = 10.0;
-          capsule_radius = 5;
-          capsule_thickness = 1.0;
-          font_family = "JetBrainsMono Nerd Font Mono";
-          layer = "overlay";
-          margin_edge = 0;
-          margin_ends = 310;
-          show_on_workspace_switch = false;
-          reserve_space = false;
-          concave_edge_corners = false;
-          auto_hide = false;
-          smart_auto_hide = true;
-          thickness = 66;
-        };
-
-        left = {
-          enabled = true;
-          position = "left";
-          background_opacity = 0.0;
-          start = [ ];
-          center = [ "redis" "mysql" "mailpit" "postgresql" "docker" "warp" ] ++ lib.optionals seanimeEnabled [ "seanime" ];
+          center = [
+            "redis"
+            "mysql"
+            "mailpit"
+            "postgresql"
+            "docker"
+            "warp"
+            "seaweedfs"
+            "seanime"
+          ];
           end = [ ];
           color = "error";
           icon_color = "error";
@@ -388,12 +393,11 @@ in
           show_on_workspace_switch = false;
           reserve_space = false;
           concave_edge_corners = false;
-          auto_hide = false;
-          smart_auto_hide = true;
-          thickness = 70;
+          auto_hide = true;
+          smart_auto_hide = false;
+          thickness = 40;
         };
       };
-
 
       dock = {
         enabled = false;
@@ -462,6 +466,9 @@ in
         media = {
           hide_when_no_media = true;
         };
+        clock = {
+          format = "%d/%m/%Y %H:%M";
+        };
         privacy = {
           hide_inactive = true;
         };
@@ -489,48 +496,65 @@ in
         "docker" = {
           type = "gery/docker:docker";
         };
-      } // lib.optionalAttrs seanimeEnabled {
+        "seaweedfs" = {
+          type = "gery/seaweedfs:seaweedfs";
+        };
         "seanime" = {
           type = "gery/seanime:seanime";
         };
+        "todo" = {
+          type = "nightwatch75/todo:todo";
+        };
       };
 
-        plugins = {
-          enabled = [
-            "noctalia/screen_recorder"
-            "noctalia/wallhaven"
-            "ycf/mawaqit"
-            "nightwatch75/todo"
-            "tadomika_ari/w-engine"
-            "gery/redis"
-            "gery/mysql"
-            "gery/postgresql"
-            "gery/mailpit"
-            "gery/warp"
-            "gery/docker"
-          ] ++ lib.optionals seanimeEnabled [ "gery/seanime" ];
-          auto_update = true;
-        };
+      plugins = {
+        enabled = [
+          "noctalia/screen_recorder"
+          "noctalia/wallhaven"
+          "ycf/mawaqit"
+          "noctalia/bitwarden"
+          "dunarand/tmux-provider"
+          "nightwatch75/todo"
+          "tadomika_ari/w-engine"
+          "gery/redis"
+          "gery/mysql"
+          "gery/postgresql"
+          "gery/mailpit"
+          "gery/warp"
+          "gery/docker"
+          "gery/seaweedfs"
+          "gery/seanime"
+        ];
+        auto_update = true;
+      };
 
-        plugin_settings = {
-          "gery/redis" = {
-            port = (secrets.server or { }).redis.port or 6379;
-          };
-          "gery/mysql" = {
-            port = (secrets.server or { }).mysql.port or 3306;
-          };
-          "gery/postgresql" = {
-            port = (secrets.server or { }).postgres.port or 5432;
-          };
-          "gery/mailpit" = {
-            smtpPort = (secrets.server or { }).mailpit.smtpPort or 1025;
-            uiPort = (secrets.server or { }).mailpit.uiPort or 8025;
-          };
-        } // lib.optionalAttrs seanimeEnabled {
-          "gery/seanime" = {
-            port = seanimePort;
-          };
+      plugin_settings = {
+        "nightwatch75/todo" = {
+          panel_placement = "floating";
+          panel_position = "center";
         };
+        "gery/redis" = {
+          port = (secrets.server or { }).redis.port or 6379;
+        };
+        "gery/mysql" = {
+          port = (secrets.server or { }).mysql.port or 3306;
+        };
+        "gery/postgresql" = {
+          port = (secrets.server or { }).postgres.port or 5432;
+        };
+        "gery/mailpit" = {
+          smtpPort = (secrets.server or { }).mailpit.smtpPort or 1025;
+          uiPort = (secrets.server or { }).mailpit.uiPort or 8025;
+        };
+        "gery/seaweedfs" = {
+          masterPort = seaweedfs.masterPort or 9333;
+          volumePort = seaweedfs.volumePort or 8080;
+          filerPort = seaweedfs.filerPort or 8888;
+        };
+        "gery/seanime" = {
+          port = seanimePort;
+        };
+      };
     };
   };
 

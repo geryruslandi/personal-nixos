@@ -1,10 +1,16 @@
-{ pkgs, ... }:
-
+{ pkgs, lib, secrets, ... }:
+let
+  docker = secrets.server.docker or { enable = false; };
+  boot = docker.enable or false;
+in
 {
   virtualisation = {
     docker = {
+      # Always registered so the daemon/socket/group exist — `enable` only
+      # controls auto-start at boot (`enableOnBoot`).
       enable = true;
-      autoPrune.enable = true;
+      enableOnBoot = boot;
+      autoPrune.enable = boot;
     };
 
     containers = {
@@ -15,6 +21,10 @@
       ];
     };
   };
+
+  # Socket activation would otherwise boot dockerd on first client connect even
+  # when auto-start is off.
+  systemd.sockets.docker.wantedBy = lib.mkForce (if boot then [ "sockets.target" ] else [ ]);
 
   environment.systemPackages = with pkgs; [
     docker-compose

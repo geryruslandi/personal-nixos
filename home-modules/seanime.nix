@@ -6,8 +6,7 @@
   ...
 }:
 let
-  seanime = secrets.server.seanime or { enable = false; };
-  enabled = seanime.enable or false;
+  seanime = secrets.server.seanime or { };
   port = seanime.port or 43211;
 
   # Real filesystem path to this repo's Seanime toggle plugin sources.
@@ -15,8 +14,9 @@ let
 
   mkLink = file: config.lib.file.mkOutOfStoreSymlink "${pluginReal}/${file}";
 in
-lib.mkIf enabled {
-  # Seanime media server, installed at the user level.
+{
+  # Seanime media server, installed at the user level. Always registered so it
+  # can be started from the bar widget; never auto-starts (WantedBy = []).
   home.packages = [ pkgs.seanime ];
 
   # systemd user service so the bar widget can toggle the server on/off.
