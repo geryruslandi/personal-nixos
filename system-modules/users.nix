@@ -10,7 +10,6 @@
       "wheel"
     ];
     packages = with pkgs; [
-      vscode
       nixfmt
       firefox
     ];

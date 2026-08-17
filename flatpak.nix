@@ -40,7 +40,6 @@
     "io.github.fabrialberio.pinapp"
     "org.kde.koko"
     "chat.rocket.RocketChat"
-    "com.opera.Opera"
     "org.libreoffice.LibreOffice"
     "org.telegram.desktop"
     "org.pulseaudio.pavucontrol"

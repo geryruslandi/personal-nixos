@@ -30,8 +30,6 @@
     # Disk manager
     gparted
 
-    # okay-is browser
-    vivaldi
     chromium
 
     file
