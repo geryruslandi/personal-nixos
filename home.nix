@@ -67,6 +67,7 @@ in
     ./home-modules/db-services.nix
     ./home-modules/seanime.nix
     ./home-modules/stremio.nix
+    ./home-modules/k9s.nix
   ];
 
   # This is the magic part:

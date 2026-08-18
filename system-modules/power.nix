@@ -65,6 +65,18 @@
         echo $(( $(date +%s) + 600 )) > /sys/class/rtc/rtc0/wakealarm 2>/dev/null || true
       fi
 
+      # Record the ground-truth lid state at suspend time. This laptop's lid
+      # switch is non-compliant and can misreport "open" right after an RTC
+      # rescue-resume, so the re-suspend guard in postStop trusts what we
+      # actually saw here instead of trusting the switch during the wake.
+      LID_STATE_FILE="/var/run/suspend-power-save-lid-state"
+      rm -f "$LID_STATE_FILE"
+      if [ -r /proc/acpi/button/lid/LID0/state ] && grep -q "closed" /proc/acpi/button/lid/LID0/state; then
+        echo closed > "$LID_STATE_FILE"
+      else
+        echo open > "$LID_STATE_FILE"
+      fi
+
       # Disable ACPI wake for devices that block deep S0ix (s2idle)
       # XHCI (USB controller at S0) is the most critical — keeps SoC out of C10/S0i3
       # LID0 (lid switch) is non-compliant on this laptop and fires spurious
@@ -111,21 +123,106 @@
       # or a rogue ACPI/USB event). Go straight back to sleep instead of
       # burning power with the lid shut. Loop-guarded so a genuinely stuck
       # suspend entry can't spin forever.
+      #
+      # The lid switch is non-compliant and sometimes reports "open" at the
+      # moment of a rescue-resume even though the lid never opened. So the
+      # guard also consults the state recorded at suspend time and runs a
+      # delayed confirm (past the lid_report_interval debounce) to tell a real
+      # user open (kernel commits "open") from a spurious report ("closed").
+      # Every decision is journal-logged for later debugging.
       LID_STATE="/proc/acpi/button/lid/LID0/state"
+      LID_STATE_FILE="/var/run/suspend-power-save-lid-state"
       GUARD_COUNT="/var/run/lid-resuspend-count"
+      WAS_CLOSED=$(cat "$LID_STATE_FILE" 2>/dev/null || echo unknown)
+      rm -f "$LID_STATE_FILE"
+
       if [ -f "$LID_STATE" ] && grep -q "closed" "$LID_STATE"; then
         count=$(cat "$GUARD_COUNT" 2>/dev/null || echo 0)
         if [ "$count" -lt 5 ]; then
           echo $((count + 1)) > "$GUARD_COUNT"
+          echo "resumed with lid closed; re-suspending (attempt $((count + 1)))." | \
+            systemd-cat -t suspend-power-save
           sleep 2
           systemd-run --no-block --quiet systemctl suspend || true
         else
           rm -f "$GUARD_COUNT"
+          echo "lid still closed after 5 re-suspend attempts; leaving the machine awake." | \
+            systemd-cat -t suspend-power-save
         fi
+      elif [ "$WAS_CLOSED" = "closed" ]; then
+        # We slept with the lid closed but the switch now says "open": the
+        # classic spurious report during an RTC rescue-resume. Re-check after
+        # the 3s kernel debounce — if the truth re-asserts as "closed", go
+        # back to sleep; if a user really opened it, do nothing and reset.
+        echo "lid says open but was closed at suspend; confirming in 8s." | \
+          systemd-cat -t suspend-power-save
+        systemd-run --no-block --quiet --unit=lid-resuspend-confirm \
+          /run/current-system/sw/bin/env PATH=/run/current-system/sw/bin bash -c \
+          "sleep 8; if grep -q closed /proc/acpi/button/lid/LID0/state 2>/dev/null; then echo 'spurious open confirmed; re-suspending.' | systemd-cat -t suspend-power-save; systemd-run --no-block --quiet systemctl suspend || true; else rm -f /var/run/lid-resuspend-count; fi" \
+          || true
       else
         rm -f "$GUARD_COUNT"
       fi
     '';
+  };
+
+  # Lid-close backstop while sitting on the login screen (greeter). The lid
+  # switch on this laptop fires spurious events, and after a rescue-resume
+  # (RTC safety net) logind can miss a real "Lid closed" — leaving the machine
+  # awake with the lid shut. This watcher polls the kernel's lid state and
+  # re-arms suspend whenever nobody is logged in (greeter) with the lid closed.
+  # It never overrides a real desktop session — logind stays in charge there.
+  systemd.services.lid-watch = {
+    description = "Lid closed watcher (greeter only)";
+    after = [ "systemd-logind.service" ];
+    serviceConfig = {
+      Type = "oneshot";
+      User = "root";
+      Environment = "PATH=/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:/bin";
+    };
+    script = ''
+      # Only act when the active session is the greeter (class "greeter") or
+      # there is no session at all. A logged-in user session keeps logind in
+      # charge of the lid switch.
+      SEAT_ACTIVE=$(loginctl show-seat seat0 -p ActiveSession --value 2>/dev/null)
+      if [ -n "$SEAT_ACTIVE" ] && [ "$SEAT_ACTIVE" != "no" ]; then
+        CLASS=$(loginctl show-session "$SEAT_ACTIVE" -p Class --value 2>/dev/null)
+      else
+        CLASS="none"
+      fi
+      [ "$CLASS" = "user" ] && exit 0
+
+      # Do not stack suspend requests on top of an in-flight suspend.
+      systemctl is-active systemd-suspend.service >/dev/null 2>&1 && exit 0
+      systemctl is-active systemd-suspend-then-hibernate.service >/dev/null 2>&1 && exit 0
+
+      [ -r /proc/acpi/button/lid/LID0/state ] || exit 0
+      grep -q "closed" /proc/acpi/button/lid/LID0/state || exit 0
+
+      # Loop-guarded: a genuinely stuck suspend entry that keeps getting
+      # rescued by the RTC net should not spin forever.
+      GUARD_COUNT="/var/run/lid-resuspend-count"
+      count=$(cat "$GUARD_COUNT" 2>/dev/null || echo 0)
+      if [ "$count" -lt 5 ]; then
+        echo $((count + 1)) > "$GUARD_COUNT"
+        echo "greeter: lid closed and system awake; suspending (attempt $((count + 1)))." | \
+          systemd-cat -t lid-watch
+        systemctl suspend || true
+      else
+        echo "lid-watch: stopped after 5 attempts; machine left awake (stuck suspend?)." | \
+          systemd-cat -t lid-watch
+      fi
+    '';
+  };
+
+  systemd.timers.lid-watch = {
+    description = "Lid closed watcher timer (greeter only)";
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnBootSec = "1min";
+      OnUnitActiveSec = "15s";
+      AccuracySec = "1s";
+    };
   };
 
   # Dynamic power capping — CPU, iGPU, and NVIDIA based on power profile
