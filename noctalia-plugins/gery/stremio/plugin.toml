@@ -1,0 +1,16 @@
+id         = "gery/stremio"
+name       = "Stremio Server"
+version    = "0.1.0"
+plugin_api = 3
+author     = "gery"
+icon       = "movie"
+
+[[setting]]
+key        = "port"
+type       = "int"
+label_key  = "settings.port.label"
+default    = 11470
+
+[[widget]]
+id    = "stremio"
+entry = "stremio.luau"

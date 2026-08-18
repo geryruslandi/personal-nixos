@@ -8,6 +8,7 @@
 let
   seanime = secrets.server.seanime or { };
   port = seanime.port or 43211;
+  enable = seanime.enable or false;
 
   # Real filesystem path to this repo's Seanime toggle plugin sources.
   pluginReal = "${secrets.projectPath}/noctalia-plugins/gery/seanime";
@@ -16,7 +17,8 @@ let
 in
 {
   # Seanime media server, installed at the user level. Always registered so it
-  # can be started from the bar widget; never auto-starts (WantedBy = []).
+  # can be started from the bar widget; auto-starts at login only when
+  # secrets.server.seanime.enable = true.
   home.packages = [ pkgs.seanime ];
 
   # systemd user service so the bar widget can toggle the server on/off.
@@ -33,8 +35,9 @@ in
       RestartSec = 3;
     };
     Install = {
-      # Not enabled by default — the user starts it from the bar widget.
-      WantedBy = [ ];
+      # Auto-starts at login when `enable` is set; otherwise registered only
+      # and the user starts it from the bar widget.
+      WantedBy = lib.mkIf enable [ "graphical-session.target" ];
     };
   };
 

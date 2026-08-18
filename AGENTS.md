@@ -41,7 +41,7 @@ git add --intent-to-add secrets.nix -f
 
 - **Flake inputs** are passed via `specialArgs` and `extraSpecialArgs` as `inputs` to all modules.
 - **Secrets** are imported from `secrets.nix` and exposed via `_module.args = { inherit secrets; }` — always use `secrets ? field` guards to handle missing keys gracefully. **Exception**: `secrets.projectPath` (absolute path to this repo) is **required** — `configuration.nix`/`home.nix` throw at build time if it's missing or empty.
-- **Dev services (`secrets.server.*`)**: redis, mysql, postgres, mailpit, seaweedfs, docker (and user-level seanime) are **always registered** — `enable = false` only disables boot auto-start, never registration. You can always start them manually (`systemctl start X`) or via the Noctalia bar toggle (passwordless — see polkit whitelist). MySQL/Postgres users & databases are provisioned whenever the service actually starts.
+- **Dev services (`secrets.server.*`)**: redis, mysql, postgres, mailpit, seaweedfs, docker, and the user-level media servers seanime/stremio are **always registered** — `enable = false` only disables auto-start (system services at boot, user services at login), never registration. You can always start them manually (`systemctl start X` / `systemctl --user start X`) or via the Noctalia bar toggle (passwordless — see polkit whitelist). MySQL/Postgres users & databases are provisioned whenever the service actually starts.
 - **System vs User separation**: System config lives in `system-modules/`, user config in `home-modules/`.
 - **Catppuccin theming**: Applied at NixOS level (`catppuccin.nixosModules.catppuccin`) and Home Manager level (`catppuccin.homeModules.catppuccin`).
 - **Flatpaks**: Declared in `flatpak.nix` using `services.flatpak.packages`.

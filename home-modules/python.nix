@@ -8,14 +8,15 @@
   ];
 
   home.activation.createGlobalVenv = lib.hm.dag.entryAfter ["writeBoundary"] ''
-    if [ ! -d "$HOME/.virtualenvs/global" ]; then
+    if [ ! -x "$HOME/.virtualenvs/global/bin/python" ]; then
+      rm -rf "$HOME/.virtualenvs/global"
       ${pkgs.python3}/bin/python -m venv "$HOME/.virtualenvs/global"
     fi
   '';
 
   programs.zsh.initContent = ''
     export LD_LIBRARY_PATH="${lib.makeLibraryPath (with pkgs; [
-      stdenv.cc.cc
+      gcc16.cc
       zlib
     ])}''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
     source "$HOME/.virtualenvs/global/bin/activate"

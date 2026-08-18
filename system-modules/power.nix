@@ -67,9 +67,12 @@
 
       # Disable ACPI wake for devices that block deep S0ix (s2idle)
       # XHCI (USB controller at S0) is the most critical — keeps SoC out of C10/S0i3
+      # LID0 (lid switch) is non-compliant on this laptop and fires spurious
+      # open events that abort a stalled suspend and leave the machine awake
+      # with the lid closed. Disable its wake so a lid event can't pull us out.
       mkdir -p "$(dirname "$WAKE_STATE")"
       rm -f "$WAKE_STATE"
-      for dev in XHCI PEG0 PEG1 PEG2 RP04 TXHC TDM0 TRP0 TRP1 AWAC; do
+      for dev in XHCI PEG0 PEG1 PEG2 RP04 TXHC TDM0 TRP0 TRP1 AWAC LID0; do
         state=$(grep "^$dev " /proc/acpi/wakeup 2>/dev/null | tr -s ' ' | cut -d' ' -f3)
         if [ "$state" = "enabled" ]; then
           echo "$dev" >> "$WAKE_STATE"
@@ -102,6 +105,26 @@
 
       # Restore Bluetooth after resume
       rfkill unblock bluetooth 2>/dev/null || true
+
+      # Re-suspend guard: a resume while the lid is still physically closed
+      # means the wake was spurious (RTC safety-net rescue, lid-switch bounce,
+      # or a rogue ACPI/USB event). Go straight back to sleep instead of
+      # burning power with the lid shut. Loop-guarded so a genuinely stuck
+      # suspend entry can't spin forever.
+      LID_STATE="/proc/acpi/button/lid/LID0/state"
+      GUARD_COUNT="/var/run/lid-resuspend-count"
+      if [ -f "$LID_STATE" ] && grep -q "closed" "$LID_STATE"; then
+        count=$(cat "$GUARD_COUNT" 2>/dev/null || echo 0)
+        if [ "$count" -lt 5 ]; then
+          echo $((count + 1)) > "$GUARD_COUNT"
+          sleep 2
+          systemd-run --no-block --quiet systemctl suspend || true
+        else
+          rm -f "$GUARD_COUNT"
+        fi
+      else
+        rm -f "$GUARD_COUNT"
+      fi
     '';
   };
 

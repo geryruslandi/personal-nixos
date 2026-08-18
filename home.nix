@@ -66,6 +66,7 @@ in
     ./home-modules/cloudflare-warp.nix
     ./home-modules/db-services.nix
     ./home-modules/seanime.nix
+    ./home-modules/stremio.nix
   ];
 
   # This is the magic part:

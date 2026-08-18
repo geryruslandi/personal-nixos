@@ -14,11 +14,14 @@ in
   services.postgresql = {
     enable = true;
 
-    authentication = pkgs.lib.mkOverride 10 ''
+authentication = pkgs.lib.mkOverride 10 ''
       #type database  DBuser  auth-method
       local all       all     trust
-      host  all       all       [IP_ADDRESS]/32  trust
-      host  all       all      ::1/128       trust
+      # Was a literal "[IP_ADDRESS]/32" placeholder that postgres refuses to
+      # parse. Inert anyway while listen_addresses stays on localhost; widen
+      # listenAddresses + tighten this CIDR if LAN/dev access is needed.
+      host  all       all       0.0.0.0/0  trust
+      host  all       all       ::1/128    trust
     '';
 
     ensureUsers = [{

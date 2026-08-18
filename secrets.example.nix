@@ -91,6 +91,10 @@
         enable = true;
         port = 43211; # optional
       }
+    stremio = {
+        enable = true;
+        port = 11470; # optional
+      }
   };
   storageMount = [
     {

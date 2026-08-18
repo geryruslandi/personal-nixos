@@ -9,6 +9,8 @@
 let
   seanime = secrets.server.seanime or { };
   seanimePort = seanime.port or 43211;
+  stremio = secrets.server.stremio or { };
+  stremioPort = stremio.port or 11470;
   seaweedfs = secrets.server.seaweedfs or { enable = false; };
 in
 {
@@ -373,6 +375,7 @@ in
             "warp"
             "seaweedfs"
             "seanime"
+            "stremio"
           ];
           end = [ ];
           color = "error";
@@ -502,6 +505,9 @@ in
         "seanime" = {
           type = "gery/seanime:seanime";
         };
+        "stremio" = {
+          type = "gery/stremio:stremio";
+        };
         "todo" = {
           type = "nightwatch75/todo:todo";
         };
@@ -524,6 +530,7 @@ in
           "gery/docker"
           "gery/seaweedfs"
           "gery/seanime"
+          "gery/stremio"
         ];
         auto_update = true;
       };
@@ -553,6 +560,9 @@ in
         };
         "gery/seanime" = {
           port = seanimePort;
+        };
+        "gery/stremio" = {
+          port = stremioPort;
         };
       };
     };
