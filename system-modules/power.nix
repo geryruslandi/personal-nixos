@@ -3,8 +3,8 @@
 {
   # Kernel power-saving parameters (applied at boot)
   boot.kernelParams = [
-    "nohz=on"                   # disable periodic timer ticks on idle CPUs
-    "i915.enable_dc=4"          # display deep C-states
+    "nohz=on" # disable periodic timer ticks on idle CPUs
+    "i915.enable_dc=4" # display deep C-states
     # PSR (panel self refresh) and FBC (frame buffer compression) are common
     # culprits for s2idle resume hangs on Intel/ADL (observed here: machine
     # entered PM: suspend entry (s2idle) and never resumed). Disabled until
@@ -12,9 +12,9 @@
     "i915.enable_psr=0"
     "i915.enable_fbc=0"
     "pcie_aspm.policy=powersupersave" # PCIe ASPM deepest L1 state
-    "usbcore.autosuspend=2"          # USB autosuspend after 2s idle
+    "usbcore.autosuspend=2" # USB autosuspend after 2s idle
     "nvme_core.default_ps_max_latency_us=5500" # NVMe deeper power states
-    "loglevel=3"                     # reduce printk wakeups
+    "loglevel=3" # reduce printk wakeups
     # This laptop's lid switch is not compliant to SW_LID (buggy firmware):
     # it re-reports the same state and fires spurious close/open events that
     # raced s2idle entry and hung the machine (PM: suspend entry, no exit).
@@ -27,9 +27,9 @@
 
   # Tune kernel dirty page behavior for fewer wakeups on battery
   boot.kernel.sysctl = {
-    "vm.dirty_writeback_centisecs" = 6000;   # background writeback every 60s (default 1500)
-    "vm.dirty_expire_centisecs"    = 12000;  # dirty pages expire after 120s (default 3000)
-    "vm.dirty_background_ratio"    = 5;      # start writeback at 5% dirty (default 10)
+    "vm.dirty_writeback_centisecs" = 6000; # background writeback every 60s (default 1500)
+    "vm.dirty_expire_centisecs" = 12000; # dirty pages expire after 120s (default 3000)
+    "vm.dirty_background_ratio" = 5; # start writeback at 5% dirty (default 10)
   };
 
   # Intel PMC Core — Alder Lake S0ix tuning
@@ -42,6 +42,21 @@
   powerManagement.powertop.enable = true;
 
   environment.systemPackages = [ pkgs.powertop ];
+
+  # Keyboard backlight idle timeout: firmware default is 10s, which turns the
+  # backlight off almost immediately after you stop typing. Bump it to 2 min
+  # (the dell-laptop driver converts 300s to the best representable unit).
+  systemd.services.keyboard-backlight-timeout = {
+    description = "Set keyboard backlight idle timeout";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "systemd-modules-load.service" ];
+    serviceConfig.Type = "oneshot";
+    script = ''
+      if [ -w /sys/class/leds/dell::kbd_backlight/stop_timeout ]; then
+        echo 120 > /sys/class/leds/dell::kbd_backlight/stop_timeout
+      fi
+    '';
+  };
 
   # Before suspend: block radios, disable ACPI/USB wake that blocks S0ix, enable PCI runtime PM
   # After resume: restore ACPI wake + Bluetooth
@@ -317,8 +332,8 @@
       STOP_CHARGE_THRESH_BAT0 = 80; # 80 and above it stops charging
 
       # audio
-      SOUND_POWER_SAVE_ON_AC=0;
-      SOUND_POWER_SAVE_ON_BAT=0;
+      SOUND_POWER_SAVE_ON_AC = 0;
+      SOUND_POWER_SAVE_ON_BAT = 0;
 
     };
   };
