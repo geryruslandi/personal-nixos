@@ -49,6 +49,11 @@
     }
   ];
   wallhavenKey = "someSecretKeyHere";
+  # Env vars exported at the END of ~/.zshrc. Keep real values only in your
+  # gitignored secrets.nix so they never get committed.
+  zshEnv = {
+    MY_SECRET_API_KEY = "your-secret-value";
+  };
   # `enable = false` means the service/database is REGISTERED but does NOT boot
   # at startup — you can still start it manually (`systemctl start X`) or via
   # the Noctalia bar toggle without a password.
@@ -90,11 +95,11 @@
     seanime = {
         enable = true;
         port = 43211; # optional
-      }
+      };
     stremio = {
         enable = true;
         port = 11470; # optional
-      }
+      };
   };
   storageMount = [
     {

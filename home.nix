@@ -1,5 +1,4 @@
 {
-  lib,
   pkgs,
   inputs,
   config,
@@ -28,7 +27,9 @@ let
 
   # `projectPath` is REQUIRED — fail the build when it is missing or empty.
   secrets =
-    if rawSecrets ? projectPath && builtins.isString rawSecrets.projectPath && rawSecrets.projectPath != "" then
+    if
+      rawSecrets ? projectPath && builtins.isString rawSecrets.projectPath && rawSecrets.projectPath != ""
+    then
       rawSecrets
     else
       throw ''
@@ -84,6 +85,7 @@ in
     # Use Noctalia's generated theme (kept in sync at login via ~/.config/kitty/current-theme.conf)
     extraConfig = ''
       include ~/.config/kitty/current-theme.conf
+      background_opacity 0.9
     '';
     keybindings = {
       "shift+enter" = "send_text all \\x1b[13;2u";

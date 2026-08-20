@@ -279,6 +279,15 @@
         # Noctalia settings window
         "float on, match:class ^(dev.noctalia.Noctalia)$"
         "size 1080 920, match:class ^(dev.noctalia.Noctalia)$"
+
+        # --- TRANSPARENCY (0.9) ---
+        # Applied via Hyprland so it works regardless of app transparency support
+        "opacity 0.90 0.90 1, match:class ^(app\\.zen_browser\\.zen|zen)$"
+        "opacity 0.90 0.90 1, match:class ^(Rocket\\.Chat|chat\\.rocket\\.RocketChat)$"
+        "opacity 0.90 0.90 1, match:class ^(vesktop|dev\\.vencord\\.Vesktop)$"
+        "opacity 0.90 0.90 1, match:class ^(Postman|com\\.getpostman\\.Postman)$"
+        "opacity 0.90 0.90 1, match:class ^(Code|code)$"
+        "opacity 0.90 0.90 1, match:class ^(DBeaver.*)$"
       ];
 
       # Noctalia v5: blur shell surfaces, disable Hyprland layer animations
