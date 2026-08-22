@@ -1,7 +1,8 @@
 {
   inputs,
   ...
-}: {
+}:
+{
   # import the home manager module
   imports = [
     inputs.vicinae.homeManagerModules.default
@@ -42,9 +43,12 @@
           icon_theme = "default";
         };
       };
+      launcher_window = {
+        opacity = 0.90;
+      };
     };
-  };
 
+  };
   # Vicinae is launched as a user systemd service (systemd.enable above);
   # no exec-once entry needed. Third-party extensions would need nodejs.
 
