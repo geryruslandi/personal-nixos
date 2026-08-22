@@ -341,24 +341,63 @@ in
           auto_hide = false;
           font_family = "JetBrainsMono Nerd Font Propo";
           start = [
-            "active_window"
             "privacy"
+            "active_window"
           ];
           center = [ "workspaces" ];
           end = [
-            "temp"
-            "cpu"
-            "ram"
-            "battery"
-            "network_rx"
-            "network_tx"
-            "volume"
-            "battery"
-            "clock"
+            "group:g1"
+            "group:g2"
             "tray"
-            "notifications"
+            "group:g3"
             "control-center"
-            "session"
+          ];
+          capsule_group = [
+            {
+              accordion = true;
+              accordion_direction = "end";
+              enabled = true;
+              fill = "surface_variant";
+              id = "g1";
+              members = [
+                "temp"
+                "cpu"
+                "ram"
+              ];
+              opacity = 0.46;
+              padding = 6.0;
+              radius = 7.0;
+            }
+            {
+              accordion = false;
+              accordion_direction = "start";
+              enabled = true;
+              fill = "surface_variant";
+              id = "g3";
+              members = [
+                "volume"
+                "battery"
+                "clock"
+              ];
+              opacity = 0.46;
+              padding = 6.0;
+              radius = 7.0;
+              widget_spacing = 15;
+            }
+            {
+              accordion = true;
+              accordion_direction = "end";
+              enabled = true;
+              fill = "surface_variant";
+              id = "g2";
+              members = [
+                "network_rx"
+                "network_tx"
+              ];
+              opacity = 0.46;
+              padding = 6.0;
+              radius = 7.0;
+            }
           ];
         };
         services = {
@@ -391,7 +430,7 @@ in
           font_family = "JetBrainsMono Nerd Font Mono";
           layer = "overlay";
           margin_edge = 10;
-          margin_ends = 270;
+          margin_ends = 430;
           panel_overlap = 3;
           show_on_workspace_switch = false;
           reserve_space = false;
