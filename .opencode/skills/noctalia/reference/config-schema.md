@@ -341,7 +341,7 @@ Each key is a chord string or array of chord strings (always emitted as array):
 |---|---|---|---|
 | `source` | array of tables | 2 defaults | `[[plugins.source]]` below |
 | `enabled` | str[] | `[]` | plugin ids `"author/plugin"` |
-| `auto_update` | bool | `true` | startup + every 6h |
+| `auto_update` | `"all"` \| `"enabled"` \| `"none"` | `"all"` | startup + every 6h (boolean deprecated) |
 
 **Source**: `name` (required; `[A-Za-z0-9._-]`), `kind` enum (`git` \| `path`), `location` (URL or local path), `enabled` (`true`). Defaults: `official` = `github.com/noctalia-dev/official-plugins`, `community` = `github.com/noctalia-dev/community-plugins`.
 

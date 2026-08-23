@@ -320,7 +320,6 @@ in
       bar = {
         order = [
           "main"
-          "services"
         ];
 
         main = {
@@ -341,6 +340,7 @@ in
           auto_hide = false;
           font_family = "JetBrainsMono Nerd Font Propo";
           start = [
+            "group:g4"
             "privacy"
             "active_window"
           ];
@@ -398,46 +398,29 @@ in
               padding = 6.0;
               radius = 7.0;
             }
+            {
+              accordion = true;
+              accordion_direction = "end";
+              enabled = true;
+              fill = "surface_variant";
+              id = "g4";
+              members = [
+                "redis"
+                "mysql"
+                "mailpit"
+                "postgresql"
+                "docker"
+                "warp"
+                "seaweedfs"
+                "seanime"
+                "stremio"
+              ];
+              opacity = 0.46;
+              padding = 6.0;
+              radius = 7.0;
+              widget_spacing = 10;
+            }
           ];
-        };
-        services = {
-          enabled = true;
-          position = "top";
-          background_opacity = 0.0;
-          start = [ ];
-          center = [
-            "redis"
-            "mysql"
-            "mailpit"
-            "postgresql"
-            "docker"
-            "warp"
-            "seaweedfs"
-            "seanime"
-            "stremio"
-          ];
-          end = [ ];
-          color = "error";
-          icon_color = "error";
-          capsule = true;
-          capsule_border = "on_primary";
-          capsule_fill = "on_primary";
-          capsule_foreground = "primary";
-          capsule_opacity = 0.7;
-          capsule_padding = 10.0;
-          capsule_radius = 5;
-          capsule_thickness = 1.0;
-          font_family = "JetBrainsMono Nerd Font Mono";
-          layer = "overlay";
-          margin_edge = 10;
-          margin_ends = 430;
-          panel_overlap = 3;
-          show_on_workspace_switch = false;
-          reserve_space = false;
-          concave_edge_corners = false;
-          auto_hide = true;
-          smart_auto_hide = false;
-          thickness = 40;
         };
       };
 
@@ -571,7 +554,7 @@ in
           "gery/seanime"
           "gery/stremio"
         ];
-        auto_update = true;
+        auto_update = "all";
       };
 
       plugin_settings = {
