@@ -66,6 +66,7 @@ in
     ./home-modules/media-idle-inhibit.nix
     ./home-modules/cloudflare-warp.nix
     ./home-modules/db-services.nix
+    ./home-modules/ai-usagebar
     ./home-modules/seanime.nix
     ./home-modules/stremio.nix
     ./home-modules/k9s.nix

@@ -341,6 +341,7 @@ in
           font_family = "JetBrainsMono Nerd Font Propo";
           start = [
             "group:g4"
+            "bar"
             "privacy"
             "active_window"
           ];
@@ -376,7 +377,7 @@ in
               id = "g3";
               members = [
                 "volume"
-                "battery"
+                "widget"
                 "clock"
               ];
               opacity = 0.46;
@@ -418,7 +419,7 @@ in
               opacity = 0.46;
               padding = 6.0;
               radius = 7.0;
-              widget_spacing = 10;
+              widget_spacing = 14;
             }
           ];
         };
@@ -429,7 +430,13 @@ in
       };
 
       desktop_widgets = {
-        enabled = false;
+        enabled = true;
+        widget_order = [ ];
+        grid = {
+          cell_size = 16;
+          major_interval = 4;
+          visible = true;
+        };
       };
 
       control_center = {
@@ -497,6 +504,11 @@ in
         privacy = {
           hide_inactive = true;
         };
+        "bar" = {
+          style = "label";
+          type = "felipeartur/ai-usagebar:bar";
+          vendor = "openrouter";
+        };
         "rec" = {
           type = "noctalia/screen_recorder:recorder";
         };
@@ -523,15 +535,20 @@ in
         };
         "seaweedfs" = {
           type = "gery/seaweedfs:seaweedfs";
+          enabled = false;
         };
         "seanime" = {
           type = "gery/seanime:seanime";
         };
         "stremio" = {
           type = "gery/stremio:stremio";
+          enabled = false;
         };
         "todo" = {
           type = "nightwatch75/todo:todo";
+        };
+        "widget" = {
+          type = "piero-93/battery-power-management:widget";
         };
       };
 
@@ -553,14 +570,24 @@ in
           "gery/seaweedfs"
           "gery/seanime"
           "gery/stremio"
+          "felipeartur/ai-usagebar"
+          "piero-93/battery-power-management"
+          "jamesfeeder/special-workspaces"
         ];
         auto_update = "all";
       };
 
       plugin_settings = {
+        "felipeartur/ai-usagebar" = {
+          panel_open_near_click = true;
+          panel_placement = "floating";
+        };
         "nightwatch75/todo" = {
           panel_placement = "floating";
           panel_position = "center";
+        };
+        "piero-93/battery-power-management" = {
+          panel_placement = "floating";
         };
         "gery/redis" = {
           port = (secrets.server or { }).redis.port or 6379;
