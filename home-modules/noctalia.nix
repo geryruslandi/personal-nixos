@@ -507,7 +507,7 @@ in
         "bar" = {
           style = "label";
           type = "felipeartur/ai-usagebar:bar";
-          vendor = "openrouter";
+          vendor = "auto";
         };
         "rec" = {
           type = "noctalia/screen_recorder:recorder";

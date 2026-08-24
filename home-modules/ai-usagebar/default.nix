@@ -26,11 +26,14 @@ let
     # shipped binaries); skip them so the package builds cleanly.
     doCheck = false;
 
-    # Layer a local patch (kept next to this file) so the OpenRouter highlight
-    # in the `--json` report (consumed by the Noctalia plugin) tracks the
-    # per-key limit as a daily budget instead of credit consumption. Applies on
-    # top of the pinned commit.
-    patches = [ ./openrouter-daily-limit.patch ];
+    # Layer local patches (kept next to this file) on top of the pinned commit:
+    #   - openrouter-daily-limit.patch: OpenRouter highlight in the `--json`
+    #     report (consumed by the Noctalia plugin) tracks the per-key limit as a
+    #     daily budget instead of credit consumption.
+    #   - bifrost.patch: adds a Bifrost vendor — the new src/bifrost module plus
+    #     the wiring into VendorId / config / panels / widget. Applies on top of
+    #     the pinned commit.
+    patches = [ ./openrouter-daily-limit.patch ./bifrost.patch ];
 
     meta = with lib; {
       description = "AI plan usage CLI (Claude, OpenAI, Cursor, etc.) for waybar/noctalia";
