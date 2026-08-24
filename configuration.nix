@@ -68,7 +68,6 @@ in
     ./system-modules/postgresql.nix
     ./system-modules/redis.nix
     ./system-modules/lutris.nix
-    ./system-modules/mailpit.nix
     ./system-modules/docker.nix
     ./system-modules/polkit.nix
     ./system-modules/ssd-mounter.nix

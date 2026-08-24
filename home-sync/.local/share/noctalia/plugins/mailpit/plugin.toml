@@ -1,10 +1,12 @@
 id         = "gery/mailpit"
 name       = "Mailpit Status"
-version    = "0.1.0"
+version    = "0.2.0"
 plugin_api = 3
 author     = "gery"
 icon       = "mail"
 
+# The plugin declares and owns the mailpit service: these settings are the
+# unit definition. Nix only provides the `mailpit` binary dependency.
 [[setting]]
 key        = "smtpPort"
 type       = "int"
@@ -16,6 +18,18 @@ key        = "uiPort"
 type       = "int"
 label_key  = "settings.uiPort.label"
 default    = 8025
+
+[[setting]]
+key        = "binary"
+type       = "string"
+label_key  = "settings.binary.label"
+default    = "mailpit"
+
+[[setting]]
+key        = "auto_start"
+type       = "bool"
+label_key  = "settings.auto_start.label"
+default    = false
 
 [[widget]]
 id    = "mailpit"

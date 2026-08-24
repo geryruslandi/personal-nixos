@@ -67,6 +67,7 @@ in
     ./home-modules/ai-usagebar
     ./home-modules/seanime.nix
     ./home-modules/stremio.nix
+    ./home-modules/mailpit.nix
     ./home-modules/k9s.nix
   ];
 

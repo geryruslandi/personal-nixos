@@ -1,15 +1,35 @@
 id         = "gery/seanime"
 name       = "Seanime Server"
-version    = "0.1.0"
+version    = "0.2.0"
 plugin_api = 3
 author     = "gery"
 icon       = "monitor-play"
 
+# The plugin declares and owns the seanime service: these settings are the
+# unit definition. Nix only provides the `seanime` binary dependency.
 [[setting]]
 key        = "port"
 type       = "int"
 label_key  = "settings.port.label"
 default    = 43211
+
+[[setting]]
+key        = "binary"
+type       = "string"
+label_key  = "settings.binary.label"
+default    = "seanime"
+
+[[setting]]
+key        = "datadir"
+type       = "string"
+label_key  = "settings.datadir.label"
+default    = "$HOME/.local/share/seanime"
+
+[[setting]]
+key        = "auto_start"
+type       = "bool"
+label_key  = "settings.auto_start.label"
+default    = false
 
 [[widget]]
 id    = "seanime"

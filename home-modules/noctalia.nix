@@ -601,6 +601,7 @@ in
         "gery/mailpit" = {
           smtpPort = (secrets.server or { }).mailpit.smtpPort or 1025;
           uiPort = (secrets.server or { }).mailpit.uiPort or 8025;
+          auto_start = (secrets.server or { }).mailpit.enable or false;
         };
         "gery/seaweedfs" = {
           masterPort = seaweedfs.masterPort or 9333;
@@ -609,9 +610,11 @@ in
         };
         "gery/seanime" = {
           port = seanimePort;
+          auto_start = seanime.enable or false;
         };
         "gery/stremio" = {
           port = stremioPort;
+          auto_start = stremio.enable or false;
         };
       };
     };
