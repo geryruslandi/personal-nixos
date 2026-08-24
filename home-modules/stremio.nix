@@ -1,5 +1,4 @@
 {
-  config,
   lib,
   pkgs,
   secrets,
@@ -9,11 +8,6 @@ let
   stremio = secrets.server.stremio or { };
   port = stremio.port or 11470;
   enable = stremio.enable or false;
-
-  # Real filesystem path to this repo's Stremio toggle plugin sources.
-  pluginReal = "${secrets.projectPath}/noctalia-plugins/gery/stremio";
-
-  mkLink = file: config.lib.file.mkOutOfStoreSymlink "${pluginReal}/${file}";
 in
 {
   # Stremio headless media server, installed at the user level. Always
@@ -40,10 +34,6 @@ in
     };
   };
 
-  # Noctalia bar toggle widget (gery/stremio:stremio).
-  xdg.dataFile = {
-    "noctalia/plugins/stremio/plugin.toml".source = mkLink "plugin.toml";
-    "noctalia/plugins/stremio/stremio.luau".source = mkLink "stremio.luau";
-    "noctalia/plugins/stremio/translations/en.json".source = mkLink "translations/en.json";
-  };
+  # Noctalia bar toggle widget (gery/stremio:stremio) sources are synced from
+  # home-sync/.local/share/noctalia/plugins/stremio (see home-modules/home-sync.nix).
 }

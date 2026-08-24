@@ -64,8 +64,6 @@ in
     ./home-modules/azure.nix
     ./home-modules/home-sync.nix
     ./home-modules/media-idle-inhibit.nix
-    ./home-modules/cloudflare-warp.nix
-    ./home-modules/db-services.nix
     ./home-modules/ai-usagebar
     ./home-modules/seanime.nix
     ./home-modules/stremio.nix

@@ -33,7 +33,8 @@ git add --intent-to-add secrets.nix -f
 | `rebuild.sh` | Runs `sudo nixos-rebuild switch --flake . --impure --accept-flake-config` |
 | `secrets.nix` | Local secrets (git, ssh, wallhaven, etc.) — gitignored |
 | `flatpak.nix` | Declarative Flatpak applications and remotes |
-| `home-sync/` | Files linked into `$HOME` as **editable out-of-store symlinks** — edits write back to the repo and show up in `git status` (see `home-modules/home-sync.nix`) |
+| `home-sync/` | Files linked into `$HOME` as **editable out-of-store symlinks** — edits write back to the repo and show up in `git status` (see `home-modules/home-sync.nix`). `.config` and `.local/share/noctalia/plugins` are **merged** (children linked individually) into their real `$HOME` dirs |
+| `home-sync/.local/share/noctalia/plugins/` | Local `gery/*` Noctalia plugin sources (docker, redis, seanime, warp, ...) — linked into `~/.local/share/noctalia/plugins/` where Noctalia loads them from; drop a new plugin folder here to sync it |
 | `system-modules/` | System-level NixOS modules (audio, hyprland, nvidia, etc.) |
 | `home-modules/` | User-level Home Manager modules (git, zsh, hyprland, ssh, theme) |
 

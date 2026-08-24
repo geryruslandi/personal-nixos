@@ -1,5 +1,4 @@
 {
-  config,
   lib,
   pkgs,
   secrets,
@@ -9,11 +8,6 @@ let
   seanime = secrets.server.seanime or { };
   port = seanime.port or 43211;
   enable = seanime.enable or false;
-
-  # Real filesystem path to this repo's Seanime toggle plugin sources.
-  pluginReal = "${secrets.projectPath}/noctalia-plugins/gery/seanime";
-
-  mkLink = file: config.lib.file.mkOutOfStoreSymlink "${pluginReal}/${file}";
 in
 {
   # Seanime media server, installed at the user level. Always registered so it
@@ -41,10 +35,6 @@ in
     };
   };
 
-  # Noctalia bar toggle widget (gery/seanime:seanime).
-  xdg.dataFile = {
-    "noctalia/plugins/seanime/plugin.toml".source = mkLink "plugin.toml";
-    "noctalia/plugins/seanime/seanime.luau".source = mkLink "seanime.luau";
-    "noctalia/plugins/seanime/translations/en.json".source = mkLink "translations/en.json";
-  };
+  # Noctalia bar toggle widget (gery/seanime:seanime) sources are synced from
+  # home-sync/.local/share/noctalia/plugins/seanime (see home-modules/home-sync.nix).
 }
