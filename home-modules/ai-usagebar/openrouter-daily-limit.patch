@@ -1,46 +1,43 @@
 diff --git a/src/tui/panels.rs b/src/tui/panels.rs
-index 39c005c..4de7ff1 100644
+index 39c005c..d33338d 100644
 --- a/src/tui/panels.rs
 +++ b/src/tui/panels.rs
-@@ -605,18 +605,30 @@ fn openrouter_sections(s: &crate::usage::OpenRouterSnapshot) -> SectionBuilder {
+@@ -605,6 +605,21 @@ fn openrouter_sections(s: &crate::usage::OpenRouterSnapshot) -> SectionBuilder {
          left: s.label.clone(),
          right: None,
      }]);
--    let pct = s.consumed_pct().clamp(0, 100) as u16;
-+    let budget_pct = s.highlight_pct().clamp(0, 100) as u16;
-+    let (footnote, value_label) = if let (Some(limit), Some(rem)) = (s.limit, s.limit_remaining) {
++    if let (Some(limit), Some(rem)) = (s.limit, s.limit_remaining) {
 +        let used = (limit - rem).max(0.0);
-+        (
-+            format!("${:.2} of ${:.2} used ({budget_pct}%)", used, limit),
-+            format!("${:.2}", rem),
-+        )
-+    } else {
-+        (
-+            format!(
-+                "${:.2} of ${:.2} used ({budget_pct}%)",
-+                s.total_usage, s.total_credits
-+            ),
-+            format!("${:.2}", s.balance()),
-+        )
-+    };
++        let pct = s.highlight_pct().clamp(0, 100) as u16;
++        v.push(Section::Spacer);
++        v.push_metric(
++            Section::Metric {
++                label: "Daily Key Limit".into(),
++                pct,
++                severity: severity_for(pct as i32),
++                value_label: format!("${:.2}", rem),
++                footnote: format!("${:.2} of ${:.2} used ({pct}%)", used, limit),
++            },
++            None,
++        );
++    }
+     let pct = s.consumed_pct().clamp(0, 100) as u16;
      v.push(Section::Spacer);
      v.push_metric(
-         Section::Metric {
-             label: "Credit balance".into(),
--            pct,
--            severity: severity_for(pct as i32),
--            value_label: format!("${:.2}", s.balance()),
--            footnote: format!(
--                "${:.2} of ${:.2} used ({pct}%)",
--                s.total_usage, s.total_credits
--            ),
-+            pct: budget_pct,
-+            severity: severity_for(budget_pct as i32),
-+            value_label,
-+            footnote,
-         },
-         None,
-     );
+@@ -628,13 +643,6 @@ fn openrouter_sections(s: &crate::usage::OpenRouterSnapshot) -> SectionBuilder {
+             s.usage_daily, s.usage_weekly, s.usage_monthly
+         )],
+     });
+-    if let (Some(limit), Some(rem)) = (s.limit, s.limit_remaining) {
+-        v.push(Section::Spacer);
+-        v.push(Section::Block {
+-            label: "Per-key limit".into(),
+-            body: vec![format!("${:.2} of ${:.2} remaining", rem, limit)],
+-        });
+-    }
+     v.push(Section::Spacer);
+     v.push(Section::Block {
+         label: "Tier".into(),
 diff --git a/src/usage.rs b/src/usage.rs
 index d815f25..1813688 100644
 --- a/src/usage.rs

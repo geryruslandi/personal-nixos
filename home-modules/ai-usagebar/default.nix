@@ -27,9 +27,10 @@ let
     doCheck = false;
 
     # Layer local patches (kept next to this file) on top of the pinned commit:
-    #   - openrouter-daily-limit.patch: OpenRouter highlight in the `--json`
-    #     report (consumed by the Noctalia plugin) tracks the per-key limit as a
-    #     daily budget instead of credit consumption.
+    #   - openrouter-daily-limit.patch: OpenRouter in the `--json` report
+    #     (consumed by the Noctalia plugin) shows a highlighted "Daily Key
+    #     Limit" card when a per-key limit is set, plus an unhighlighted
+    #     "Credit balance" card for total account credits.
     #   - bifrost.patch: adds a Bifrost vendor — the new src/bifrost module plus
     #     the wiring into VendorId / config / panels / widget. Applies on top of
     #     the pinned commit.
