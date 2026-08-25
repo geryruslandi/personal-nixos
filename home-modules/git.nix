@@ -84,7 +84,16 @@ in
       else
         { };
     includes = (if secrets.git ? projects then map mkGitInclude secrets.git.projects else [ ])
-      ++ ignoreIncludes;
+      ++ ignoreIncludes
+      ++ [
+        # Scope core.hooksPath to this repo only, so .githooks/pre-commit
+        # (secrets.nix guard) runs here while every other repo keeps its own
+        # hooks (e.g. Husky) untouched. Local config still wins if ever set.
+        {
+          condition = "gitdir:${secrets.projectPath}/";
+          contents.core.hooksPath = "${secrets.projectPath}/.githooks";
+        }
+      ];
   };
 
   home.file = ignoreFiles;

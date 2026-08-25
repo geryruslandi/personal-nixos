@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Never allow secrets.nix to be committed — silently unstage it.
+# Wired declaratively via a gitdir-scoped core.hooksPath conditional include
+# in home-modules/git.nix. Scoped to this repo only.
+if git diff --cached --name-only | grep -qx 'secrets\.nix'; then
+  git restore --staged secrets.nix
+fi

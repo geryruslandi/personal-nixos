@@ -53,6 +53,7 @@ git add --intent-to-add secrets.nix -f   # rebuild.sh also does this automatical
 ### Common Pitfalls
 
 - **Secrets not tracked by Git**: Flakes only see files tracked by Git. After creating `secrets.nix`, run `git add --intent-to-add secrets.nix -f` so the flake can read it.
+- **secrets.nix commit guard**: `.githooks/pre-commit` silently unstages `secrets.nix` if it is ever staged for commit. It is wired declaratively via a `gitdir:`-scoped conditional include in `home-modules/git.nix` (`core.hooksPath` → `<projectPath>/.githooks`) — scoped to this repo only, so other repos' hooks (e.g. Husky in AirBorneo) are unaffected. Active after the first rebuild on new machines; local repo config would override it if ever set.
 - **Noctalia v5**: The project is pinned to noctalia v5 via `github:noctalia-dev/noctalia/cachix` (always the latest commit with prebuilt binaries). Do **not** add `inputs.nixpkgs.follows` to the noctalia input — it disables the `noctalia.cachix.org` binary cache. Config is a TOML schema under `programs.noctalia.settings` (v5 native shell; binary is `noctalia`, IPC is `noctalia msg ...`). GUI settings overrides persist to `settings.toml` and layer over the declarative config.
 - **Dolphin MIME associations**: After changing KDE packages, run `rm -rf ~/.cache/ksycoca6* && kbuildsycoca6 --noincremental` to regenerate app menus.
 - **Imperative operations**: `--impure` allows access to `/etc/nixos/hardware-configuration.nix`. The flake cannot build in pure evaluation mode.
