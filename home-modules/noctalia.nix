@@ -340,7 +340,7 @@ in
           auto_hide = false;
           font_family = "JetBrainsMono Nerd Font Propo";
           start = [
-            "group:g4"
+            "services"
             "bar"
             "privacy"
             "active_window"
@@ -398,28 +398,6 @@ in
               opacity = 0.46;
               padding = 6.0;
               radius = 7.0;
-            }
-            {
-              accordion = true;
-              accordion_direction = "end";
-              enabled = true;
-              fill = "surface_variant";
-              id = "g4";
-              members = [
-                "redis"
-                "mysql"
-                "mailpit"
-                "postgresql"
-                "docker"
-                "warp"
-                "seaweedfs"
-                "seanime"
-                "stremio"
-              ];
-              opacity = 0.46;
-              padding = 6.0;
-              radius = 7.0;
-              widget_spacing = 14;
             }
           ];
         };
@@ -515,34 +493,8 @@ in
         "w-engine" = {
           type = "tadomika_ari/w-engine:w-engine-widget";
         };
-        "warp" = {
-          type = "gery/warp:warp";
-        };
-        "redis" = {
-          type = "gery/redis:redis";
-        };
-        "mysql" = {
-          type = "gery/mysql:mysql";
-        };
-        "postgresql" = {
-          type = "gery/postgresql:postgresql";
-        };
-        "mailpit" = {
-          type = "gery/mailpit:mailpit";
-        };
-        "docker" = {
-          type = "gery/docker:docker";
-        };
-        "seaweedfs" = {
-          type = "gery/seaweedfs:seaweedfs";
-          enabled = false;
-        };
-        "seanime" = {
-          type = "gery/seanime:seanime";
-        };
-        "stremio" = {
-          type = "gery/stremio:stremio";
-          enabled = false;
+        "services" = {
+          type = "gery/services:services";
         };
         "todo" = {
           type = "nightwatch75/todo:todo";
@@ -561,15 +513,7 @@ in
           "dunarand/tmux-provider"
           "nightwatch75/todo"
           "tadomika_ari/w-engine"
-          "gery/redis"
-          "gery/mysql"
-          "gery/postgresql"
-          "gery/mailpit"
-          "gery/warp"
-          "gery/docker"
-          "gery/seaweedfs"
-          "gery/seanime"
-          "gery/stremio"
+          "gery/services"
           "felipeartur/ai-usagebar"
           "piero-93/battery-power-management"
           "jamesfeeder/special-workspaces"
@@ -589,32 +533,20 @@ in
         "piero-93/battery-power-management" = {
           panel_placement = "floating";
         };
-        "gery/redis" = {
-          port = (secrets.server or { }).redis.port or 6379;
-        };
-        "gery/mysql" = {
-          port = (secrets.server or { }).mysql.port or 3306;
-        };
-        "gery/postgresql" = {
-          port = (secrets.server or { }).postgres.port or 5432;
-        };
-        "gery/mailpit" = {
-          smtpPort = (secrets.server or { }).mailpit.smtpPort or 1025;
-          uiPort = (secrets.server or { }).mailpit.uiPort or 8025;
-          auto_start = (secrets.server or { }).mailpit.enable or false;
-        };
-        "gery/seaweedfs" = {
-          masterPort = seaweedfs.masterPort or 9333;
-          volumePort = seaweedfs.volumePort or 8080;
-          filerPort = seaweedfs.filerPort or 8888;
-        };
-        "gery/seanime" = {
-          port = seanimePort;
-          auto_start = seanime.enable or false;
-        };
-        "gery/stremio" = {
-          port = stremioPort;
-          auto_start = stremio.enable or false;
+        "gery/services" = {
+          redis_port = (secrets.server or { }).redis.port or 6379;
+          mysql_port = (secrets.server or { }).mysql.port or 3306;
+          postgresql_port = (secrets.server or { }).postgres.port or 5432;
+          seaweedfs_masterPort = seaweedfs.masterPort or 9333;
+          seaweedfs_volumePort = seaweedfs.volumePort or 8080;
+          seaweedfs_filerPort = seaweedfs.filerPort or 8888;
+          mailpit_smtpPort = (secrets.server or { }).mailpit.smtpPort or 1025;
+          mailpit_uiPort = (secrets.server or { }).mailpit.uiPort or 8025;
+          mailpit_auto_start = (secrets.server or { }).mailpit.enable or false;
+          seanime_port = seanimePort;
+          seanime_auto_start = seanime.enable or false;
+          stremio_port = stremioPort;
+          stremio_auto_start = stremio.enable or false;
         };
       };
     };

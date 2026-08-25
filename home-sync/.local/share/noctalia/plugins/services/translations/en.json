@@ -1,0 +1,15 @@
+{
+  "settings.redis_port.label": "Redis port",
+  "settings.mysql_port.label": "MySQL port",
+  "settings.postgresql_port.label": "PostgreSQL port",
+  "settings.seaweedfs_masterPort.label": "SeaweedFS master port",
+  "settings.seaweedfs_volumePort.label": "SeaweedFS volume port",
+  "settings.seaweedfs_filerPort.label": "SeaweedFS filer port",
+  "settings.mailpit_smtpPort.label": "Mailpit SMTP port",
+  "settings.mailpit_uiPort.label": "Mailpit UI port",
+  "settings.seanime_port.label": "Seanime port",
+  "settings.stremio_port.label": "Stremio port",
+  "settings.binary.label": "Binary",
+  "settings.datadir.label": "Data directory",
+  "settings.auto_start.label": "Start at login"
+}

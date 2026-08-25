@@ -1,6 +1,0 @@
-{
-  "settings.port.label": "Port",
-  "settings.binary.label": "Binary",
-  "settings.datadir.label": "Data directory",
-  "settings.auto_start.label": "Start at login"
-}

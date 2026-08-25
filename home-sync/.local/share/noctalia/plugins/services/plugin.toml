@@ -1,0 +1,127 @@
+id         = "gery/services"
+name       = "Services Hub"
+version    = "1.0.0"
+plugin_api = 22
+author     = "gery"
+icon       = "server"
+license    = "MIT"
+
+description = "Consolidated hub for all gery services: polling, bar count widget and a toggle panel."
+
+[[setting]]
+key        = "redis_port"
+type       = "int"
+label_key  = "settings.redis_port.label"
+default    = 6379
+
+[[setting]]
+key        = "mysql_port"
+type       = "int"
+label_key  = "settings.mysql_port.label"
+default    = 3306
+
+[[setting]]
+key        = "postgresql_port"
+type       = "int"
+label_key  = "settings.postgresql_port.label"
+default    = 5432
+
+[[setting]]
+key        = "seaweedfs_masterPort"
+type       = "int"
+label_key  = "settings.seaweedfs_masterPort.label"
+default    = 9333
+
+[[setting]]
+key        = "seaweedfs_volumePort"
+type       = "int"
+label_key  = "settings.seaweedfs_volumePort.label"
+default    = 8080
+
+[[setting]]
+key        = "seaweedfs_filerPort"
+type       = "int"
+label_key  = "settings.seaweedfs_filerPort.label"
+default    = 8888
+
+[[setting]]
+key        = "mailpit_binary"
+type       = "string"
+label_key  = "settings.binary.label"
+default    = "mailpit"
+
+[[setting]]
+key        = "mailpit_smtpPort"
+type       = "int"
+label_key  = "settings.mailpit_smtpPort.label"
+default    = 1025
+
+[[setting]]
+key        = "mailpit_uiPort"
+type       = "int"
+label_key  = "settings.mailpit_uiPort.label"
+default    = 8025
+
+[[setting]]
+key        = "mailpit_auto_start"
+type       = "bool"
+label_key  = "settings.auto_start.label"
+default    = false
+
+[[setting]]
+key        = "seanime_binary"
+type       = "string"
+label_key  = "settings.binary.label"
+default    = "seanime"
+
+[[setting]]
+key        = "seanime_datadir"
+type       = "string"
+label_key  = "settings.datadir.label"
+default    = "$HOME/.local/share/seanime"
+
+[[setting]]
+key        = "seanime_port"
+type       = "int"
+label_key  = "settings.seanime_port.label"
+default    = 43211
+
+[[setting]]
+key        = "seanime_auto_start"
+type       = "bool"
+label_key  = "settings.auto_start.label"
+default    = false
+
+[[setting]]
+key        = "stremio_binary"
+type       = "string"
+label_key  = "settings.binary.label"
+default    = "stremio-service"
+
+[[setting]]
+key        = "stremio_port"
+type       = "int"
+label_key  = "settings.stremio_port.label"
+default    = 11470
+
+[[setting]]
+key        = "stremio_auto_start"
+type       = "bool"
+label_key  = "settings.auto_start.label"
+default    = false
+
+[[service]]
+id    = "poll"
+entry = "service.luau"
+
+[[widget]]
+id    = "services"
+entry = "widget.luau"
+
+[[panel]]
+id             = "services-panel"
+entry          = "panel.luau"
+width          = 340
+height         = 600
+placement      = "floating"
+open_near_click = true

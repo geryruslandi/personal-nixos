@@ -1,6 +1,0 @@
-{
-  "settings.smtpPort.label": "SMTP port",
-  "settings.uiPort.label": "UI port",
-  "settings.binary.label": "Binary",
-  "settings.auto_start.label": "Start at login"
-}
