@@ -5,10 +5,12 @@ A fully declarative, Flake-based NixOS configuration featuring a high-performanc
 ## 🚀 Key Components
 
 * **Window Manager:** [Hyprland](https://hyprland.org/) (Wayland Compositor)
-* **Shell & UI:** [Noctalia-shell](https://github.com/Noctalia/noctalia-shell) for the bar, widgets, and notifications.
+* **Shell & UI:** [Noctalia v5](https://github.com/noctalia-dev/noctalia) — native C++23 Wayland shell for the bar, widgets, notifications, lockscreen and theming.
+* **Launcher:** [Vicinae](https://github.com/vicinaehq/vicinae) — launcher + clipboard history (`Super+Space` / `Super+V`), replaces the Noctalia launcher panels.
+* **Lockscreen:** Noctaria lock + [Qylock](https://github.com/Darkkal44/qylock) (theme `pixel-dusk-city`).
 * **User Management:** [Home Manager](https://github.com/nix-community/home-manager) for dotfile and per-user state.
-* **Flatpaks:** Managed declaratively via [flatpak-nix](https://github.com/gjtaylor/flatpak-nix).
-* **Dev Stacks:** Out-of-the-box support for **React Native**, **PHP**, **MySQL**, and **Docker**.
+* **Flatpaks:** Managed declaratively via [nix-flatpak](https://github.com/gmodena/nix-flatpak).
+* **Dev Stacks:** Out-of-the-box support for **React Native**, **PHP**, **MySQL/PostgreSQL**, and **Docker**.
 
 ---
 
@@ -21,14 +23,19 @@ A fully declarative, Flake-based NixOS configuration featuring a high-performanc
 ├── flake.nix                # System entry point & input definitions
 ├── secrets.nix              # Local configuration, refer to secrets.example.nix
 ├── flatpak.nix              # Declarative Flatpak applications
+├── rebuild.sh               # Build & switch wrapper (auto-stages secrets.nix)
+├── tmux-start.sh            # Attach/create the `nixos` dev session (nvim + opencode)
 ├── home-sync/               # Editable symlinks into $HOME (edits write back to the repo)
+│   ├── .config/             # nvim config, wallpapers/avatar (merged into ~/.config)
+│   └── .local/share/noctalia/plugins/services/   # local `gery/services` Noctalia plugin
 ├── home.nix                 # Main Home Manager entry point
 ├── home-modules/            # Home Manager modules (User-space)
+│   ├── ai-usagebar/         # builds the ai-usagebar CLI for its Noctalia plugin
 │   ├── hyprland.nix
 │   ├── kanshi.nix
 │   ├── kde-associations.nix
-│   ├── mysql.nix
 │   ├── noctalia.nix
+│   ├── vicinae.nix
 │   ├── php.nix
 │   ├── react-native-setup.nix
 │   ├── theme.nix
@@ -42,10 +49,9 @@ A fully declarative, Flake-based NixOS configuration featuring a high-performanc
 │   ├── nvidia.nix
 │   ├── packages.nix
 │   ├── power.nix
-│   ├── theme.nix
+│   ├── theme.nix            # qylock lockscreen
 │   ├── users.nix
-│   ├── waydroid.nix
-│   └── xdg.nix
+│   └── waydroid.nix
 └── readme.md
 ```
 
@@ -67,6 +73,7 @@ Follow these steps to initialize the configuration on a new system:
    ```bash
    git add --intent-to-add secrets.nix -f
    ```
+   *(Or just use `./rebuild.sh` — it stages `secrets.nix` for the evaluation and unstages it afterwards.)*
 
 ---
 
@@ -126,8 +133,8 @@ This setup includes specialized modules for a full-stack development workflow:
 ---
 
 ## 🎨 Theme & Appearance
-System-wide consistency is maintained through the `theme.nix` modules found in both `homes` and `modules`:
-* **GTK/QT:** Unified via Home Manager to ensure a cohesive look across toolkit boundaries.
+Theming is driven by **Noctalia v5**: the community palette `Catppuccin Frappe Blue` feeds Noctalia's template engine, which generates kitty/GTK3/GTK4/KDE-colorscheme/Qt themes at login (see `home-modules/noctalia.nix`). The Vicinae launcher and tmux carry matching hand-pinned Frappe colors.
+* **GTK/QT:** Unified via the generated KDE color scheme + Qt platform theme to ensure a cohesive look across toolkit boundaries.
 * **Displays:** Handled by **Kanshi** for dynamic output and monitor profile switching.
 
 ---

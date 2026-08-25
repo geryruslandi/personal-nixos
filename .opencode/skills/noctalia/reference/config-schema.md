@@ -1,6 +1,6 @@
 # Noctalia v5 — Complete Settings Reference
 
-Source: `github:noctalia-dev/noctalia/cachix` pinned at `b7cbb0d0349eff7c10813bccd310d6786b402255` (2026-08-08).
+Source: `github:noctalia-dev/noctalia/cachix` pinned at `69a90183531de388cab40e84a3a221ba94464501` (2026-08-21).
 Extracted from `src/config/schema/config_schema.cpp`, `src/config/config_types.h`, `example.toml`, the bar widget factory (`src/shell/bar/widget_factory.cpp`) and plugin manifests.
 
 All of this maps onto `programs.noctalia.settings` (Nix attrset → TOML). Most changes hot-reload via inotify; startup-only settings are noted inline.
@@ -108,6 +108,9 @@ Custom root keys: `bar`, `widget`, `desktop_widgets`, `lockscreen_widgets`, `plu
 | `app_grid` | bool | `false` | |
 | `sort_by_usage` | bool | `true` | |
 | `fetch_exchange_rates` | bool | `true` | |
+| `show_app_origin_indicator` | bool | `true` | show package origin indicators on application results |
+| `show_app_actions` | bool | `false` | |
+| `pinned` | str[] | `[]` | desktop entry IDs shown first when the launcher opens without a query |
 | `provider_prefix` | str | `"/"` | trigger-word prefix |
 | `auto_paste` | enum | `"auto"` | `off`/`auto`/`ctrl_v`/`ctrl_shift_v`/`shift_insert` |
 | `dmenu` | table | — | `[shell.launcher.dmenu.entry.<id>]` (below) |
@@ -222,7 +225,7 @@ Custom root keys: `bar`, `widget`, `desktop_widgets`, `lockscreen_widgets`, `plu
 | `filter_order` | str[] | emitted | exporter-written |
 | `filter.<name>` | table | — | below |
 
-**Filter** (`[notification.filter.<name>]`): `enabled` (`true`), `match` str (case-insensitive token), `match_content` str (regex on summary/body), `show_toast` (`true`), `save_history` (`true`), `play_sound` (`true`), `allow_permanent` (`true`), `override_duration` int, `allowed_urgencies` str[] (`low`/`normal`/`critical`; empty = all).
+**Filter** (`[notification.filter.<name>]`): `enabled` (`true`), `match` str (case-insensitive token), `match_content` str (regex on summary/body), `show_toast` (`true`), `save_history` (`true`), `play_sound` (`true`), `bypass_dnd` (`false`; deliver even in Do-Not-Disturb — `play_sound` still controls sound), `allow_permanent` (`true`), `override_duration` int, `allowed_urgencies` str[] (`low`/`normal`/`critical`; empty = all).
 
 ## `[osd]`
 | Key | Type | Default | Notes |
@@ -243,13 +246,13 @@ Custom root keys: `bar`, `widget`, `desktop_widgets`, `lockscreen_widgets`, `plu
 `volume`, `volume_output`, `volume_input`, `brightness`, `wifi`, `bluetooth`, `power_profile`, `caffeine`, `nightlight`, `dnd`, `lock_keys`, `keyboard_layout`, `media`, `privacy`, `keyboard_backlight`.
 
 ## `[system.monitor]`
-`enabled` (`true`), `cpu_temp_sensor_path` (str), `cpu_poll_seconds` (`2.0`, 0 disables, else 1–120), `gpu_poll_seconds` (`5.0`), `memory_poll_seconds` (`2.0`), `network_poll_seconds` (`3.0`), `disk_poll_seconds` (`10.0`). Plus activity/critical thresholds per metric: `cpu_usage`, `cpu_temp`, `gpu_temp`, `gpu_usage`, `gpu_vram`, `ram_pct`, `swap_pct`, `disk_used_pct`, `disk_used`, `disk_free_pct`, `disk_free`, `net_rx`, `net_tx` (e.g. `cpu_usage_activity_threshold`, `cpu_usage_critical_threshold`), defaults from power profile.
+`enabled` (`true`), `cpu_temp_sensor_path` (str), `cpu_poll_seconds` (`2.0`, 0 disables, else 1–120), `gpu_poll_seconds` (`5.0`), `memory_poll_seconds` (`2.0`), `network_poll_seconds` (`3.0`), `disk_poll_seconds` (`10.0`), `cpu_freq_activity_threshold` (float GHz, default `2.5`) / `cpu_freq_critical_threshold` (float GHz, default `4.5`) — value tint starts when the CPU clock crosses the activity threshold, full highlight at/above critical. Plus activity/critical thresholds per metric: `cpu_usage`, `cpu_temp`, `gpu_temp`, `gpu_usage`, `gpu_vram`, `ram_pct`, `swap_pct`, `disk_used_pct`, `disk_used`, `disk_free_pct`, `disk_free`, `net_rx`, `net_tx` (e.g. `cpu_usage_activity_threshold`, `cpu_usage_critical_threshold`), defaults from power profile.
 
 ## `[weather]`
 `enabled` (`true`), `effects` (`true`), `refresh_minutes` (`30`, 5–240), `unit` enum `metric` \| `imperial` (default `"metric"`; **note: not** `celsius`/`fahrenheit`).
 
 ## `[calendar]`
-`enabled` (`false`), `refresh_minutes` (`15`, 5–240), `account.<id>` table (id must be `[a-z0-9_]`): `type` (`"google"`/`"caldav"`), `name`, `color` (`#rrggbb`), `provider` (`"icloud"`/`"custom"`, caldav), `server_url`, `username`, `calendars` str[], `credential_source` enum (`secret-service`/`file`), `password_file` path.
+`enabled` (`false`), `refresh_minutes` (`15`, 5–240), `account.<id>` table (id must be `[a-z0-9_]`): `type` (`"google"`/`"caldav"`/`"ics"`), `name`, `color` (`#rrggbb`), `provider` (`"icloud"`/`"custom"`, caldav only), `server_url`, `username`, `calendars` str[], `credential_source` enum (`secret-service`/`file`), `password_file` path. Validation: `ics` accounts **require** `server_url` (an `.ics` file URL); `credential_source`, `password_file`, `username`, and `provider` are only valid for `caldav` and error when set on `ics`.
 
 ## `[audio]`
 `enable_overdrive` (`false`; 150% ceiling), `enable_sounds` (`false`), `sound_volume` (`0.5`, 0–1), `volume_change_sound` str, `notification_sound` str (empty = bundled sounds).
@@ -268,7 +271,7 @@ Custom root keys: `bar`, `widget`, `desktop_widgets`, `lockscreen_widgets`, `plu
 
 ## `[idle]`
 `pre_action_fade_seconds` float (`2.0`, 0–120; 0 = immediate), `behavior_order` str[] (exporter-written), `behavior.<name>` table:
-- `enabled` (`true`; default behaviors ship disabled), `timeout` float, `action` enum: `lock` \| `screen_off` \| `suspend` \| `lock_and_suspend` \| custom command string, `command` str, `resume_command` str, `lock_before_suspend` (`true`)
+- `enabled` (`true`; default behaviors ship disabled), `timeout` float, `locked_timeout` float (`0` = always use `timeout` even when the session is locked), `action` enum: `lock` \| `screen_off` \| `suspend` \| `lock_and_suspend` \| custom command string, `command` str, `resume_command` str, `lock_before_suspend` (`true`)
 
 Default behaviors (all disabled): `lock` (600), `screen-off` (660, `screen_off`), `lock-and-suspend` (900, `lock_and_suspend`).
 
@@ -327,6 +330,7 @@ Each key is a chord string or array of chord strings (always emitted as array):
 | `sidebar_section` | enum | `"compact"` | `full` \| `compact` \| `none` |
 | `width` | int | `700` | 600–1200 |
 | `show_shortcut_labels` | bool | `true` | |
+| `show_session_button` | bool | `true` | session button in the sidebar footer |
 | `hidden_tabs` | str[] | `[]` | |
 | `calendar` | table | — | below |
 | `shortcuts` | array of `{type}` | 6 defaults | up to 6; empty `type` dropped |
@@ -341,9 +345,9 @@ Each key is a chord string or array of chord strings (always emitted as array):
 |---|---|---|---|
 | `source` | array of tables | 2 defaults | `[[plugins.source]]` below |
 | `enabled` | str[] | `[]` | plugin ids `"author/plugin"` |
-| `auto_update` | `"all"` \| `"enabled"` \| `"none"` | `"all"` | startup + every 6h (boolean deprecated) |
+| `auto_update` | `"all"` \| `"official"` \| `"none"` | `"all"` | startup + every 6h; scope of background git-source auto-update. A boolean or any other value is now a hard error (old `true`/`false` no longer tolerated) |
 
-**Source**: `name` (required; `[A-Za-z0-9._-]`), `kind` enum (`git` \| `path`), `location` (URL or local path), `enabled` (`true`). Defaults: `official` = `github.com/noctalia-dev/official-plugins`, `community` = `github.com/noctalia-dev/community-plugins`.
+**Source**: `name` (required; `[A-Za-z0-9._-]`), `kind` enum (`git` \| `path`), `location` (URL or local path), `enabled` (`true`). Defaults: `official` = `github.com/noctalia-dev/official-plugins`, `community` = `github.com/noctalia-dev/community-plugins`. **Duplicate source names are rejected** (error at validate; names must be unique). Invalid ids in `enabled` warn and get dropped.
 
 ### `[plugin_settings."author/plugin"]`
 Open-ended per-plugin override map (depth ≤ 3); validated against each plugin's manifest at `config validate`.
@@ -448,7 +452,7 @@ Default lanes: `start = ["launcher", "wallpaper", "workspaces"]`, `center = ["cl
 | `widget_order` | str[] | emitted | active widget list + stacking |
 | `widget.<name>` | table | — | below |
 
-**Widget instance**: `id`, `type` (`"clock"`), `output` (connector), `cx`/`cy` float, `box_width`/`box_height` float (0 = auto-fit), `rotation`, `flip_x`/`flip_y`, `enabled` (`true`), `settings` table.
+**Widget instance**: `id`, `type` (`"clock"`), `output` (connector), `cx`/`cy` float, `placement_width`/`placement_height` float (logical output size the position was stored against; `0` = legacy position with no recorded reference size), `box_width`/`box_height` float (0 = auto-fit), `rotation`, `flip_x`/`flip_y`, `enabled` (`true`), `settings` table.
 
 **Desktop/lockscreen widget types**: `clock`, `audio_visualizer`, `fancy_audio_visualizer`, `sticker`, `weather`, `media_player`, `label`, `button`, `sysmon`, `volume`, plugin widgets, and `login_box` (lockscreen only).
 

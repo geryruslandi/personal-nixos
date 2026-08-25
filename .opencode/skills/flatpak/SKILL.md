@@ -10,14 +10,14 @@ description: Use when adding, removing, or configuring Flatpak applications and 
 - Flatpak applications are sandboxed, get updates independent of NixOS generations, and work consistently across rebuilds.
 - Nix packages are reserved for: CLI tools, libraries, system services, kernel modules, and apps not available as Flatpaks.
 
-## Configuration: `flatpak.nix` (115 lines)
+## Configuration: `flatpak.nix` (130 lines)
 
-Enabled via the `nix-flatpak` flake input (`github:gmodena/nix-flatpak/?ref=latest`). All changes are declarative — after editing, rebuild with `sudo nixos-rebuild switch --flake . --impure`.
+Enabled via the `nix-flatpak` flake input (`github:gmodena/nix-flatpak/?ref=latest`). All changes are declarative — after editing, rebuild with `./rebuild.sh`.
 
 ### Adding a Flatpak
 
 1. Find the AppId on Flathub (e.g., `com.brave.Browser`)
-2. Add to `services.flatpak.packages` list in `flatpak.nix:18-52`
+2. Add to `services.flatpak.packages` list in `flatpak.nix:18-51`
 
 ```nix
 services.flatpak.packages = [
@@ -34,22 +34,20 @@ Delete the entry from the list and rebuild. `services.flatpak.uninstallUnmanaged
 
 ### Adding Per-App Overrides
 
-Use `services.flatpak.overrides` (lines 54-113):
+Use `services.flatpak.overrides` (`flatpak.nix:53-128`) — note the option name is **overrides**, not `overlays`:
 
 ```nix
-services.flatpak.overlays."app.zen_browser.zen" = {
-  Context = {
-    filesystems = [ "home" ];
-  };
+services.flatpak.overrides."app.zen_browser.zen".Context = {
+  filesystems = [ "home" ];
 };
 ```
 
 ### Global Overrides
 
-Current global overrides (lines 55-81):
+Current global overrides (`flatpak.nix:53-80`):
 - **Wayland-only**: `sockets = ["wayland", "!x11", "!fallback-x11"]`
-- **Theme access**: reads Nix store themes/icons from `~/.icons`, `~/.themes`, `/nix/store`
-- **Environment**: `TZ=Asia/Jakarta`, `GTK_USE_PORTAL=1`, `QT_QPA_PLATFORMTHEME=gtk3`, Electron Wayland flags
+- **Theme access**: reads Nix store themes/icons via read-only mounts of `xdg-config/gtk-{3,4}.0`, `~/.icons`, `~/.themes`, `/nix/store`
+- **Environment**: `TZ = secrets.timezone`, `GTK_USE_PORTAL=1`, `QT_QPA_PLATFORMTHEME=gtk3`, `ELECTRON_OZONE_PLATFORM_HINT=auto`, `NIXOS_OZONE_WL=1`
 
 ### Per-App Overrides Currently Set
 
@@ -58,14 +56,15 @@ Current global overrides (lines 55-81):
 | `dev.vencord.Vesktop` | Wayland + PulseAudio |
 | `chat.rocket.RocketChat` | Wayland + PulseAudio + system-bus |
 | `app.zen_browser.zen` | Full home filesystem access |
+| `io.podman_desktop.PodmanDesktop` | Wayland-only sockets + forces Electron onto Wayland (`XDG_SESSION_TYPE`, `ELECTRON_OZONE_PLATFORM_HINT`) |
 
 ### Remotes
 
-Only `flathub-beta` is added alongside the default Flathub (line 6-11). Auto-updates are disabled (line 14).
+Only `flathub-beta` is added alongside the default Flathub (lines 5-11). Auto-updates are disabled (line 14).
 
-### Current Applications (24 total)
+### Current Applications (29 total)
 
-`net.nokyan.Resources`, `app.zen_browser.zen`, `dev.vencord.Vesktop`, `org.videolan.VLC`, `net.davidotek.pupgui2`, `com.github.tchx84.Flatseal`, `md.obsidian.Obsidian`, `org.qbittorrent.qBittorrent`, `io.github.peazip.PeaZip`, `org.gnome.Calculator`, `de.haeckerfelix.Shortwave`, `com.getpostman.Postman`, `io.github.ilya_zlobintsev.LACT`, `com.github.IsmaelMartinez.teams_for_linux`, `com.wps.Office`, `io.github.wiiznokes.fan-control`, `org.gnome.Calendar`, `io.github.antimicrox.antimicrox`, `com.github.marhkb.Pods`, `de.z_ray.OptimusUI`, `io.github.fabrialberio.pinapp`, `org.kde.koko`, `chat.rocket.RocketChat`, `com.opera.Opera`, `org.libreoffice.LibreOffice`, `org.telegram.desktop`, `org.pulseaudio.pavucontrol`, `com.redis.RedisInsight`.
+`net.nokyan.Resources`, `app.zen_browser.zen`, `dev.vencord.Vesktop`, `org.videolan.VLC`, `net.davidotek.pupgui2`, `com.github.tchx84.Flatseal`, `md.obsidian.Obsidian`, `io.github.peazip.PeaZip`, `org.gnome.Calculator`, `de.haeckerfelix.Shortwave`, `com.getpostman.Postman`, `io.github.ilya_zlobintsev.LACT`, `com.github.IsmaelMartinez.teams_for_linux`, `com.wps.Office`, `io.github.wiiznokes.fan-control`, `org.gnome.Calendar`, `io.github.antimicrox.antimicrox`, `de.z_ray.OptimusUI`, `io.github.fabrialberio.pinapp`, `org.kde.koko`, `chat.rocket.RocketChat`, `com.opera.Opera`, `org.libreoffice.LibreOffice`, `org.telegram.desktop`, `org.pulseaudio.pavucontrol`, `com.redis.RedisInsight`, `io.podman_desktop.PodmanDesktop`, `com.github.Murmele.Gittyup`, `org.gnome.seahorse.Application`.
 
 ### Checking What's Installed
 

@@ -13,8 +13,8 @@ A plugin is a directory with a static `plugin.toml` manifest and one or more Lua
 ```toml
 id           = "me/hello" # "<author>/<plugin>" - globally unique
 name         = "Hello"    # REQUIRED
-version      = "1.0.0"
-plugin_api   = 3          # REQUIRED, positive int, oldest API level needed (3-23)
+version      = "1.0.0"    # REQUIRED, strict MAJOR.MINOR.PATCH (no leading zeros)
+plugin_api   = 3          # REQUIRED, positive int, oldest API level needed (3-28)
 author       = "me"
 license      = "MIT"      # optional; defaults to MIT
 deprecated   = false      # optional; soft status marker
@@ -24,7 +24,7 @@ tags         = ["demo"]   # optional, catalog search
 dependencies = ["slurp"]  # optional metadata, does not block enabling
 ```
 
-`name` and `plugin_api` are required — a manifest without either is rejected. `plugin_api` gates enable, catalog badge, and update safety; levels are cumulative (leave it unchanged until you adopt a newer capability).
+`name`, `version`, and `plugin_api` are required — a manifest without any of them is rejected. `version` must be three numeric dot-separated components (no leading zeros, no prerelease suffixes). `plugin_api` gates enable, catalog badge, and update safety; levels are cumulative (leave it unchanged until you adopt a newer capability).
 
 ### Entry kinds
 
@@ -423,9 +423,9 @@ Prefer the API paths over shelling out to the `noctalia` CLI (in-process, no IPC
 
 | Method | Returns | Notes |
 |---|---|---|
-| `runAsync(cmd)` | bool | detached shell command, no output |
+| `runAsync(cmd)` | bool | detached shell command, no output; `cmd` may be a shell string **or an argv table** `{"bin", "arg", ...}` (API 24, avoids shell quoting entirely) |
 | `runAsync(cmd, cb)` | bool | `cb({ exitCode, stdout, stderr, timedOut, stdoutTruncated, stderrTruncated })` |
-| `runStream(cmd, onLine)` | bool | long-lived; `onLine(line)` per stdout line; terminated on reload/remove/stop |
+| `runStream(cmd, onLine)` | bool | long-lived; `onLine(line)` per stdout line; terminated on reload/remove/stop; argv tables accepted (API 24) |
 | `runInTerminal(cmd)` | bool | uses `$TERMINAL` (no `-e` in value), else discovers on `PATH` |
 | `commandExists(name)` | bool | executable on `PATH` |
 | `processMatches(cb, ...needles)` | bool | async; `cb(matched)` bool |
@@ -433,6 +433,13 @@ Prefer the API paths over shelling out to the `noctalia` CLI (in-process, no IPC
 | `portalAvailable()` | bool | desktop portal available |
 | `getenv(name)` | string\|nil | |
 | `expandPath(path)` | string | e.g. `~/Pictures` → absolute |
+
+### Config & wallpaper
+
+| Method | Returns | Notes |
+|---|---|---|
+| `getSetting("dotted.path")` | any\|nil | any effective shell config value by dotted path (array indices zero-based); unmatched path warns + returns `nil` (API 26) |
+| `setWallpaperMask(output, path, wallpaperPath)` | — | per-output wallpaper mask overlay (API 25) |
 
 ### Filesystem
 
@@ -513,7 +520,7 @@ Values are copied — plain data only (no functions). Typical: a `[[service]]` p
 
 ## 8. Plugin API versions
 
-Every plugin declares the oldest level required in `plugin.toml`. Cumulative: use the oldest that covers every capability used. Noctalia currently supports **3–23**; outside that range the plugin cannot run.
+Every plugin declares the oldest level required in `plugin.toml`. Cumulative: use the oldest that covers every capability used. Noctalia currently supports **3–28**; outside that range the plugin cannot run.
 
 | API | Noctalia | Introduced |
 |---|---|---|
@@ -538,6 +545,11 @@ Every plugin declares the oldest level required in `plugin.toml`. Cumulative: us
 | `21` | Unreleased | `ui.markdown`, `submitOnEnter`, `stickToBottom`/`onScroll`/`scrollToBottomRev` |
 | `22` | Unreleased | `require("./path.luau")` modules with hot reload |
 | `23` | Unreleased | `noctalia.readFileAsync()` |
+| `24` | v5.0.0 | `runAsync`/`runStream` accept argv tables (`{"bin", "arg"}`) alongside shell strings |
+| `25` | v5.0.0 | `noctalia.setWallpaperMask(output, path, wallpaperPath)` |
+| `26` | v5.0.0 | `noctalia.getSetting("dotted.path")` — any effective shell config value (array indices zero-based; unmatched path warns + returns `nil`) |
+| `27` | v5.0.0 | `frameVisible` prop on `ui.*` controls (per-frame visibility control) |
+| `28` | v5.0.0 | panel context menu support |
 
 Raising `plugin_api` drops the plugin from every Noctalia below it. Keep older users covered with `[[plugin.release]]` catalog rows (see below).
 

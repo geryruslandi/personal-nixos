@@ -1,136 +1,136 @@
 ---
 name: secrets
-description: Use when editing or managing secrets.nix — adding git projects, SSH hosts, storage mounts, or server feature flags. Also covers the git-add dance to make the flake see the gitignored file. Do NOT use for building or deploying — use the 'nixos' skill for that.
+description: Use when editing or managing secrets.nix — adding git projects, SSH hosts, storage mounts, dev-server feature flags, env vars, or timezone/monitor settings. Also covers the git-add dance to make the flake see the gitignored file. Do NOT use for building or deploying — use the 'nixos' skill for that.
 ---
 
 # Secrets Management
 
-`secrets.nix` is gitignored and contains sensitive configuration. It is imported by `configuration.nix` and `home.nix` using `builtins.pathExists` guards, then passed to all modules via `_module.args = { inherit secrets; }`.
+`secrets.nix` is gitignored and contains sensitive configuration. Both entry points (`configuration.nix`, `home.nix`) import it behind a `builtins.pathExists` guard and pass it to all modules via `_module.args = { inherit secrets; }`. Use `secrets ? field` / `or {}` guards in modules for optional fields.
+
+**`projectPath` is REQUIRED**: absolute path to this repo. `configuration.nix`/`home.nix` throw at build time if it's missing or empty (it anchors the out-of-store home-sync symlinks).
 
 ## Full Schema
 
 ```nix
 {
+  # REQUIRED — build fails without it
+  projectPath = "/home/geryruslandi/Projects/personal-nixos";
+
   git = {
+    defaultBranch = "main";            # init.defaultBranch
     defaultUser = {
-      name = "Your Name";          # Default git user.name
-      email = "personal@email.com"; # Default git user.email
+      name = "Your Name";              # fallback user.name/email outside matched projects
+      email = "personal@email.com";
     };
-    projects = [
+    projects = [                       # per-directory includeIf blocks
       {
-        path = "~/code/work/";     # Gitdir condition prefix
+        path = "~/code/work/";         # gitdir condition prefix
         email = "you@company.com";
         name = "Your Work Name";
-        gpg = {
-          key = "ABC12345";        # GPG signing key ID
-        };                         # gpg is optional per project
+        gpg.key = "ABC12345";          # gpg optional per project
       }
     ];
+    ignores = [                        # per-folder global gitignore (generated under ~/.config/git/)
+      { path = "~/code/work/"; patterns = [".opencode" ".env" "*.log"]; }
+    ];
   };
-  ssh = [
+
+  ssh = [                              # programs.ssh match blocks
     {
-      host = "github.com";             # SSH host alias
-      hostName = "github.com";         # Actual hostname
+      host = "github.com";
+      hostName = "github.com";
       user = "git";
       identityFile = "~/.ssh/id_github_personal";
-      # extraOptions is optional:
-      extraOptions = { "ForwardAgent" = "yes"; };
+      extraOptions = { "ForwardAgent" = "yes"; };  # optional
     }
   ];
-  wallhavenKey = "someSecretKeyHere";  # Wallhaven API key for Noctalia wallpaper
-  server = {
-    redis = {
-      enable = false;                  # Enable Redis server
-      port = 6379;                     # optional — Listening port
-      password = null;                 # optional — requirepass (null = no password)
-      user = "redis";                  # optional — System user to run Redis
-    };
-    postgres = {                       # PostgreSQL server config
-      enable = false;                  # Enable PostgreSQL server
-      user = "";                       # Database user to create
-      password = "";                   # Password for the user
-      superuser = false;               # Whether user is superuser
-      databases = [ ];                 # Databases to create (owned by user)
-    };
+
+  wallhavenKey = "...";                # DEAD — no consumer anymore (wallhaven API key moved into the noctalia/wallhaven plugin's own settings)
+
+  zshEnv = {                           # exported verbatim at the end of ~/.zshrc
+    MY_SECRET_API_KEY = "your-secret-value";
   };
-  storageMount = [
+
+  timezone = "Asia/Jakarta";           # time.timeZone + Flatpak TZ override
+
+  monitor = {                          # kanshi profiles (home-modules/kanshi.nix)
+    laptopOutput = "eDP-1";
+    laptopScale = 2.0;
+    externalOutput = "DP-3";           # used by the dockedAtHome profile
+  };
+
+  sddmScale = 1.0;                     # DEAD — only a fallback default remains; nothing consumes it
+
+  devPorts = [ ];                      # networking.firewall.allowedTCPPorts
+
+  nvidia = {                           # PRIME offload bus IDs (system-modules/nvidia.nix)
+    intelBusId = "PCI:0:2:0";
+    nvidiaBusId = "PCI:1:0:0";
+  };
+
+  # enable=false = REGISTERED but no auto-start; start manually or via the Noctalia services toggle.
+  server = {
+    redis     = { enable = false; port = 6379; password = null; user = "redis"; };
+    postgres  = { enable = true; user = "postgres"; password = "postgres"; superuser = true; databases = ["postgres"]; };
+    mysql     = { enable = true; user = "root"; password = "root"; databases = ["mydb"]; };   # password/databases optional
+    mailpit   = { enable = true; smtpPort = 1025; uiPort = 8025; };       # ports feed the gery/services plugin
+    seaweedfs = { enable = true; masterPort = 9333; volumePort = 8080; filerPort = 8888;
+                  dataDir = "/mnt/data-ssd/seaweedfs"; };                 # all fields except enable optional
+    docker    = { enable = true; };
+    seanime   = { enable = true; port = 43211; };   # binary-only Nix pkg; service owned by gery/services plugin
+    stremio   = { enable = true; port = 11470; };   # ditto
+  };
+
+  storageMount = [                     # fileSystems entries (system-modules/ssd-mounter.nix)
     {
-      mountPath = "/mnt/data-ssd";     # Mount point
-      fsType = "ext4";                 # Filesystem type
-      storageUUID = "<uuid>";          # Filesystem UUID
+      mountPath = "/mnt/data-ssd";
+      fsType = "ext4";                 # NOTE: module currently hardcodes ext4 — field is informational
+      storageUUID = "<uuid>";
     }
   ];
-  swapAltWin = false;                  # Swap Alt and Super keys in Hyprland
+
+  swapAltWin = false;                  # Hyprland kb_options altwin:swap_alt_win
 }
 ```
+
+> `secrets.example.nix` is missing `timezone`, `monitor`, `sddmScale`, and `devPorts` — the real schema is broader. Copy from the table above if bootstrapping fresh.
 
 ## Consumers
 
 | Field | Consumer | File |
 |-------|----------|------|
-| `git.defaultUser` | Git config | `home-modules/git.nix:46-55` |
-| `git.projects` | Conditional Git includes | `home-modules/git.nix:55` |
-| `ssh` | SSH host configurations | `home-modules/ssh.nix:13-23` |
-| `wallhavenKey` | Noctalia wallpaper source | `home-modules/noctalia.nix:194-195` |
-| `server.redis` | Redis server enablement | `system-modules/redis.nix:3` |
- | `server.postgres` | PostgreSQL server config | `system-modules/postgresql.nix:3` |
-| `storageMount` | Automatic SSD mounting | `system-modules/ssd-mounter.nix:3-16` |
-| `swapAltWin` | Hyprland Alt/Win swap | `home-modules/hyprland.nix:137` |
+| `projectPath` | Build-time throw guard + home-sync symlink root | `configuration.nix`, `home.nix`, `home-modules/home-sync.nix` |
+| `timezone` | `time.timeZone`; Flatpak `TZ` env | `configuration.nix`, `flatpak.nix` |
+| `monitor.*` | Kanshi laptop/docked profiles | `home-modules/kanshi.nix` |
+| `devPorts` | Firewall TCP allowlist | `configuration.nix` |
+| `zshEnv` | Exports at end of `.zshrc` | `home-modules/zsh.nix` |
+| `nvidia.*` | PRIME offload bus IDs | `system-modules/nvidia.nix` |
+| `swapAltWin` | Hyprland Alt/Super swap | `home-modules/hyprland.nix` |
+| `git.defaultBranch/defaultUser/projects/ignores` | Git config, includeIf blocks, generated ignores | `home-modules/git.nix` |
+| `ssh` | SSH match blocks | `home-modules/ssh.nix` |
+| `server.redis/mysql/postgres` | Service registration + provisioning | `system-modules/{redis,mysql,postgresql}.nix` |
+| `server.seaweedfs` | weed master/volume/filer units + target | `system-modules/seaweedfs.nix` |
+| `server.docker` | Docker on-boot gating | `system-modules/docker.nix` |
+| `server.{seanime,stremio,mailpit}` | Ports/auto-start for the services hub | `plugin_settings."gery/services"` in `home-modules/noctalia.nix` |
+| `storageMount` | Automatic SSD mounting | `system-modules/ssd-mounter.nix` |
+| `wallhavenKey`, `sddmScale` | **no consumers (dead fields)** | — |
 
 ## Common Operations
 
-### Add a git project
+### Add a git project / SSH host / storage mount
 
-Add an entry to `git.projects`:
-```nix
-git.projects = [
-  # ... existing entries ...
-  {
-    path = "~/code/new-project/";
-    email = "dev@new-project.com";
-    name = "Dev Name";
-    gpg = {
-      key = "DEADBEEF";
-    };
-  }
-];
-```
+Append entries to `git.projects`, `ssh`, or `storageMount` following the shapes above, then rebuild.
 
-### Add an SSH host
+### Toggle a dev server
 
-Add an entry to the `ssh` list:
-```nix
-ssh = [
-  # ... existing entries ...
-  {
-    host = "myserver";
-    hostName = "myserver.example.com";
-    user = "admin";
-    identityFile = "~/.ssh/id_ed25519";
-  }
-];
-```
-
-### Add a storage mount
-
-Add an entry to `storageMount`:
-```nix
-storageMount = [
-  # ... existing entries ...
-  {
-    mountPath = "/mnt/games-ssd";
-    fsType = "btrfs";
-    storageUUID = "abcdef12-3456-7890-abcd-ef1234567890";
-  }
-];
-```
+Flip `server.<name>.enable` — registration never changes, only auto-start. The Noctalia `gery/services` bar widget can start/stop everything regardless (polkit whitelists those units for wheel users).
 
 ## After Editing secrets.nix
 
-Flakes can only read files tracked by Git. Since `secrets.nix` is gitignored, the flake evaluator won't see it unless you stage it:
+Flakes can only read files tracked by Git. Since `secrets.nix` is gitignored, stage it:
 
 ```bash
 git add --intent-to-add secrets.nix -f
 ```
 
-This adds the file to Git's index without committing its contents. The flake can then read it during evaluation.
+`./rebuild.sh` does this automatically before evaluating and unstages afterwards — using it means you never need the manual dance.
