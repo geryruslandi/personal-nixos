@@ -8,6 +8,7 @@
     extraGroups = [
       "networkmanager"
       "wheel"
+      "battery_ctl"
     ];
     packages = with pkgs; [
       vscode

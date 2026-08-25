@@ -57,7 +57,8 @@ M.SERVICES = {
     scope    = "system",
     kind     = "systemd",
     unit     = "redis.service",
-    ports    = { { name = "Port", value = cfg("redis_port", 6379), configKey = "redis_port", def = 6379 } },
+    -- Port display removed: the real listener comes from secrets.server.redis.port
+    -- via system-modules/redis.nix; a plugin setting here would be display-only.
   },
   {
     id       = "mysql",
@@ -68,7 +69,6 @@ M.SERVICES = {
     scope    = "system",
     kind     = "systemd",
     unit     = "mysql.service",
-    ports    = { { name = "Port", value = cfg("mysql_port", 3306), configKey = "mysql_port", def = 3306 } },
   },
   {
     id       = "postgresql",
@@ -79,7 +79,6 @@ M.SERVICES = {
     scope    = "system",
     kind     = "systemd",
     unit     = "postgresql.service",
-    ports    = { { name = "Port", value = cfg("postgresql_port", 5432), configKey = "postgresql_port", def = 5432 } },
   },
   {
     id       = "docker",
@@ -101,11 +100,6 @@ M.SERVICES = {
     scope    = "system",
     kind     = "systemd",
     unit     = "seaweedfs.target",
-    ports    = {
-      { name = "Master", value = cfg("seaweedfs_masterPort", 9333), configKey = "seaweedfs_masterPort", def = 9333 },
-      { name = "Volume", value = cfg("seaweedfs_volumePort", 8080), configKey = "seaweedfs_volumePort", def = 8080 },
-      { name = "Filer", value = cfg("seaweedfs_filerPort", 8888), configKey = "seaweedfs_filerPort", def = 8888 },
-    },
   },
   {
     id       = "mailpit",
@@ -158,7 +152,8 @@ M.SERVICES = {
     unit     = "stremio.service",
     binary   = cfg("stremio_binary", "stremio-service"),
     autoStart = cfg("stremio_auto_start", false),
-    ports    = { { name = "Port", value = cfg("stremio_port", 11470), configKey = "stremio_port", def = 11470 } },
+    -- No port setting: stremio-service reads its own config; the plugin passes
+    -- no CLI args, so a port setting here would be display-only.
     startCmd = function(self)
       return transientStart(self.unit, self.binary, nil)
     end,

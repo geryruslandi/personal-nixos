@@ -41,6 +41,15 @@
   services.power-profiles-daemon.enable = true;
   powerManagement.powertop.enable = true;
 
+  # Battery charge threshold (Noctalia battery-power-management plugin):
+  # let members of battery_ctl write /sys/class/power_supply/BAT*/charge_control_end_threshold.
+  # The udev rule fires on every battery add/change event, re-applying perms
+  # whenever the sysfs node is recreated.
+  users.groups.battery_ctl = { };
+  services.udev.extraRules = ''
+    ACTION=="add|change", SUBSYSTEM=="power_supply", KERNEL=="BAT*", RUN+="${pkgs.coreutils}/bin/chgrp battery_ctl /sys$devpath/charge_control_end_threshold", RUN+="${pkgs.coreutils}/bin/chmod 0664 /sys$devpath/charge_control_end_threshold"
+  '';
+
   environment.systemPackages = [ pkgs.powertop ];
 
   # Keyboard backlight idle timeout: firmware default is 10s, which turns the

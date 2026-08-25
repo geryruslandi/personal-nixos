@@ -10,7 +10,6 @@ let
   seanime = secrets.server.seanime or { };
   seanimePort = seanime.port or 43211;
   stremio = secrets.server.stremio or { };
-  stremioPort = stremio.port or 11470;
   seaweedfs = secrets.server.seaweedfs or { enable = false; };
 in
 {
@@ -350,7 +349,9 @@ in
             "group:g1"
             "group:g2"
             "tray"
-            "group:g3"
+            "volume"
+            "widget"
+            "clock"
             "control-center"
           ];
           capsule_group = [
@@ -368,22 +369,6 @@ in
               opacity = 0.46;
               padding = 6.0;
               radius = 7.0;
-            }
-            {
-              accordion = false;
-              accordion_direction = "start";
-              enabled = true;
-              fill = "surface_variant";
-              id = "g3";
-              members = [
-                "volume"
-                "widget"
-                "clock"
-              ];
-              opacity = 0.46;
-              padding = 6.0;
-              radius = 7.0;
-              widget_spacing = 15;
             }
             {
               accordion = true;
@@ -408,12 +393,23 @@ in
       };
 
       desktop_widgets = {
-        enabled = true;
-        widget_order = [ ];
+        enabled = false;
+        widget_order = [ "desktop-widget-0000000000000001" ];
         grid = {
           cell_size = 16;
           major_interval = 4;
           visible = true;
+        };
+        widget = {
+          "desktop-widget-0000000000000001" = {
+            type = "yugaaank/better-clock:clock";
+            output = "eDP-1";
+            cx = 990.0;
+            cy = 666.0;
+            box_width = 272.0;
+            box_height = 272.0;
+            rotation = 0.0;
+          };
         };
       };
 
@@ -485,7 +481,7 @@ in
         "bar" = {
           style = "label";
           type = "felipeartur/ai-usagebar:bar";
-          vendor = "auto";
+          vendor = "openrouter";
         };
         "rec" = {
           type = "noctalia/screen_recorder:recorder";
@@ -510,6 +506,7 @@ in
           "noctalia/wallhaven"
           "ycf/mawaqit"
           "noctalia/bitwarden"
+          "noctalia/notes"
           "dunarand/tmux-provider"
           "nightwatch75/todo"
           "tadomika_ari/w-engine"
@@ -534,18 +531,16 @@ in
           panel_placement = "floating";
         };
         "gery/services" = {
-          redis_port = (secrets.server or { }).redis.port or 6379;
-          mysql_port = (secrets.server or { }).mysql.port or 3306;
-          postgresql_port = (secrets.server or { }).postgres.port or 5432;
-          seaweedfs_masterPort = seaweedfs.masterPort or 9333;
-          seaweedfs_volumePort = seaweedfs.volumePort or 8080;
-          seaweedfs_filerPort = seaweedfs.filerPort or 8888;
-          mailpit_smtpPort = (secrets.server or { }).mailpit.smtpPort or 1025;
-          mailpit_uiPort = (secrets.server or { }).mailpit.uiPort or 8025;
+          services-panel_placement = "floating";
+          # Only ports the plugin actually passes on a start command line
+          # (mailpit, seanime) are configurable; string-typed because int
+          # settings render as a 0-100 slider in the Settings UI. System
+          # service listeners keep coming from secrets.* via Nix modules.
+          mailpit_smtpPort = toString ((secrets.server or { }).mailpit.smtpPort or 1025);
+          mailpit_uiPort = toString ((secrets.server or { }).mailpit.uiPort or 8025);
           mailpit_auto_start = (secrets.server or { }).mailpit.enable or false;
-          seanime_port = seanimePort;
+          seanime_port = toString seanimePort;
           seanime_auto_start = seanime.enable or false;
-          stremio_port = stremioPort;
           stremio_auto_start = stremio.enable or false;
         };
       };

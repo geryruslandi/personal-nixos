@@ -1,5 +1,6 @@
 {
   pkgs,
+  lib,
   ...
 }:
 let
@@ -13,6 +14,11 @@ in
     enable = true;
     package = warp;
   };
+
+  # Don't auto-start at boot — the upstream module sets wantedBy to
+  # multi-user.target. Still registered, so you can start it manually
+  # ('systemctl start cloudflare-warp') or via the Noctalia services plugin.
+  systemd.services.cloudflare-warp.wantedBy = lib.mkForce [ ];
 
   # Add the package to the system profile so you can run 'warp-cli' in your terminal
   environment.systemPackages = [ warp ];
