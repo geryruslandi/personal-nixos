@@ -301,11 +301,10 @@ startService = function(id)
       .. " && for i in 1 2 3 4 5 6 7 8 9 10; do " .. warpCli .. " connect && break; sleep 1; done"
     setState(id, "connecting", {})
   elseif service.kind == "waydroid" then
+    -- Container only: the Android session is started manually by the user
+    -- (or by launching an app). Green "running" appears only once a live
+    -- session is detected by polling.
     cmd = "systemctl start " .. service.unit
-      .. " && sleep 3"
-      .. " && { systemctl --user reset-failed waydroid-session 2>/dev/null || true; systemctl --user stop waydroid-session 2>/dev/null || true; }"
-      .. " && systemd-run --user --unit=waydroid-session --collect --property=Restart=no -- "
-      .. services.expandBinary(service.binary) .. " session start"
     setState(id, "connecting", {})
   elseif service.kind == "transient" then
     cmd = service.startCmd(service)

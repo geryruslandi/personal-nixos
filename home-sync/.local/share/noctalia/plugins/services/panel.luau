@@ -67,9 +67,9 @@ end
 local function serviceRow(service)
   local s = state and state[service.id] or nil
   if s == nil then s = { state = "unknown", available = nil, sinceSec = nil, enabled = "unknown", busy = false } end
-  -- Toggle semantics stay on the real running state: a container-only
-  -- Waydroid (no-session) counts as OFF so clicking it brings the session up.
-  local running = isRunning(s)
+  -- Waydroid semantics: container-only (no-session, yellow) counts as ON,
+  -- so toggling it stops the container; only fully-stopped starts it.
+  local running = isRunning(s) or s.state == "no-session"
   local canToggle = s.available ~= false and not s.busy
   local theme = themeFor(s)
   local fill = theme.fill
