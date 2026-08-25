@@ -47,6 +47,20 @@
         "ForwardAgent" = "yes";
       };
     }
+    # localForwards is optional; each entry renders a `LocalForward` line
+    {
+      host = "airborneo-dev";
+      hostName = "[IP_ADDRESS]";
+      user = "devuser";
+      identityFile = "~/.ssh/airborneo-bastion-devuser";
+      localForwards = [
+        { bind.port = 6443; host.address = "[IP_ADDRESS]"; host.port = 6443; }
+        { bind.port = 6444; host.address = "[IP_ADDRESS]"; host.port = 6443; }
+        { bind.port = 6445; host.address = "[IP_ADDRESS]"; host.port = 6443; }
+        { bind.port = 6300; bind.address = "localhost"; host.address = "[IP_ADDRESS]"; host.port = 6379; }
+        { bind.port = 6301; bind.address = "localhost"; host.address = "[IP_ADDRESS]"; host.port = 6379; }
+      ];
+    }
   ];
   wallhavenKey = "someSecretKeyHere";
   # Env vars exported at the END of ~/.zshrc. Keep real values only in your
