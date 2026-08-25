@@ -90,7 +90,7 @@ local function serviceRow(service)
     width = 196,
     gap = 10,
     paddingH = 12,
-    paddingV = 9,
+    paddingV = 8,
     radius = 10,
     fill = fill,
     border = theme.color .. "40",
@@ -102,14 +102,21 @@ local function serviceRow(service)
     onHover = onHover,
   }, {
     ui.glyph({ name = rowGlyph(service, s), size = 18, color = theme.color }),
-    ui.column({ gap = 2, flexGrow = 1, align = "stretch" }, {
+    ui.column({ gap = 1, flexGrow = 1, align = "stretch" }, {
       ui.label({ text = service.label, fontSize = 13, color = "on_surface", fontWeight = "medium" }),
       ui.label({
-        text = "\u{25cf} " .. statusText(s) .. "  \u{00b7}  " .. detail,
+        text = "\u{25cf} " .. statusText(s),
         fontSize = 11,
+        color = theme.color,
+      }),
+      -- Detail line (ports/uptime); hidden when it duplicates the status.
+      ui.label({
+        text = detail == statusText(s) and "" or detail,
+        fontSize = 10,
         color = theme.color,
         maxLines = 1,
         maxWidth = 150,
+        visible = detail ~= statusText(s),
       }),
     }),
   })

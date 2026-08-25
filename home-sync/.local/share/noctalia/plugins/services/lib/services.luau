@@ -254,7 +254,7 @@ function M.detail(service, s)
 
   if service.kind == "waydroid" then
     if s.state == "no-session" then
-      parts = { "Container only" }
+      parts = { "Session down" }
     elseif s.state == "no-cli" then
       parts = { "CLI missing" }
     else

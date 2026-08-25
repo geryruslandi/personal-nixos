@@ -122,6 +122,6 @@ entry = "widget.luau"
 id             = "services-panel"
 entry          = "panel.luau"
 width          = 700
-height         = 460
+height         = 525
 placement      = "floating"
 open_near_click = true
