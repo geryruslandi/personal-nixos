@@ -53,6 +53,8 @@ local function render()
       table.insert(lines, "  \u{00b7} " .. s.label .. ": failed")
     elseif st.state == "connecting" or st.state == "disconnecting" then
       table.insert(lines, "  \u{00b7} " .. s.label .. ": working\u{2026}")
+    elseif st.state == "no-session" then
+      table.insert(lines, "  \u{00b7} " .. s.label .. ": container only")
     else
       table.insert(lines, "  \u{00b7} " .. s.label .. ": stopped")
     end

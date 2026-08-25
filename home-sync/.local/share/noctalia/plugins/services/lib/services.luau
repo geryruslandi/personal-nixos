@@ -175,12 +175,24 @@ M.SERVICES = {
     binary   = "warp-cli",
     ports    = nil,
   },
+  {
+    id       = "waydroid",
+    label    = "Waydroid",
+    category = "tools",
+    glyph    = "device-mobile",
+    glyphOff = "device-mobile-off",
+    scope    = "system",
+    kind     = "waydroid",
+    unit     = "waydroid-container.service",
+    binary   = "waydroid",
+    ports    = nil,
+  },
 }
 
 M.CATEGORIES = {
   { id = "development", label = "Development" },
-  { id = "entertainment", label = "Entertainment" },
   { id = "tools", label = "Tools" },
+  { id = "entertainment", label = "Entertainment" },
 }
 
 -- Re-read settings (ports, binary, auto-start) in place. Called from the
@@ -237,6 +249,16 @@ function M.detail(service, s)
       parts = { "Daemon stopped" }
     else
       parts = { "VPN" }
+    end
+  end
+
+  if service.kind == "waydroid" then
+    if s.state == "no-session" then
+      parts = { "Container only" }
+    elseif s.state == "no-cli" then
+      parts = { "CLI missing" }
+    else
+      parts = { "Android" }
     end
   end
 

@@ -210,6 +210,73 @@ local function pollWarp(done)
   pollWarpDaemon(done)
 end
 
+-- waydroid: container -> session status chain
+local function pollWaydroidSession(done)
+  local ok = noctalia.runAsync(services.expandBinary("waydroid") .. " status", function(res)
+    local sessionUp = false
+    if res and res.exitCode == 0 then
+      local out = res.stdout or ""
+      sessionUp = out:find("Session:%s+RUNNING") ~= nil
+    end
+    setState("waydroid", sessionUp and "active" or "no-session", { available = true })
+    publish()
+    if done then done() end
+  end)
+  if not ok then
+    setState("waydroid", "no-session", { available = true })
+    publish()
+    if done then done() end
+  end
+end
+
+local function pollWaydroidContainer(done)
+  local waydroid = services.find("waydroid")
+  local cmd = table.concat({
+    "systemctl is-active " .. waydroid.unit,
+    "systemctl is-enabled " .. waydroid.unit .. " 2>&1",
+    "awk '{print $1}' /proc/uptime",
+    "systemctl show " .. waydroid.unit .. " -p ActiveEnterTimestampMonotonic --value 2>/dev/null",
+  }, "; ")
+  local ok = noctalia.runAsync(cmd, function(res)
+    local lines = splitLines(res and res.stdout)
+    local enabledOut = lines[2] or ""
+    local available = enabledOut ~= "not-found"
+      and not string.find(enabledOut, "No such file or directory", 1, true)
+      and not string.find(enabledOut, "Failed to get unit file state", 1, true)
+    local sinceSec = nil
+    if lines[3] and lines[4] then
+      local sysUp = tonumber(lines[3])
+      local monoUs = tonumber(lines[4])
+      if sysUp and monoUs and monoUs > 0 then
+        sinceSec = sysUp - monoUs / 1000000
+      end
+    end
+    setState("waydroid", "unknown", { available = available, sinceSec = sinceSec, enabled = enabledOut })
+    if (lines[1] or ""):match("^active") then
+      pollWaydroidSession(done)
+    else
+      setState("waydroid", "stopped", { available = available, sinceSec = nil })
+      publish()
+      if done then done() end
+    end
+  end)
+  if not ok then
+    setState("waydroid", "stopped", { available = true })
+    publish()
+    if done then done() end
+  end
+end
+
+local function pollWaydroid(done)
+  if not noctalia.commandExists("waydroid") then
+    setState("waydroid", "no-cli", { available = false })
+    publish()
+    if done then done() end
+    return
+  end
+  pollWaydroidContainer(done)
+end
+
 -- start / stop --------------------------------------------------------------
 -- Forward declarations (pollTransient / refresh call these before the real
 -- definitions below are reached at runtime via callbacks).
@@ -232,6 +299,13 @@ startService = function(id)
       .. " && sleep 1"
       .. " && " .. warpCli .. " registration show >/dev/null 2>&1"
       .. " && for i in 1 2 3 4 5 6 7 8 9 10; do " .. warpCli .. " connect && break; sleep 1; done"
+    setState(id, "connecting", {})
+  elseif service.kind == "waydroid" then
+    cmd = "systemctl start " .. service.unit
+      .. " && sleep 3"
+      .. " && { systemctl --user reset-failed waydroid-session 2>/dev/null || true; systemctl --user stop waydroid-session 2>/dev/null || true; }"
+      .. " && systemd-run --user --unit=waydroid-session --collect --property=Restart=no -- "
+      .. services.expandBinary(service.binary) .. " session start"
     setState(id, "connecting", {})
   elseif service.kind == "transient" then
     cmd = service.startCmd(service)
@@ -271,6 +345,11 @@ stopService = function(id)
   local cmd
   if service.kind == "warp" then
     cmd = services.expandBinary(service.binary) .. " disconnect; systemctl stop " .. service.unit
+    setState(id, "disconnecting", {})
+  elseif service.kind == "waydroid" then
+    cmd = services.expandBinary(service.binary) .. " session stop 2>/dev/null"
+      .. "; systemctl --user stop waydroid-session 2>/dev/null"
+      .. "; systemctl stop " .. service.unit
     setState(id, "disconnecting", {})
   elseif service.kind == "transient" then
     cmd = "systemctl --user stop " .. service.unit
@@ -323,6 +402,8 @@ refresh = function()
     end
     if service.kind == "warp" then
       pollWarp(runNext)
+    elseif service.kind == "waydroid" then
+      pollWaydroid(runNext)
     elseif service.kind == "transient" then
       pollTransient(service, runNext)
     else

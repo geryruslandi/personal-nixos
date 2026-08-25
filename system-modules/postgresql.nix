@@ -37,4 +37,9 @@ authentication = pkgs.lib.mkOverride 10 ''
   };
 
   systemd.services.postgresql.wantedBy = lib.mkForce (if boot then [ "multi-user.target" ] else [ ]);
+
+  # nixpkgs boot-activates PostgreSQL through `postgresql.target` (which pulls
+  # in `postgresql.service`), not the service unit directly — so the override
+  # above alone is not enough to suppress auto-start. Gate the target too.
+  systemd.targets.postgresql.wantedBy = lib.mkForce (if boot then [ "multi-user.target" ] else [ ]);
 }

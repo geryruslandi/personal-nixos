@@ -1,7 +1,8 @@
--- Panel: categorized list of services in state-colored pill rows.
--- Each pill shows name, status dot, per-service details (ports, uptime).
--- Clicking anywhere on a pill toggles the service (no switch UI).
--- Green = running, red = stopped, yellow = starting/stopping in progress.
+-- Panel: services grouped into categories laid out HORIZONTALLY
+-- (one ui.row of category blocks); the service pills inside each block
+-- stay VERTICAL like the original layout.
+-- Green = running, yellow = starting/stopping/container-only,
+-- red = stopped, rose = failed, gray = not installed.
 
 local services = require("./lib/services.luau")
 
@@ -25,6 +26,7 @@ end
 
 local function isWorking(s)
   return s.state == "connecting" or s.state == "disconnecting"
+    or s.state == "no-session"
 end
 
 local function themeFor(s)
@@ -41,12 +43,13 @@ local function statusText(s)
   if s.state == "failed" then return "Failed" end
   if s.state == "connecting" then return "Starting\u{2026}" end
   if s.state == "disconnecting" then return "Stopping\u{2026}" end
+  if s.state == "no-session" then return "Container only" end
   return "Stopped"
 end
 
 local function rowGlyph(service, s)
   local glyph = service.glyphOff or service.glyph
-  if isRunning(s) then glyph = service.glyph end
+  if isRunning(s) or s.state == "no-session" then glyph = service.glyph end
   if s.state == "failed" then glyph = "alert-octagon" end
   if isWorking(s) then glyph = service.glyph end
   return glyph
@@ -64,6 +67,8 @@ end
 local function serviceRow(service)
   local s = state and state[service.id] or nil
   if s == nil then s = { state = "unknown", available = nil, sinceSec = nil, enabled = "unknown", busy = false } end
+  -- Toggle semantics stay on the real running state: a container-only
+  -- Waydroid (no-session) counts as OFF so clicking it brings the session up.
   local running = isRunning(s)
   local canToggle = s.available ~= false and not s.busy
   local theme = themeFor(s)
@@ -82,6 +87,7 @@ local function serviceRow(service)
 
   return ui.row({
     key = service.id,
+    width = 196,
     gap = 10,
     paddingH = 12,
     paddingV = 9,
@@ -102,14 +108,15 @@ local function serviceRow(service)
         text = "\u{25cf} " .. statusText(s) .. "  \u{00b7}  " .. detail,
         fontSize = 11,
         color = theme.color,
-        maxLines = 2,
+        maxLines = 1,
+        maxWidth = 150,
       }),
     }),
   })
 end
 
 local function buildTree()
-  local children = {}
+  local cats = {}
   for _, cat in ipairs(services.CATEGORIES) do
     local catRows = {}
     for _, s in ipairs(services.SERVICES) do
@@ -118,19 +125,33 @@ local function buildTree()
       end
     end
     if #catRows > 0 then
-      table.insert(children, ui.label({
-        key = "hdr-" .. cat.id,
-        text = cat.label,
-        fontSize = 11,
-        color = "primary",
-        fontWeight = "bold",
-      }))
-      table.insert(children, ui.column({ key = "cat-" .. cat.id, gap = 6, paddingH = 4 }, catRows))
+      local catKids = {
+        ui.label({
+          key = "hdr-" .. cat.id,
+          text = cat.label,
+          fontSize = 11,
+          color = "primary",
+          fontWeight = "bold",
+        }),
+      }
+      for _, row in ipairs(catRows) do
+        table.insert(catKids, row)
+      end
+      table.insert(cats, ui.column({
+        key = "cat-" .. cat.id,
+        width = 208,
+        gap = 6,
+        align = "start",
+      }, catKids))
     end
   end
 
   return ui.scroll({ key = "scroll", flexGrow = 1 }, {
-    ui.column({ key = "content", gap = 10, padding = 12 }, children),
+    ui.row({
+      key = "content",
+      gap = 12,
+      align = "start",
+    }, cats),
   })
 end
 
