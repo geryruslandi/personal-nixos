@@ -43,12 +43,40 @@
 
   # Battery charge threshold (Noctalia battery-power-management plugin):
   # let members of battery_ctl write /sys/class/power_supply/BAT*/charge_control_end_threshold.
-  # The udev rule fires on every battery add/change event, re-applying perms
-  # whenever the sysfs node is recreated.
+  # On Dell, the end threshold is only honored when charge type is "Custom",
+  # so we always (re)assert Custom. The udev rule fires on every battery
+  # add/change event, re-applying perms + Custom type whenever the sysfs nodes
+  # are recreated or the firmware resets them (e.g. on AC re-plug).
   users.groups.battery_ctl = { };
   services.udev.extraRules = ''
-    ACTION=="add|change", SUBSYSTEM=="power_supply", KERNEL=="BAT*", RUN+="${pkgs.coreutils}/bin/chgrp battery_ctl /sys$devpath/charge_control_end_threshold", RUN+="${pkgs.coreutils}/bin/chmod 0664 /sys$devpath/charge_control_end_threshold"
+    ACTION=="add|change", SUBSYSTEM=="power_supply", KERNEL=="BAT*", RUN+="${pkgs.coreutils}/bin/chgrp battery_ctl /sys$devpath/charge_control_end_threshold", RUN+="${pkgs.coreutils}/bin/chmod 0664 /sys$devpath/charge_control_end_threshold", RUN+="${pkgs.bash}/bin/bash -c 'echo Custom > /sys$devpath/charge_types 2>/dev/null'"
   '';
+
+  # The udev rule above only re-applies perms when a battery uevent fires; if
+  # none does (e.g. battery idle at steady state), the sysfs node keeps its
+  # kernel default (root:root 644) and the plugin's write gets EACCES.
+  # This oneshot makes perms + Dell Custom charge mode deterministic at boot
+  # regardless of udev timing, and applies the default charge limits (start 50,
+  # end 60) as root.
+  systemd.services.battery-threshold = {
+    description = "Set battery charge threshold perms, Dell Custom mode, and default limit";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "systemd-modules-load.service" ];
+    serviceConfig.Type = "oneshot";
+    script = ''
+      for p in /sys/class/power_supply/BAT*/charge_control_end_threshold; do
+        [ -e "$p" ] || continue
+        base="$(dirname "$p")"
+        # Dell only enforces the threshold in "Custom" charge mode.
+        echo Custom > "$base/charge_types" 2>/dev/null || true
+        # Start threshold: recharge down to this level (Dell custom profile).
+        echo 50 > "$base/charge_control_start_threshold" 2>/dev/null || true
+        ${pkgs.coreutils}/bin/chgrp battery_ctl "$p" 2>/dev/null || true
+        ${pkgs.coreutils}/bin/chmod 0664 "$p" 2>/dev/null || true
+        echo 60 > "$p" 2>/dev/null || true
+      done
+    '';
+  };
 
   environment.systemPackages = [ pkgs.powertop ];
 

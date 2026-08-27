@@ -62,6 +62,7 @@ in
     ./home-modules/fastfetch.nix
     ./home-modules/nvim.nix
     ./home-modules/azure.nix
+    ./home-modules/oci.nix
     ./home-modules/home-sync.nix
     ./home-modules/media-idle-inhibit.nix
     ./home-modules/ai-usagebar
@@ -86,6 +87,7 @@ in
     extraConfig = ''
       include ~/.config/kitty/current-theme.conf
       background_opacity 0.9
+      mouse_map alt+left release ungrabbed,grabbed mouse_handle_click link
     '';
     keybindings = {
       "shift+enter" = "send_text all \\x1b[13;2u";
