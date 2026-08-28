@@ -76,6 +76,11 @@ local function serviceRow(service)
   if hovered[service.id] and canToggle then fill = theme.fillHover end
 
   local detail = services.detail(service, s)
+  -- Always render a 3rd line: ports/uptime when available, otherwise the
+  -- service blurb. Avoids 2-row cards for inactive services with no ports.
+  if detail == statusText(s) or detail == "" then
+    detail = service.blurb or ""
+  end
 
   local onHover = nil
   if canToggle then
@@ -87,10 +92,10 @@ local function serviceRow(service)
 
   return ui.row({
     key = service.id,
-    width = 196,
-    gap = 10,
-    paddingH = 12,
-    paddingV = 8,
+    width = 162,
+    gap = 8,
+    paddingH = 10,
+    paddingV = 7,
     radius = 10,
     fill = fill,
     border = theme.color .. "40",
@@ -101,21 +106,21 @@ local function serviceRow(service)
     end or nil,
     onHover = onHover,
   }, {
-    ui.glyph({ name = rowGlyph(service, s), size = 18, color = theme.color }),
+    ui.glyph({ name = rowGlyph(service, s), size = 14, color = theme.color }),
     ui.column({ gap = 1, flexGrow = 1, align = "stretch" }, {
-      ui.label({ text = service.label, fontSize = 13, color = "on_surface", fontWeight = "medium" }),
+      ui.label({ text = service.label, fontSize = 11, color = "on_surface", fontWeight = "medium" }),
       ui.label({
         text = "\u{25cf} " .. statusText(s),
-        fontSize = 11,
-        color = theme.color,
-      }),
-      -- Detail line (ports/uptime); hidden when it duplicates the status.
-      ui.label({
-        text = detail == statusText(s) and "" or detail,
         fontSize = 10,
         color = theme.color,
+      }),
+      -- Detail line (ports/uptime/blurb); always present -> cards have 3 rows.
+      ui.label({
+        text = detail == statusText(s) and "" or detail,
+        fontSize = 9,
+        color = theme.color,
         maxLines = 1,
-        maxWidth = 150,
+        maxWidth = 110,
         visible = detail ~= statusText(s),
       }),
     }),
@@ -146,7 +151,7 @@ local function buildTree()
       end
       table.insert(cats, ui.column({
         key = "cat-" .. cat.id,
-        width = 208,
+        width = 176,
         gap = 6,
         align = "start",
       }, catKids))

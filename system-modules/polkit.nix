@@ -11,7 +11,7 @@
           action.id == "org.freedesktop.systemd1.manage-units"
           && subject.isInGroup("wheel")
           && ["start", "stop", "restart"].indexOf(action.lookup("verb")) != -1
-          && ["redis.service", "mysql.service", "postgresql.service", "cloudflare-warp.service", "docker.service", "seaweedfs.target", "waydroid-container.service"].indexOf(action.lookup("unit")) != -1
+          && ["redis.service", "mysql.service", "postgresql.service", "cloudflare-warp.service", "docker.service", "seaweedfs.target", "waydroid-container.service", "docker-sonarqube.service", "docker-sonar-postgres.service"].indexOf(action.lookup("unit")) != -1
         ) { return polkit.Result.YES; }
       });
     '';

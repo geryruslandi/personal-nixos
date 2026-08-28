@@ -8,10 +8,10 @@ license    = "MIT"
 
 description = "Consolidated hub for all gery services: polling, bar count widget and a toggle panel."
 
-# NOTE: no port settings for redis/mysql/postgresql/seaweedfs/stremio — those
-# are display-only there (real listeners come from secrets.nix via Nix modules
-# or the daemon's own config). Only ports the plugin actually passes on the
-# start command line (mailpit, seanime) are configurable.
+# NOTE: no port settings for redis/mysql/postgresql/seaweedfs/stremio/sonarqube
+# — those are display-only there (real listeners come from secrets.nix via Nix
+# modules or the daemon's own config). Only ports the plugin actually passes on
+# the start command line (mailpit, seanime) are configurable.
 
 [[setting]]
 key        = "mailpit_binary"
@@ -84,7 +84,7 @@ entry = "widget.luau"
 [[panel]]
 id             = "services-panel"
 entry          = "panel.luau"
-width          = 700
-height         = 525
+width          = 770
+height         = 320
 placement      = "floating"
 open_near_click = true

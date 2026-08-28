@@ -75,6 +75,7 @@ in
     ./system-modules/kdeconnect.nix
     ./system-modules/fingerprint-setup.nix
     ./system-modules/seaweedfs.nix
+    ./system-modules/sonarqube.nix
   ];
 
   _module.args = { inherit secrets; };

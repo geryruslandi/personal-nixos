@@ -51,34 +51,37 @@ M.SERVICES = {
   {
     id       = "redis",
     label    = "Redis",
-    category = "development",
+    category = "databases",
     glyph    = "database",
     glyphOff = "database-off",
     scope    = "system",
     kind     = "systemd",
     unit     = "redis.service",
+    blurb    = "Cache store",
     -- Port display removed: the real listener comes from secrets.server.redis.port
     -- via system-modules/redis.nix; a plugin setting here would be display-only.
   },
   {
     id       = "mysql",
     label    = "MySQL",
-    category = "development",
+    category = "databases",
     glyph    = "database",
     glyphOff = "database-off",
     scope    = "system",
     kind     = "systemd",
     unit     = "mysql.service",
+    blurb    = "MySQL DB",
   },
   {
     id       = "postgresql",
     label    = "PgSQL",
-    category = "development",
+    category = "databases",
     glyph    = "database",
     glyphOff = "database-off",
     scope    = "system",
     kind     = "systemd",
     unit     = "postgresql.service",
+    blurb    = "Postgres DB",
   },
   {
     id       = "docker",
@@ -89,7 +92,21 @@ M.SERVICES = {
     scope    = "system",
     kind     = "systemd",
     unit     = "docker.service",
+    blurb    = "Container runtime",
     ports    = { { name = "Socket", value = "/var/run/docker.sock", configKey = "docker_socket", def = "/var/run/docker.sock" } },
+  },
+  {
+    id       = "sonarqube",
+    label    = "SonarQube",
+    category = "development",
+    glyph    = "bug",
+    glyphOff = "bug-off",
+    scope    = "system",
+    kind     = "systemd",
+    unit     = "docker-sonarqube.service",
+    blurb    = "Code quality",
+    -- Display-only port: the real listener comes from system-modules/sonarqube.nix.
+    ports    = { { name = "Web", value = cfg("sonarqube_webPort", 9000), configKey = "sonarqube_webPort", def = 9000 } },
   },
   {
     id       = "seaweedfs",
@@ -100,6 +117,7 @@ M.SERVICES = {
     scope    = "system",
     kind     = "systemd",
     unit     = "seaweedfs.target",
+    blurb    = "Object storage",
   },
   {
     id       = "mailpit",
@@ -112,6 +130,7 @@ M.SERVICES = {
     unit     = "mailpit.service",
     binary   = cfg("mailpit_binary", "mailpit"),
     autoStart = cfg("mailpit_auto_start", false),
+    blurb    = "Dev mail",
     ports    = {
       { name = "SMTP", value = cfg("mailpit_smtpPort", 1025), configKey = "mailpit_smtpPort", def = 1025 },
       { name = "UI", value = cfg("mailpit_uiPort", 8025), configKey = "mailpit_uiPort", def = 8025 },
@@ -133,6 +152,7 @@ M.SERVICES = {
     unit     = "seanime.service",
     binary   = cfg("seanime_binary", "seanime"),
     autoStart = cfg("seanime_auto_start", false),
+    blurb    = "Media server",
     ports    = { { name = "Port", value = cfg("seanime_port", 43211), configKey = "seanime_port", def = 43211 } },
     startCmd = function(self)
       local dir = cfg("seanime_datadir", "$HOME/.local/share/seanime")
@@ -152,6 +172,7 @@ M.SERVICES = {
     unit     = "stremio.service",
     binary   = cfg("stremio_binary", "stremio-service"),
     autoStart = cfg("stremio_auto_start", false),
+    blurb    = "Streaming",
     -- No port setting: stremio-service reads its own config; the plugin passes
     -- no CLI args, so a port setting here would be display-only.
     startCmd = function(self)
@@ -168,6 +189,7 @@ M.SERVICES = {
     kind     = "warp",
     unit     = "cloudflare-warp.service",
     binary   = "warp-cli",
+    blurb    = "VPN",
     ports    = nil,
   },
   {
@@ -180,12 +202,14 @@ M.SERVICES = {
     kind     = "waydroid",
     unit     = "waydroid-container.service",
     binary   = "waydroid",
+    blurb    = "Android",
     ports    = nil,
   },
 }
 
 M.CATEGORIES = {
   { id = "development", label = "Development" },
+  { id = "databases", label = "Databases" },
   { id = "tools", label = "Tools" },
   { id = "entertainment", label = "Entertainment" },
 }
