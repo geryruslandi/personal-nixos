@@ -63,6 +63,28 @@
     }
   ];
   wallhavenKey = "someSecretKeyHere";
+  # Noctalia calendar accounts — mirrors the [calendar.account.*] structure in
+  # ~/.local/state/noctalia/settings.toml. Account names and Outlook ICS URLs
+  # (which contain your email) stay here, never in the repo config. Keep the
+  # account ids stable — they bind to credentials stored in the system keyring.
+  noctaliaCalendar = {
+    allied_google = {
+      name = "Your Name";
+      type = "google";
+    };
+    outlook_mhdsp = {
+      color = "tertiary";
+      name = "Work Calendar";
+      server_url = "https://outlook.office365.com/owa/calendar/[EMAIL]/<hash>/calendar.ics";
+      type = "ics";
+    };
+    outlook_tw = {
+      color = "primary";
+      name = "Other Calendar";
+      server_url = "https://outlook.office365.com/owa/calendar/[EMAIL]/<hash>/calendar.ics";
+      type = "ics";
+    };
+  };
   # Env vars exported at the END of ~/.zshrc. Keep real values only in your
   # gitignored secrets.nix so they never get committed.
   zshEnv = {

@@ -264,6 +264,10 @@ in
       calendar = {
         enabled = true;
         refresh_minutes = 15;
+
+        # Account names and Outlook ICS URLs contain personal info — they live
+        # in secrets.nix (noctaliaCalendar), mirroring [calendar.account.*].
+        account = secrets.noctaliaCalendar or { };
       };
 
       weather = {
@@ -418,7 +422,7 @@ in
 
         calendar = {
           event_date_format = "%e %A %B";
-          show_events_card = false;
+          show_events_card = true;
           show_week_numbers = false;
         };
 
@@ -492,6 +496,12 @@ in
         "services" = {
           type = "gery/services:services";
         };
+        "seaweedfs" = {
+          enabled = false;
+        };
+        "sonarqube_2" = {
+          type = "gery/sonarqube:sonarqube";
+        };
         "todo" = {
           type = "nightwatch75/todo:todo";
         };
@@ -511,6 +521,16 @@ in
           "nightwatch75/todo"
           "tadomika_ari/w-engine"
           "gery/services"
+          "gery/redis"
+          "gery/mysql"
+          "gery/postgresql"
+          "gery/mailpit"
+          "gery/warp"
+          "gery/docker"
+          "gery/seanime"
+          "gery/seaweedfs"
+          "gery/stremio"
+          "gery/sonarqube"
           "felipeartur/ai-usagebar"
           "piero-93/battery-power-management"
           "jamesfeeder/special-workspaces"
