@@ -37,7 +37,7 @@ in
         corner_radius_scale = 1.0;
         settings_show_advanced = true;
         show_location = true;
-        polkit_agent = false;
+        polkit_agent = true;
         password_style = "default";
         screen_time_enabled = true;
 
