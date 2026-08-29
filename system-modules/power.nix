@@ -96,26 +96,52 @@
   };
 
   # Before suspend: block radios, disable ACPI/USB wake that blocks S0ix, enable PCI runtime PM
-  # After resume: restore ACPI wake + Bluetooth
+  # After resume: restore ACPI wake + Bluetooth, then run the re-suspend guard.
+  #
+  # unitConfig.StopWhenUnneeded is CRITICAL. Without it this RemainAfterExit
+  # oneshot (wanted by sleep.target) never stops after a resume: sleep.target
+  # deactivates post-resume but stopping a target only stops units it
+  # Requires, not ones it merely Wants. The postStop guard then never ran
+  # after a resume (only at shutdown), and the pre-suspend hooks ran once per
+  # boot — so later suspends kept LID0 ACPI wake enabled and a spurious EC
+  # lid event could pull the machine out of sleep with the lid shut.
+  # 2026-08-29 incidents (00:17 entry-hang rescued by RTC; 19:46 spurious
+  # lid-open wake) both left the machine awake with the lid closed until the
+  # battery died / the user noticed. This mirrors NixOS's own sleep-actions
+  # service, which demonstrably stops at every resume.
   systemd.services.suspend-power-save = {
     description = "Power saving hooks before suspend / restore after resume";
     before = [ "sleep.target" ];
     wantedBy = [ "sleep.target" ];
+    unitConfig.StopWhenUnneeded = true;
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
       Environment = "PATH=/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin:/bin";
     };
     script = ''
-      # RTC wake-alarm safety net: if s2idle entry hangs (observed on this
-      # laptop with its non-compliant lid switch), the RTC fires ~10 min later
-      # and pulls the machine out of the hang — no hard power-cycle needed.
-      # Cleared again on resume in postStop.
+      # RTC wake-alarm safety net for the known s2idle ENTRY hang. Armed only
+      # on the first suspend of the boot (every observed entry hang was a
+      # boot's first suspend): arming on every suspend would wake any healthy
+      # sleep longer than 10 min, so later suspends rely on the post-resume
+      # re-suspend guard instead. A stale alarm is always cleared first so it
+      # can never fire inside a later, longer sleep. Cleared on resume in
+      # postStop.
       WAKE_STATE="/var/run/suspend-power-save-wake-state"
+      SUSPEND_COUNT="/var/run/suspend-power-save-suspend-count"
+      count=$(cat "$SUSPEND_COUNT" 2>/dev/null || echo 0)
+      case "$count" in ""|*[!0-9]*) count=0 ;; esac
+      echo $((count + 1)) > "$SUSPEND_COUNT" 2>/dev/null || true
       if [ -w /sys/class/rtc/rtc0/wakealarm ]; then
         echo 0 > /sys/class/rtc/rtc0/wakealarm 2>/dev/null || true
-        echo $(( $(date +%s) + 600 )) > /sys/class/rtc/rtc0/wakealarm 2>/dev/null || true
+        if [ "$count" -lt 1 ]; then
+          echo $(( $(date +%s) + 600 )) > /sys/class/rtc/rtc0/wakealarm 2>/dev/null || true
+        fi
       fi
+
+      # Record when this suspend started so postStop can tell a real sleep
+      # (>= 5 min, resets the re-suspend cap) from a wake-bounce.
+      date +%s > /var/run/suspend-power-save-start 2>/dev/null || true
 
       # Record the ground-truth lid state at suspend time. This laptop's lid
       # switch is non-compliant and can misreport "open" right after an RTC
@@ -129,15 +155,18 @@
         echo open > "$LID_STATE_FILE"
       fi
 
-      # Disable ACPI wake for devices that block deep S0ix (s2idle)
-      # XHCI (USB controller at S0) is the most critical — keeps SoC out of C10/S0i3
-      # LID0 (lid switch) is non-compliant on this laptop and fires spurious
-      # open events that abort a stalled suspend and leave the machine awake
-      # with the lid closed. Disable its wake so a lid event can't pull us out.
+      # Disable ACPI wake for devices that block deep S0ix (s2idle).
+      # XHCI (USB controller at S0) is the most critical — keeps SoC out of C10/S0i3.
+      # /proc/acpi/wakeup is TAB-separated ("LID0\t  S3\t*enabled"); the old
+      # `grep "^$dev "` matched nothing and silently disabled nothing. Parse
+      # with awk and strip the state asterisk instead.
+      # LID0 is intentionally NOT disabled (user decision 2026-08-29): a real
+      # lid open must keep waking the machine, and spurious EC lid reports are
+      # handled by the postStop re-suspend guard.
       mkdir -p "$(dirname "$WAKE_STATE")"
       rm -f "$WAKE_STATE"
-      for dev in XHCI PEG0 PEG1 PEG2 RP04 TXHC TDM0 TRP0 TRP1 AWAC LID0; do
-        state=$(grep "^$dev " /proc/acpi/wakeup 2>/dev/null | tr -s ' ' | cut -d' ' -f3)
+      for dev in XHCI PEG0 PEG1 PEG2 RP04 TXHC TDM0 TRP0 TRP1 AWAC; do
+        state=$(awk -v d="$dev" '$1 == d { print $3; exit }' /proc/acpi/wakeup 2>/dev/null | tr -d '*')
         if [ "$state" = "enabled" ]; then
           echo "$dev" >> "$WAKE_STATE"
           echo "$dev" > /proc/acpi/wakeup
@@ -153,9 +182,14 @@
       done
     '';
     postStop = ''
-      # Restore ACPI wake devices that were disabled before sleep
+      # Restore ACPI wake devices that were disabled before sleep. The file's
+      # presence also tells us a suspend actually happened since the last
+      # activation: a plain service stop (shutdown, manual restart) must
+      # never run the re-suspend guard below.
       WAKE_STATE="/var/run/suspend-power-save-wake-state"
+      SLEPT=no
       if [ -f "$WAKE_STATE" ]; then
+        SLEPT=yes
         while IFS= read -r dev; do
           echo "$dev" > /proc/acpi/wakeup 2>/dev/null || true
         done < "$WAKE_STATE"
@@ -169,6 +203,35 @@
 
       # Restore Bluetooth after resume
       rfkill unblock bluetooth 2>/dev/null || true
+
+      if [ "$SLEPT" != "yes" ]; then
+        exit 0
+      fi
+
+      # A real sleep (>= 5 min) is not a wake-bounce: reset the shared
+      # re-suspend cap so long healthy cycles never exhaust it.
+      GUARD_COUNT="/var/run/lid-resuspend-count"
+      start=$(cat /var/run/suspend-power-save-start 2>/dev/null || echo 0)
+      rm -f /var/run/suspend-power-save-start
+      case "$start" in ""|*[!0-9]*) start=0 ;; esac
+      now=$(date +%s)
+      if [ "$start" -gt 0 ] && [ $((now - start)) -ge 300 ]; then
+        rm -f "$GUARD_COUNT"
+      fi
+
+      # External display attached? A closed lid is then legitimate clamshell
+      # mode (HandleLidSwitchDocked=ignore) — never force it back to sleep.
+      for st in /sys/class/drm/card*-*/status; do
+        [ -e "$st" ] || continue
+        case "$st" in
+          *eDP*|*LVDS*) continue ;;
+        esac
+        if [ "$(cat "$st" 2>/dev/null)" = "connected" ]; then
+          echo "external display attached; clamshell mode, guard skipped." | \
+            systemd-cat -t suspend-power-save
+          exit 0
+        fi
+      done
 
       # Re-suspend guard: a resume while the lid is still physically closed
       # means the wake was spurious (RTC safety-net rescue, lid-switch bounce,
@@ -184,7 +247,6 @@
       # Every decision is journal-logged for later debugging.
       LID_STATE="/proc/acpi/button/lid/LID0/state"
       LID_STATE_FILE="/var/run/suspend-power-save-lid-state"
-      GUARD_COUNT="/var/run/lid-resuspend-count"
       WAS_CLOSED=$(cat "$LID_STATE_FILE" 2>/dev/null || echo unknown)
       rm -f "$LID_STATE_FILE"
 
@@ -214,6 +276,8 @@
           || true
       else
         rm -f "$GUARD_COUNT"
+        echo "resumed with lid open; guard reset." | \
+          systemd-cat -t suspend-power-save
       fi
     '';
   };
@@ -243,6 +307,18 @@
         CLASS="none"
       fi
       [ "$CLASS" = "user" ] && exit 0
+
+      # External display attached? A closed lid is then legitimate clamshell
+      # mode (HandleLidSwitchDocked=ignore) — do not suspend it.
+      for st in /sys/class/drm/card*-*/status; do
+        [ -e "$st" ] || continue
+        case "$st" in
+          *eDP*|*LVDS*) continue ;;
+        esac
+        if [ "$(cat "$st" 2>/dev/null)" = "connected" ]; then
+          exit 0
+        fi
+      done
 
       # Do not stack suspend requests on top of an in-flight suspend.
       systemctl is-active systemd-suspend.service >/dev/null 2>&1 && exit 0
