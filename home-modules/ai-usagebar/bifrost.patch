@@ -7,12 +7,12 @@ index e8835f1..4336ee0 100644
  api_key_env = "OPENCODE_GO_API_KEY"
  # api_key = "[REDACTED]"  # optional inline fallback; prefer the environment
 +
-+# Bifrost — monthly usage from a Bifrost gateway's /usage endpoint.
++# Bifrost — rolling 30-day usage from a Bifrost gateway's /usage endpoint.
 +# Opt-in: set enabled = true, point base_url at your gateway, and supply the
 +# key via the BIFROST_VK environment variable (the x-bf-vk header).
 +[bifrost]
 +enabled = false
-+# base_url = "https://gateway.bifrost.example/v1"  # no trailing slash; usage endpoint is {base_url}/usage?period=1m
++# base_url = "https://gateway.bifrost.example/v1"  # no trailing slash; usage endpoint is {base_url}/usage?period=30d
 +api_key_env = "BIFROST_VK"
 +# api_key = "[REDACTED]"  # optional inline fallback; prefer the environment
 +# monthly_budget_usd = 25.0  # optional; drives the headline spend percentage
@@ -34,10 +34,10 @@ index 0000000..fc20b1d
 --- /dev/null
 +++ b/src/bifrost/fetch.rs
 @@ -0,0 +1,199 @@
-+//! Bifrost fetch — reads the monthly usage aggregate from
-+//! `{base_url}/usage?period=1m` under the shared cache + flock primitives.
++//! Bifrost fetch — reads the rolling 30-day usage aggregate from
++//! `{base_url}/usage?period=30d` under the shared cache + flock primitives.
 +//!
-+//! The period is fixed to `1m` (monthly); the endpoint accepts no other value.
++//! The period is fixed to `30d` (rolling 30-day window); the endpoint accepts no other value.
 +//! Any non-2xx response (or transport/schema failure) is surfaced as an error
 +//! rather than silently served from a stale cache, so the frontend always
 +//! shows a failed entry instead of plausible-but-stale numbers.
@@ -63,7 +63,7 @@ index 0000000..fc20b1d
 +    pub fn from_base(base: &str) -> Self {
 +        let base = base.trim_end_matches('/');
 +        Self {
-+            usage: format!("{base}/usage?period=1m"),
++            usage: format!("{base}/usage?period=30d"),
 +        }
 +    }
 +}
@@ -177,11 +177,11 @@ index 0000000..fc20b1d
 +    async fn live_fetch_parses_the_documented_sample() {
 +        let mut server = mockito::Server::new_async().await;
 +        server
-+            .mock("GET", "/usage?period=1m")
++            .mock("GET", "/usage?period=30d")
 +            .match_header("x-bf-vk", mockito::Matcher::Any)
 +            .with_status(200)
 +            .with_body(
-+                r#"{"key_name":"Gery","key_id":"someKeyHere","period":"1m",
++                r#"{"key_name":"Gery","key_id":"someKeyHere","period":"30d",
 +                    "data_since":"2026-08-17 03:16:31.604994215+00:00",
 +                    "requests":930,"tokens_in":89293283,"tokens_out":670148,
 +                    "cost_usd":4.0946,"models_used":3}"#,
@@ -212,7 +212,7 @@ index 0000000..fc20b1d
 +    async fn non_200_is_returned_as_an_error_not_stale_cache() {
 +        let mut server = mockito::Server::new_async().await;
 +        server
-+            .mock("GET", "/usage?period=1m")
++            .mock("GET", "/usage?period=30d")
 +            .with_status(401)
 +            .with_body(r#"{"error":"invalid key"}"#)
 +            .create_async()
@@ -239,8 +239,8 @@ index 0000000..06a56ae
 --- /dev/null
 +++ b/src/bifrost/mod.rs
 @@ -0,0 +1,9 @@
-+//! Bifrost vendor — monthly AI usage aggregate from a self-hosted Bifrost
-+//! gateway, fetched from `GET {base_url}/usage?period=1m` and authenticated
++//! Bifrost vendor — rolling 30-day AI usage aggregate from a self-hosted Bifrost
++//! gateway, fetched from `GET {base_url}/usage?period=30d` and authenticated
 +//! with the `x-bf-vk` request header.
 +
 +pub mod fetch;
@@ -253,16 +253,16 @@ new file mode 100644
 index 0000000..8160023
 --- /dev/null
 +++ b/src/bifrost/types.rs
-@@ -0,0 +1,127 @@
+@@ -0,0 +1,114 @@
 +//! Bifrost usage response types and snapshot conversion.
 +
-+use chrono::{DateTime, Datelike, Utc};
++use chrono::{DateTime, Utc};
 +use serde::{Deserialize, Serialize};
 +
 +use crate::error::{AppError, Result};
 +use crate::usage::finite_amount;
 +
-+/// Raw body returned by `{base_url}/usage?period=1m`.
++/// Raw body returned by `{base_url}/usage?period=30d`.
 +#[derive(Debug, Clone, Deserialize)]
 +pub struct UsageData {
 +    pub key_name: String,
@@ -289,7 +289,7 @@ index 0000000..8160023
 +    pub tokens_out: u64,
 +    pub cost_usd: f64,
 +    pub models_used: u64,
-+    /// First instant of the next calendar month — the monthly window reset.
++    /// `data_since` + 30 days — the rolling 30-day window reset.
 +    pub reset_at: DateTime<Utc>,
 +    /// Optional monthly spend budget; drives the headline percentage. Sourced
 +    /// from config, not the API, so it is applied after parsing.
@@ -306,7 +306,7 @@ index 0000000..8160023
 +        )
 +        .map_err(|e| AppError::Schema(format!("bifrost data_since: {e}")))?
 +        .with_timezone(&Utc);
-+        let reset_at = next_month_start(data_since);
++        let reset_at = data_since + chrono::Duration::days(30);
 +        Ok(Self {
 +            key_name: data.key_name,
 +            key_id: data.key_id,
@@ -323,30 +323,16 @@ index 0000000..8160023
 +    }
 +}
 +
-+/// First instant of the month strictly after `now` (the monthly window reset).
-+fn next_month_start(now: DateTime<Utc>) -> DateTime<Utc> {
-+    let (y, m) = (now.year(), now.month());
-+    let (ny, nm) = if m == 12 { (y + 1, 1) } else { (y, m + 1) };
-+    let naive = chrono::NaiveDate::from_ymd_opt(ny, nm, 1)
-+        .and_then(|d| d.and_hms_opt(0, 0, 0))
-+        .unwrap_or_else(|| {
-+            chrono::NaiveDate::from_ymd_opt(1970, 1, 1)
-+                .unwrap()
-+                .and_hms_opt(0, 0, 0)
-+                .unwrap()
-+        });
-+    DateTime::<Utc>::from_naive_utc_and_offset(naive, Utc)
-+}
-+
 +#[cfg(test)]
 +mod tests {
 +    use super::*;
++    use chrono::Datelike;
 +
 +    fn sample() -> UsageData {
 +        UsageData {
 +            key_name: "Gery".into(),
 +            key_id: "someKeyHere".into(),
-+            period: "1m".into(),
++            period: "30d".into(),
 +            data_since: "2026-08-17 03:16:31.604994215+00:00".into(),
 +            requests: 930,
 +            tokens_in: 89293283,
@@ -357,17 +343,17 @@ index 0000000..8160023
 +    }
 +
 +    #[test]
-+    fn parses_the_documented_sample_and_resets_at_next_month() {
++    fn parses_the_documented_sample_and_resets_30d_later() {
 +        let snap = BifrostSnapshot::parse(sample()).unwrap();
 +        assert_eq!(snap.key_name, "Gery");
 +        assert_eq!(snap.requests, 930);
 +        assert_eq!(snap.tokens_in, 89293283);
 +        assert_eq!(snap.cost_usd, 4.0946);
 +        assert_eq!(snap.models_used, 3);
-+        // 2026-08-17 → reset at 2026-09-01T00:00:00Z.
++        // 2026-08-17 → reset at 2026-09-16 (data_since + 30 days).
 +        assert_eq!(snap.reset_at.year(), 2026);
 +        assert_eq!(snap.reset_at.month(), 9);
-+        assert_eq!(snap.reset_at.day(), 1);
++        assert_eq!(snap.reset_at.day(), 16);
 +    }
 +
 +    #[test]
@@ -379,6 +365,7 @@ index 0000000..8160023
 +        let snap = BifrostSnapshot::parse(data).unwrap();
 +        assert_eq!(snap.reset_at.year(), 2027);
 +        assert_eq!(snap.reset_at.month(), 1);
++        assert_eq!(snap.reset_at.day(), 30);
 +    }
 +}
 diff --git a/src/bifrost/vendor.rs b/src/bifrost/vendor.rs
@@ -495,7 +482,7 @@ index 3f37b9f..bfc84a3 100644
 +pub struct BifrostConfig {
 +    pub enabled: bool,
 +    /// Base URL of the Bifrost gateway (no trailing slash). Required; the usage
-+    /// endpoint is `{base_url}/usage?period=1m`.
++    /// endpoint is `{base_url}/usage?period=30d`.
 +    pub base_url: Option<String>,
 +    /// Env var that holds the Bifrost API key (`x-bf-vk` header). Env wins over
 +    /// `api_key`.
