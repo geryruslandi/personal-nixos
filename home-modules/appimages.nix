@@ -5,198 +5,172 @@
   ...
 }:
 let
-  appimageDir = "${config.home.homeDirectory}/Applications";
+  # Where raw .AppImage files are kept.
+  appimageDirPath = "${config.home.homeDirectory}/Applications";
+  appimageDir = /. + appimageDirPath;
 
-  # Script that scans ~/AppImages and creates .desktop entries + wrapper scripts.
-  # Run this manually after adding/removing AppImages, or it runs automatically on rebuild.
-  registerScript = pkgs.writeShellScriptBin "register-appimages" ''
-    set -euo pipefail
-
-    APPS_DIR="${appimageDir}"
-    DESKTOP_DIR="${config.xdg.dataHome}/applications"
-    BIN_DIR="${config.home.homeDirectory}/.local/bin"
-
-    mkdir -p "$DESKTOP_DIR" "$BIN_DIR"
-
-    # Clean up old entries from previous runs
-    rm -f "$DESKTOP_DIR"/appimage-*.desktop "$BIN_DIR"/appimage-*
-
-    echo "Scanning $APPS_DIR for AppImages..."
-
-    for appimage in "$APPS_DIR"/*.AppImage "$APPS_DIR"/*.appimage; do
-      [ -f "$appimage" ] || continue
-
-      chmod +x "$appimage"
-
-      # Derive a clean name and slug from the filename
-      filename=$(basename "$appimage")
-      name="''${filename%.AppImage}"
-      name="''${name%.appimage}"
-      slug=$(echo "$name" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-//;s/-$//')
-
-      # Create wrapper script — extracts once with the AppImage's own extractor,
-      # caches the result, and runs the extracted AppRun directly.
-      # Also sources an optional .env file alongside the AppImage for per-app variables.
-      wrapper="$BIN_DIR/appimage-$slug"
-      cat > "$wrapper" << WRAPPER
-#!/bin/sh
-set -e
-
-# Source per-AppImage env file if it exists (e.g. EdenEmulator.AppImage.env)
-env_file="$appimage.env"
-if [ -f "\$env_file" ]; then
-  set -a
-  . "\$env_file"
-  set +a
-fi
-
-cache_dir="\$HOME/.cache/appimages/$slug"
-
-# Extract if not cached or if AppImage has been modified
-if [ ! -d "\$cache_dir" ] || [ "\$cache_dir/.extracted" -ot "$appimage" ]; then
-  echo "Extracting $name (cached in \$cache_dir)..."
-  rm -rf "\$cache_dir"
-  tmpdir=\$(mktemp -d)
-  cd "\$tmpdir"
-  "$appimage" --appimage-extract >/dev/null 2>&1
-  if [ -d squashfs-root ]; then
-    mv squashfs-root/* "\$tmpdir/" 2>/dev/null || true
-    rmdir squashfs-root 2>/dev/null || true
-  fi
-  mkdir -p "\$(dirname "\$cache_dir")"
-  mv "\$tmpdir" "\$cache_dir"
-  touch "\$cache_dir/.extracted"
-fi
-
-# Find and run AppRun (might be in root or usr/bin or similar)
-if [ -x "\$cache_dir/AppRun" ]; then
-  exec "\$cache_dir/AppRun" "\$@"
-elif [ -x "\$cache_dir/usr/bin/AppRun" ]; then
-  exec "\$cache_dir/usr/bin/AppRun" "\$@"
-else
-  echo "Error: Could not find AppRun in extracted AppImage" >&2
-  exit 1
-fi
-WRAPPER
-      chmod +x "$wrapper"
-
-      # Extract icon from the cached extraction or by mounting the AppImage
-      icon_cache="$DESKTOP_DIR/appimage-$slug.png"
-      if [ ! -f "$icon_cache" ]; then
-        cached="\$HOME/.cache/appimages/$slug"
-        if [ -d "\$cached" ]; then
-          # Try the cache first (fast, already extracted)
-          for candidate in \
-            "\$cached/.DirIcon" \
-            "\$cached/"*.png \
-            "\$cached/usr/share/icons/hicolor/"*/*/*.png \
-            "\$cached/usr/share/pixmaps/"*.png \
-            "\$cached/share/icons/hicolor/"*/*/*.png \
-            "\$cached/share/pixmaps/"*.png; do
-            if [ -f "\$candidate" ]; then
-              cp "\$candidate" "$icon_cache" 2>/dev/null && break
-            fi
-          done
-        fi
-
-        # Fall back to mounting if not found in cache
-        if [ ! -f "$icon_cache" ]; then
-          mnt=$(mktemp -d)
-          if "$appimage" --appimage-mount "$mnt" &>/dev/null & then
-            mount_pid=$!
-            for i in $(seq 1 30); do
-              if mountpoint -q "$mnt" 2>/dev/null; then break; fi
-              sleep 0.1
-            done
-
-            for candidate in \
-              "$mnt/.DirIcon" \
-              "$mnt/"*.png \
-              "$mnt/usr/share/icons/hicolor/256x256/apps/"*.png \
-              "$mnt/usr/share/icons/hicolor/128x128/apps/"*.png \
-              "$mnt/usr/share/icons/hicolor/64x64/apps/"*.png \
-              "$mnt/usr/share/icons/hicolor/48x48/apps/"*.png \
-              "$mnt/usr/share/pixmaps/"*.png \
-              "$mnt/usr/share/icons/"*/*/*.png; do
-              if [ -f "$candidate" ]; then
-                cp "$candidate" "$icon_cache" 2>/dev/null && break
-              fi
-            done
-
-            fusermount -u "$mnt" 2>/dev/null || true
-            kill "$mount_pid" 2>/dev/null || true
+  # Install an AppImage as a proper launcher-visible package: Name, Categories
+  # and icon come from the AppImage's own desktop entry (falling back to
+  # .DirIcon), and Exec points at an FHS-wrapped binary that runs the
+  # extracted AppRun.
+  #
+  # Notes:
+  # - `src` must be a Nix *path* (not a plain string) so the evaluator copies
+  #   it into the store. Replacing a file with a new version requires a
+  #   rebuild for the launcher entry to change (the store copy is
+  #   content-hashed).
+  # - nixpkgs' appimageTools.extract only understands squashfs payloads, so
+  #   extraction is done with the AppImage's own runtime extractor, which
+  #   also handles dwarfs/sharun AppImages. appimage-run (ad-hoc CLI runner)
+  #   has the same squashfs-only limitation.
+  # - An optional "<name>.AppImage.env" file next to the AppImage is sourced
+  #   (set -a) before launch.
+  mkAppImage =
+    {
+      pname,
+      version ? "unstable",
+      src,
+      envFile ? null,
+      extraPkgs ? _: [ ],
+    }:
+    let
+      contents = pkgs.runCommand "${pname}-${version}-extracted" { } ''
+        tmp=$(mktemp -d)
+        cd "$tmp"
+        ${src} --appimage-extract >/dev/null
+        # squashfs runtimes extract to squashfs-root; dwarfs runtimes to AppDir
+        # (and leave squashfs-root as a symlink to it)
+        srcdir=""
+        for d in AppDir squashfs-root; do
+          if [ -d "$d" ] && [ ! -L "$d" ]; then
+            srcdir="$d"
+            break
           fi
-          rmdir "$mnt" 2>/dev/null || true
+        done
+        if [ -z "$srcdir" ]; then
+          echo "AppImage extraction produced no root directory" >&2
+          exit 1
         fi
-      fi
+        mv "$srcdir" "$out"
+      '';
+      envLoader = pkgs.writeShellScript "${pname}-env-loader" ''
+        if [ -f ${lib.escapeShellArg (toString envFile)} ]; then
+          set -a
+          . ${lib.escapeShellArg (toString envFile)}
+          set +a
+        fi
+      '';
+    in
+    pkgs.appimageTools.wrapAppImage {
+      inherit pname version;
+      inherit extraPkgs;
+      src = contents;
+      nativeBuildInputs = lib.optionals (envFile != null) [ pkgs.makeWrapper ];
+      extraInstallCommands = ''
+        mkdir -p "$out/share/applications"
 
-      # Build the .desktop entry
-      icon_line=""
-      if [ -f "$icon_cache" ]; then
-        icon_line="Icon=$icon_cache"
-      fi
+        # Desktop entry: prefer one shipped inside the AppImage
+        desktop_src=""
+        for candidate in \
+          ${contents}/usr/share/applications/*.desktop \
+          ${contents}/share/applications/*.desktop \
+          ${contents}/*.desktop; do
+          if [ -f "$candidate" ]; then
+            desktop_src="$candidate"
+            break
+          fi
+        done
 
-      cat > "$DESKTOP_DIR/appimage-$slug.desktop" << DESKTOP
+        if [ -n "$desktop_src" ]; then
+          cp "$desktop_src" "$out/share/applications/${pname}.desktop"
+        else
+          cat > "$out/share/applications/${pname}.desktop" <<EOF
 [Desktop Entry]
 Type=Application
-Name=$name
-Comment=AppImage: $filename
-Exec=$wrapper
-TryExec=$wrapper
+Name=${pname}
+Exec=${pname} %U
 Terminal=false
-Categories=Utility;
-''${icon_line}
-DESKTOP
+EOF
+        fi
 
-      echo "  Registered: $name ($slug)"
-    done
+        # Point Exec/TryExec at the wrapper (keep field codes like %f/%U)
+        sed -i "s|^Exec=[^ %]*|Exec=${pname}|" "$out/share/applications/${pname}.desktop"
+        sed -i "s|^TryExec=[^ %]*|TryExec=${pname}|" "$out/share/applications/${pname}.desktop"
 
-    # Refresh desktop database so launchers (wofi) pick up new entries
-    if command -v update-desktop-database &>/dev/null; then
-      update-desktop-database "$DESKTOP_DIR" 2>/dev/null || true
-    fi
+        # Icons: install only the icon(s) named by the entry's Icon= key,
+        # preserving relative hicolor paths; fall back to .DirIcon.
+        icon_name="$(sed -n 's|^Icon=||p' "$out/share/applications/${pname}.desktop")"
+        if [ -z "$icon_name" ]; then
+          icon_name="${pname}"
+          sed -i "s|^Icon=.*|Icon=${pname}|" "$out/share/applications/${pname}.desktop"
+        fi
+        found_icon=0
+        while IFS= read -r f; do
+          rel="''${f#"${contents}/"}"
+          ext="''${rel##*.}"
+          case "$ext" in
+            svg|svgz|png|xpm|ico) ;;
+            *) continue ;;
+          esac
+          found_icon=1
+          case "$rel" in
+            usr/share/icons/*)
+              install -Dm644 "$f" "$out/share/''${rel#usr/}"
+              ;;
+            share/icons/*)
+              install -Dm644 "$f" "$out/$rel"
+              ;;
+            *)
+              case "$ext" in
+                svg|svgz) dest="$out/share/icons/hicolor/scalable/apps/$icon_name.$ext" ;;
+                *) dest="$out/share/icons/hicolor/256x256/apps/$icon_name.$ext" ;;
+              esac
+              install -Dm644 "$f" "$dest"
+              ;;
+          esac
+        done < <(find ${contents} -maxdepth 8 -not -type d -name "$icon_name.*")
 
-    echo "Done! AppImages registered in $DESKTOP_DIR"
-  '';
+        if [ "$found_icon" -eq 0 ] && [ -e "${contents}/.DirIcon" ]; then
+          ext="$(readlink -f "${contents}/.DirIcon")"
+          ext="''${ext##*.}"
+          case "$ext" in
+            svg) dest="$out/share/icons/hicolor/scalable/apps/$icon_name.$ext" ;;
+            *) dest="$out/share/icons/hicolor/256x256/apps/$icon_name.png" ;;
+          esac
+          install -Dm644 "${contents}/.DirIcon" "$dest"
+        fi
+      '' + lib.optionalString (envFile != null) ''
+        mv "$out/bin/${pname}" "$out/bin/.${pname}-unwrapped"
+        makeWrapper "$out/bin/.${pname}-unwrapped" "$out/bin/${pname}" \
+          --run "${envLoader}"
+      '';
+    };
+
+  # Discover *.AppImage files at eval time — drop a file in ~/Applications,
+  # rebuild, and it shows up in the launcher. No per-app code needed.
+  appimageFiles = lib.filterAttrs (
+    name: type:
+    type == "regular"
+    && (lib.hasSuffix ".AppImage" name || lib.hasSuffix ".appimage" name)
+  ) (if builtins.pathExists appimageDir then builtins.readDir appimageDir else { });
+
+  discoveredApps = lib.mapAttrsToList (
+    name: _:
+    mkAppImage {
+      pname = lib.removeSuffix ".appimage" (lib.removeSuffix ".AppImage" name);
+      src = appimageDir + "/${name}";
+      envFile =
+        let
+          env = appimageDir + "/${name}.env";
+        in
+        if builtins.pathExists env then env else null;
+    }
+  ) appimageFiles;
 in
 {
-  # Ensure the AppImages directory exists
+  # Keep the directory present on fresh machines so there's somewhere to drop
+  # AppImages.
   home.file."Applications/.keep".text = "";
 
-  # Provide both appimage-run and the registration script
-  home.packages = [
-    pkgs.appimage-run
-    registerScript
-  ];
-
-  # Register AppImages automatically on each rebuild
-  home.activation.registerAppImages = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    if [ -d "${appimageDir}" ] && ls "${appimageDir}"/*.AppImage "${appimageDir}"/*.appimage >/dev/null 2>&1; then
-      echo "Registering AppImages..."
-      ${registerScript}/bin/register-appimages
-    fi
-  '';
-
-  # systemd path watcher — auto-registers AppImages instantly when files change in ~/Applications
-  systemd.user.services.register-appimages = {
-    Unit = {
-      Description = "Register AppImages in ~/Applications as desktop entries";
-    };
-    Service = {
-      Type = "oneshot";
-      ExecStart = "${registerScript}/bin/register-appimages";
-    };
-  };
-
-  systemd.user.paths.register-appimages = {
-    Unit = {
-      Description = "Watch ~/Applications for AppImage changes";
-    };
-    Path = {
-      PathModified = appimageDir;
-    };
-    Install = {
-      WantedBy = [ "default.target" ];
-    };
-  };
+  home.packages = discoveredApps;
 }
