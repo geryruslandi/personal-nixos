@@ -68,6 +68,7 @@ in
     ./home-modules/ai-usagebar
     ./home-modules/seanime.nix
     ./home-modules/stremio.nix
+    ./home-modules/steam-games-launcher.nix
     ./home-modules/mailpit.nix
     ./home-modules/sonar.nix
     ./home-modules/k9s.nix
