@@ -18,7 +18,7 @@ in
   # Services Hub (passwordless, see polkit.nix) or `systemctl start
   # docker-sonarqube`.
   #
-  # Auth reality-check (SonarQube 9.9 LTS):
+  # Auth reality-check (SonarQube Community Build 25.x):
   #   * api/plugins/installed has required authentication since 9.7, so a
   #     truly anonymous *analysis* is impossible on this server - the scanner
   #     always needs a login/token.
@@ -49,7 +49,11 @@ in
       };
 
       sonarqube = {
-        image = "sonarqube:lts-community";
+        # 25.x = SonarQube Community Build (calendar versioning; the 10.x line
+        # ended at 10.7). Pinned exact tag for reproducible rebuilds. 25.x
+        # bundles eslint-bridge with TS 5.x - required for modern tsconfig
+        # options (moduleResolution: "bundler", allowImportingTsExtensions).
+        image = "sonarqube:25.10.0.114319-community";
         autoStart = false;
         dependsOn = [ "sonar-postgres" ];
         networks = [ "sonar-net" ];

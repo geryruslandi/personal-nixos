@@ -64,6 +64,7 @@ in
     ./home-modules/azure.nix
     ./home-modules/oci.nix
     ./home-modules/home-sync.nix
+    ./home-modules/lsfg-vk.nix
     ./home-modules/media-idle-inhibit.nix
     ./home-modules/ai-usagebar
     ./home-modules/seanime.nix
