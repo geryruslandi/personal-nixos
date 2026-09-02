@@ -1,13 +1,15 @@
 # Vendored fork of the community plugin "felipeartur/ai-usagebar" (v2.1.0, MIT),
 # copied from ~/.local/state/noctalia/plugins/materialized/community/ai-usagebar.
 # This data-dir copy outranks the auto-updated community source; local deltas:
-#   - [[panel]] height 400 -> 600.
+#   - [[panel]] height 400 -> 550.
 #   - blockCard() tints the card fill/border/label toward the theme role of a
 #     section's `severity` (the DeepSeek peak-hours card reports "critical"
 #     during peak; pairs with deepseek-peak-hours.patch in home-modules/
 #     ai-usagebar/).
+#   - OpenCode Go drops the CLI's "Resets" lines; its metric cards already
+#     carry reset clocks.
 # Upstream fixes do NOT reach this copy — re-sync manually from the materialized
-# plugin after bumping the community version, and re-apply the height change.
+# plugin after bumping the community version, and re-apply these deltas.
 id = "felipeartur/ai-usagebar"
 name = "AI Usage"
 version = "2.1.1"
@@ -176,9 +178,9 @@ id = "panel"
 entry = "panel.luau"
 # Master/detail: the provider list on the left, its cards on the right.
 width = 720
-# Local fork: upstream ships 400; 600 gives the cards and the DeepSeek
-# peak-hours block (see home-modules/ai-usagebar/*.patch) room to breathe.
-height = 600
+# Local fork: upstream ships 400; 550 gives the DeepSeek peak-hours card and
+# the three budget cards room to breathe.
+height = 550
 # The shell draws the Placement and Position rows for every plugin panel whether
 # or not they are declared; declaring them only picks the default the user gets.
 placement = "attached"

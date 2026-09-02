@@ -36,7 +36,7 @@ git add --intent-to-add secrets.nix -f   # rebuild.sh also does this automatical
 | `tmux-start.sh` | Attaches to (or creates) the `nixos` tmux session with `ide` (nvim) + `opencode` windows |
 | `home-sync/` | Files linked into `$HOME` as **editable out-of-store symlinks** — edits write back to the repo and show up in `git status` (see `home-modules/home-sync.nix`). `.config` and `.local/share/noctalia/plugins` are **merged** (children linked individually) into their real `$HOME` dirs |
 | `home-sync/.local/share/noctalia/plugins/services/` | The local `gery/services` Noctalia plugin (consolidated services hub: service+widget+panel+shared lib) — linked into `~/.local/share/noctalia/plugins/services/` where Noctalia loads it from; drop a new plugin folder here to sync it |
-| `home-sync/.local/share/noctalia/plugins/ai-usagebar/` | Vendored fork of the community `felipeartur/ai-usagebar` plugin (v2.1.1, local deltas: panel height 400→600; severity-tinted block cards) — the data-dir copy outranks the auto-updated community source, so upstream fixes need a manual re-sync |
+| `home-sync/.local/share/noctalia/plugins/ai-usagebar/` | Vendored fork of the community `felipeartur/ai-usagebar` plugin (v2.1.1, local deltas: panel height 400→550; severity-tinted block cards; hides OpenCode Go's redundant "Resets" lines) — the data-dir copy outranks the auto-updated community source, so upstream fixes need a manual re-sync |
 | `system-modules/` | System-level NixOS modules (audio, hyprland, nvidia, etc.) |
 | `home-modules/` | User-level Home Manager modules (git, zsh, hyprland, noctalia, vicinae, ...); mostly flat, one nested dir module (`ai-usagebar/`) |
 

@@ -590,12 +590,17 @@ local function detailPane(entry)
     local windowed = false
     local heading = ""
     local items = {}
+    -- OpenCode Go's metric cards already carry their own reset clocks, so the
+    -- CLI's separate "Resets" lines only repeat what the gauges say.
+    local hideResets = entry ~= nil and tostring(entry.id or "") == "opencode-go"
     for _, section in ipairs(sections) do
         if type(section) == "table" then
             local text = section.type == "text"
             if text and noctalia.string.trim(tostring(section.value or "")) == "" then
                 heading = tostring(section.label or "")
                 windowed = windowed or heading ~= ""
+            elseif text and hideResets and noctalia.string.trim(tostring(section.label or "")) == "Resets" then
+                -- dropped above: the countdown lives on the card it resets.
             elseif section.type ~= "spacer" then
                 items[#items + 1] = { section = section, window = heading }
             end
