@@ -1,0 +1,92 @@
+diff --git a/src/tui/panels.rs b/src/tui/panels.rs
+index 53c8e0d..265f763 100644
+--- a/src/tui/panels.rs
++++ b/src/tui/panels.rs
+@@ -795,13 +795,24 @@ fn opencode_go_sections(
+     ] {
+         if let Some(window) = window {
+             let pct = window.percent.round().clamp(0.0, 100.0) as i32;
++            let limit = opencode_go_window_limit(label);
++            let (value_label, footnote) = match limit {
++                Some(limit) => {
++                    let used = (limit * f64::from(pct) / 100.0).min(limit);
++                    (
++                        format!("${:.2}", limit - used),
++                        format!("${used:.2} of ${limit:.2} used ({pct}%)"),
++                    )
++                }
++                None => (format!("{pct}%"), String::new()),
++            };
+             sections.push_metric(
+                 Section::Metric {
+                     label: label.into(),
+                     pct: pct as u16,
+                     severity: severity_for(pct),
+-                    value_label: format!("{pct}%"),
+-                    footnote: String::new(),
++                    value_label,
++                    footnote,
+                 },
+                 Some(window.resets_at),
+             );
+@@ -856,6 +867,19 @@ fn deepseek_v4_peak_sections(now: DateTime<Utc>) -> Vec<SectionProjection> {
+     ]
+ }
+ 
++/// Dollar budget behind each OpenCode Go usage window. The `/usage` endpoint
++/// only reports a percentage, so the USD figures are derived from the plan
++/// limits published at <https://opencode.ai/docs/go/>: $12 per 5-hour rolling
++/// window, $30 weekly, $60 monthly. Unknown plans fall back to percent-only.
++fn opencode_go_window_limit(label: &str) -> Option<f64> {
++    match label {
++        "Rolling" => Some(12.0),
++        "Weekly" => Some(30.0),
++        "Monthly" => Some(60.0),
++        _ => None,
++    }
++}
++
+ /// OpenCode Go charges DeepSeek V4 models at 2× rates during peak hours:
+ /// Monday–Friday 01:00–04:00 and 06:00–10:00 UTC. Every other hour, weekends
+ /// included, is off-peak. See <https://opencode.ai/docs/go/>.
+@@ -1508,6 +1532,40 @@ mod tests {
+         assert!(body.iter().any(|l| l.contains("Now: Off-Peak")));
+     }
+ 
++    #[test]
++    fn opencode_go_sections_show_usd_usage_against_plan_limits() {
++        let window = |percent: f64| crate::opencode_go::types::Window {
++            status: "ok".into(),
++            percent,
++            resets_at: utc(2026, 5, 23, 20),
++        };
++        let usage = crate::opencode_go::types::Usage {
++            rolling: Some(window(5.0)),
++            weekly: Some(window(50.0)),
++            monthly: Some(window(100.0)),
++        };
++        let sections = sections_for(&ready(VendorSnapshot::OpenCodeGo(usage)), now(), 5);
++        let find = |label: &str| -> (String, String) {
++            sections
++                .iter()
++                .find_map(|s| match s {
++                    Section::Metric {
++                        label: l,
++                        value_label,
++                        footnote,
++                        ..
++                    } if l == label => Some((value_label.clone(), footnote.clone())),
++                    _ => None,
++                })
++                .unwrap_or_else(|| panic!("missing metric {label}"))
++        };
++        // Plan limits per https://opencode.ai/docs/go/: $12 rolling, $30
++        // weekly, $60 monthly; value shows what is left of the budget.
++        assert_eq!(find("Rolling"), ("$11.40".into(), "$0.60 of $12.00 used (5%)".into()));
++        assert_eq!(find("Weekly"), ("$15.00".into(), "$15.00 of $30.00 used (50%)".into()));
++        assert_eq!(find("Monthly"), ("$0.00".into(), "$60.00 of $60.00 used (100%)".into()));
++    }
++
+     #[test]
+     fn anthropic_sections_include_all_three_windows_when_present() {
+         let snap = AnthropicSnapshot {

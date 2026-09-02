@@ -48,6 +48,7 @@
     "io.podman_desktop.PodmanDesktop"
     "com.github.Murmele.Gittyup"
     "org.gnome.seahorse.Application"
+    "com.github.mtkennerly.ludusavi"
   ];
 
   services.flatpak.overrides = {
@@ -103,6 +104,14 @@
     };
 
     "app.zen_browser.zen" = {
+      Context = {
+        filesystems = [
+          "home"
+        ];
+      };
+    };
+
+    "com.github.mtkennerly.ludusavi" = {
       Context = {
         filesystems = [
           "home"

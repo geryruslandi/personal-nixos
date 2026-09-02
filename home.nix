@@ -99,6 +99,12 @@ in
 
   fonts.fontconfig.enable = true;
 
+  # Stable symlink to the system rclone binary that flatpak apps (Ludusavi)
+  # can see. /etc/profiles/... is reserved by flatpak, so a home-managed
+  # symlink directly into /nix/store (ro-mounted in every flatpak) is the
+  # flatpak-reachable path. Auto-updates on rclone upgrades via home-manager.
+  home.file.".local/bin/rclone".source = "${pkgs.rclone}/bin/rclone";
+
   xdg.userDirs = {
     enable = true;
     createDirectories = true;
@@ -130,6 +136,7 @@ in
       posting
       qbittorrent
       glab
+      rclone
 
       inputs.aethertune.packages.${pkgs.stdenv.hostPlatform.system}.aethertune
     ];

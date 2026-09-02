@@ -485,7 +485,7 @@ in
         "bar" = {
           style = "label";
           type = "felipeartur/ai-usagebar:bar";
-          vendor = "openrouter";
+          vendor = "opencode-go";
         };
         "rec" = {
           type = "noctalia/screen_recorder:recorder";

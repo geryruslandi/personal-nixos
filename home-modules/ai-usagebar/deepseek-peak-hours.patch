@@ -1,0 +1,334 @@
+diff --git a/src/report.rs b/src/report.rs
+index cb04e0c..00c11bc 100644
+--- a/src/report.rs
++++ b/src/report.rs
+@@ -59,6 +59,8 @@ enum ReportSection {
+     Block {
+         label: String,
+         body: Vec<String>,
++        #[serde(skip_serializing_if = "Option::is_none")]
++        severity: Option<&'static str>,
+     },
+     Spacer,
+ }
+@@ -169,7 +171,11 @@ fn entry_from_state(tab: &TabId, state: &TabState, now: chrono::DateTime<Utc>) -
+                 entry.sections.push(ReportSection::Text { label, value });
+             }
+             Section::Block { label, body } => {
+-                entry.sections.push(ReportSection::Block { label, body });
++                entry.sections.push(ReportSection::Block {
++                    label,
++                    body,
++                    severity: projected.block_severity,
++                });
+             }
+             Section::Spacer => entry.sections.push(ReportSection::Spacer),
+         }
+@@ -317,7 +323,7 @@ fn render_text(entries: &[Entry]) -> String {
+                         body.push_str(&format!("  {label:width$}  {value}\n"));
+                     }
+                 }
+-                ReportSection::Block { label, body: lines } => {
++                ReportSection::Block { label, body: lines, .. } => {
+                     body.push_str(&format!("  {label}\n"));
+                     for line in lines {
+                         body.push_str(&format!("    {line}\n"));
+@@ -547,6 +553,7 @@ mod tests {
+                     ReportSection::Block {
+                         label: "Usage by period".into(),
+                         body: vec!["today $1.00 · week $5.00".into()],
++                        severity: None,
+                     },
+                 ],
+             )],
+@@ -562,6 +569,57 @@ mod tests {
+         assert_eq!(first["sections"][3]["body"][0], "today $1.00 · week $5.00");
+     }
+ 
++    #[test]
++    fn opencode_go_peak_block_reports_severity() {
++        use chrono::TimeZone;
++        let state = TabState::Ready(Box::new(ReadyTab {
++            snapshot: VendorSnapshot::OpenCodeGo(crate::opencode_go::types::Usage {
++                rolling: None,
++                weekly: None,
++                monthly: Some(crate::opencode_go::types::Window {
++                    status: "ok".into(),
++                    percent: 1.0,
++                    resets_at: Utc.with_ymd_and_hms(2026, 6, 23, 0, 0, 0).unwrap(),
++                }),
++            }),
++            stale: false,
++            last_error: None,
++            fetched_at: None,
++        }));
++        let tab = TabId::vendor(VendorId::OpenCodeGo);
++        let peak = entry_from_state(&tab, &state, Utc.with_ymd_and_hms(2026, 5, 20, 2, 0, 0).unwrap());
++        assert!(peak.sections.iter().any(|section| matches!(
++            section,
++            ReportSection::Block {
++                label,
++                severity: Some("critical"),
++                ..
++            } if label == "DeepSeek V4 Peak Hours"
++        )));
++        let off_peak =
++            entry_from_state(&tab, &state, Utc.with_ymd_and_hms(2026, 5, 23, 12, 0, 0).unwrap());
++        assert!(off_peak.sections.iter().any(|section| matches!(
++            section,
++            ReportSection::Block {
++                label,
++                severity: Some("low"),
++                ..
++            } if label == "DeepSeek V4 Peak Hours"
++        )));
++        let json = serde_json::to_value(&peak.sections).expect("sections serialize");
++        assert!(json.as_array().expect("array").iter().any(|section| {
++            section["type"] == "block"
++                && section["label"] == "DeepSeek V4 Peak Hours"
++                && section["severity"] == "critical"
++        }));
++        let json = serde_json::to_value(&off_peak.sections).expect("sections serialize");
++        assert!(json.as_array().expect("array").iter().any(|section| {
++            section["type"] == "block"
++                && section["label"] == "DeepSeek V4 Peak Hours"
++                && section["severity"] == "low"
++        }));
++    }
++
+     #[test]
+     fn real_panel_projection_keeps_openrouter_blocks() {
+         let state = TabState::Ready(Box::new(ReadyTab {
+diff --git a/src/tui/panels.rs b/src/tui/panels.rs
+index 39c005c..53c8e0d 100644
+--- a/src/tui/panels.rs
++++ b/src/tui/panels.rs
+@@ -58,6 +58,9 @@ pub enum Section {
+ pub(crate) struct SectionProjection {
+     pub section: Section,
+     pub reset_at: Option<DateTime<Utc>>,
++    /// Machine-readable concern level for non-metric rows (panels color
++    /// their card by it). `"high"` or `"critical"`; `None` reads as calm.
++    pub block_severity: Option<&'static str>,
+ }
+ 
+ struct SectionBuilder(Vec<SectionProjection>);
+@@ -75,6 +78,7 @@ impl SectionBuilder {
+                     SectionProjection {
+                         section,
+                         reset_at: None,
++                        block_severity: None,
+                     }
+                 })
+                 .collect(),
+@@ -89,12 +93,17 @@ impl SectionBuilder {
+         self.0.push(SectionProjection {
+             section,
+             reset_at: None,
++            block_severity: None,
+         });
+     }
+ 
+     fn push_metric(&mut self, section: Section, reset_at: Option<DateTime<Utc>>) {
+         assert!(matches!(section, Section::Metric { .. }));
+-        self.0.push(SectionProjection { section, reset_at });
++        self.0.push(SectionProjection {
++            section,
++            reset_at,
++            block_severity: None,
++        });
+     }
+ }
+ 
+@@ -778,6 +787,7 @@ fn opencode_go_sections(
+         left: "OpenCode Go".into(),
+         right: None,
+     }]);
++    sections.0.extend(deepseek_v4_peak_sections(now));
+     for (label, window) in [
+         ("Rolling", s.rolling.as_ref()),
+         ("Weekly", s.weekly.as_ref()),
+@@ -804,6 +814,80 @@ fn opencode_go_sections(
+     sections
+ }
+ 
++/// The DeepSeek V4 peak-hours card opens the report: its schedule governs
++/// what a dollar of usage costs, so it reads ahead of the budget windows.
++fn deepseek_v4_peak_sections(now: DateTime<Utc>) -> Vec<SectionProjection> {
++    let peak = deepseek_v4_is_peak(now);
++    let mut body = vec![
++        "Peak (2× rates): Mon–Fri 01:00–04:00, 06:00–10:00 UTC".into(),
++        format!(
++            "Now: {} ({} local · {} UTC)",
++            if peak { "Peak" } else { "Off-Peak" },
++            now.with_timezone(&chrono::Local).format("%H:%M"),
++            now.format("%H:%M"),
++        ),
++    ];
++    if let Some(next) = deepseek_v4_next_boundary(now) {
++        body.push(format!(
++            "Next: {} in {}",
++            if peak { "off-peak" } else { "peak" },
++            countdown::format(Some(next), now),
++        ));
++    }
++    vec![
++        SectionProjection {
++            section: Section::Spacer,
++            reset_at: None,
++            block_severity: None,
++        },
++        SectionProjection {
++            section: Section::Block {
++                label: "DeepSeek V4 Peak Hours".into(),
++                body,
++            },
++            reset_at: None,
++            block_severity: if peak { Some("critical") } else { Some("low") },
++        },
++        SectionProjection {
++            section: Section::Spacer,
++            reset_at: None,
++            block_severity: None,
++        },
++    ]
++}
++
++/// OpenCode Go charges DeepSeek V4 models at 2× rates during peak hours:
++/// Monday–Friday 01:00–04:00 and 06:00–10:00 UTC. Every other hour, weekends
++/// included, is off-peak. See <https://opencode.ai/docs/go/>.
++fn deepseek_v4_is_peak(now: DateTime<Utc>) -> bool {
++    use chrono::{Datelike, Timelike, Weekday};
++    if matches!(now.weekday(), Weekday::Sat | Weekday::Sun) {
++        return false;
++    }
++    let hour = now.hour();
++    (1..4).contains(&hour) || (6..10).contains(&hour)
++}
++
++/// First peak/off-peak boundary strictly after `now`, scanning day by day so
++/// weekends and past-today hours fall through to the next weekday window.
++fn deepseek_v4_next_boundary(now: DateTime<Utc>) -> Option<DateTime<Utc>> {
++    use chrono::{Datelike, Duration, Weekday};
++    let today = now.date_naive();
++    for offset in 0..8i64 {
++        let date = today.checked_add_signed(Duration::days(offset))?;
++        if matches!(date.weekday(), Weekday::Sat | Weekday::Sun) {
++            continue;
++        }
++        for hour in [1u32, 4, 6, 10] {
++            let boundary = date.and_hms_opt(hour, 0, 0)?.and_utc();
++            if boundary > now {
++                return Some(boundary);
++            }
++        }
++    }
++    None
++}
++
+ /// Kiro has a single credit pool, so the panel is a single metric bar plus
+ /// the reset row — the same shape as `anthropic_api_sections` but with a
+ /// real percentage (Kiro always reports both used and limit) instead of an
+@@ -1328,6 +1412,102 @@ mod tests {
+         }))
+     }
+ 
++    fn utc(y: i32, mo: u32, d: u32, h: u32) -> DateTime<Utc> {
++        Utc.with_ymd_and_hms(y, mo, d, h, 0, 0).unwrap()
++    }
++
++    #[test]
++    fn deepseek_peak_hours_follow_weekday_utc_windows() {
++        // Wed 2026-05-20: peak 01:00-04:00 and 06:00-10:00 UTC.
++        assert!(!deepseek_v4_is_peak(utc(2026, 5, 20, 0)));
++        assert!(deepseek_v4_is_peak(utc(2026, 5, 20, 1)));
++        assert!(deepseek_v4_is_peak(utc(2026, 5, 20, 3)));
++        assert!(!deepseek_v4_is_peak(utc(2026, 5, 20, 4)));
++        assert!(!deepseek_v4_is_peak(utc(2026, 5, 20, 5)));
++        assert!(deepseek_v4_is_peak(utc(2026, 5, 20, 6)));
++        assert!(deepseek_v4_is_peak(utc(2026, 5, 20, 9)));
++        assert!(!deepseek_v4_is_peak(utc(2026, 5, 20, 10)));
++        assert!(!deepseek_v4_is_peak(utc(2026, 5, 20, 23)));
++        // Sat 2026-05-23 and Sun 2026-05-24: never peak.
++        assert!(!deepseek_v4_is_peak(utc(2026, 5, 23, 2)));
++        assert!(!deepseek_v4_is_peak(utc(2026, 5, 24, 7)));
++    }
++
++    #[test]
++    fn deepseek_next_boundary_skips_hours_days_and_weekends() {
++        assert_eq!(
++            deepseek_v4_next_boundary(utc(2026, 5, 20, 0)),
++            Some(utc(2026, 5, 20, 1))
++        );
++        assert_eq!(
++            deepseek_v4_next_boundary(utc(2026, 5, 20, 2)),
++            Some(utc(2026, 5, 20, 4))
++        );
++        assert_eq!(
++            deepseek_v4_next_boundary(utc(2026, 5, 20, 11)),
++            Some(utc(2026, 5, 21, 1))
++        );
++        // Fri 11:00 → Mon 01:00, skipping the weekend.
++        assert_eq!(
++            deepseek_v4_next_boundary(utc(2026, 5, 22, 11)),
++            Some(utc(2026, 5, 25, 1))
++        );
++    }
++
++    #[test]
++    fn opencode_go_sections_include_deepseek_peak_block() {
++        let usage = crate::opencode_go::types::Usage {
++            rolling: Some(crate::opencode_go::types::Window {
++                status: "ok".into(),
++                percent: 10.0,
++                resets_at: utc(2026, 5, 23, 20),
++            }),
++            weekly: Some(crate::opencode_go::types::Window {
++                status: "ok".into(),
++                percent: 10.0,
++                resets_at: utc(2026, 5, 30, 0),
++            }),
++            monthly: Some(crate::opencode_go::types::Window {
++                status: "ok".into(),
++                percent: 10.0,
++                resets_at: utc(2026, 6, 23, 0),
++            }),
++        };
++        let sections_at = |when: DateTime<Utc>| {
++            sections_for(&ready(VendorSnapshot::OpenCodeGo(usage.clone())), when, 5)
++        };
++        let peak = sections_at(utc(2026, 5, 20, 2));
++        let block_at = peak
++            .iter()
++            .position(|s| matches!(s, Section::Block { label, .. } if label == "DeepSeek V4 Peak Hours"))
++            .expect("peak hours block");
++        let body = match &peak[block_at] {
++            Section::Block { body, .. } => body.clone(),
++            _ => unreachable!(),
++        };
++        assert!(body.iter().any(|l| l.contains("Now: Peak")));
++        assert!(
++            body.iter().any(|l| l.contains("local ·") && l.contains(" UTC)")),
++            "Now line must carry local and UTC time: {body:?}"
++        );
++        // The card opens the report: above every window card.
++        let first_metric_at = peak
++            .iter()
++            .position(|s| matches!(s, Section::Metric { .. }))
++            .expect("first metric");
++        assert!(block_at < first_metric_at, "block must sit above all cards");
++
++        let off = sections_at(utc(2026, 5, 23, 12));
++        let Section::Block { body, .. } = off
++            .iter()
++            .find(|s| matches!(s, Section::Block { label, .. } if label == "DeepSeek V4 Peak Hours"))
++            .expect("peak hours block")
++        else {
++            unreachable!()
++        };
++        assert!(body.iter().any(|l| l.contains("Now: Off-Peak")));
++    }
++
+     #[test]
+     fn anthropic_sections_include_all_three_windows_when_present() {
+         let snap = AnthropicSnapshot {

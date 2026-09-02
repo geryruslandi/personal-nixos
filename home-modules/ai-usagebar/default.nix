@@ -34,7 +34,23 @@ let
     #   - bifrost.patch: adds a Bifrost vendor — the new src/bifrost module plus
     #     the wiring into VendorId / config / panels / widget. Applies on top of
     #     the pinned commit.
-    patches = [ ./openrouter-daily-limit.patch ./bifrost.patch ];
+    #   - deepseek-peak-hours.patch: the OpenCode Go report opens with a
+    #     "DeepSeek V4 Peak Hours" block (above the Rolling/Weekly/Monthly
+    #     cards) with the UTC peak schedule (Mon–Fri
+    #     01:00–04:00, 06:00–10:00), whether `now` is peak or off-peak with
+    #     the local and UTC clock time, and the countdown to the next boundary.
+    #     The block also carries a machine-readable `severity` ("critical"
+    #     during peak) that the vendored panel fork tints the card with.
+    #   - opencode-go-usd-limits.patch: the OpenCode Go window cards show real
+    #     dollars (remaining as value, "$x of $limit used (n%)" as footnote),
+    #     derived from the plan limits $12/5h, $30/wk, $60/mo — the API only
+    #     reports percentages. Bump these constants if OpenCode repricing.
+    patches = [
+      ./openrouter-daily-limit.patch
+      ./bifrost.patch
+      ./deepseek-peak-hours.patch
+      ./opencode-go-usd-limits.patch
+    ];
 
     meta = with lib; {
       description = "AI plan usage CLI (Claude, OpenAI, Cursor, etc.) for waybar/noctalia";
