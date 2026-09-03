@@ -174,6 +174,13 @@ end
 
 function M.headline(entry)
     if type(entry) ~= "table" or type(entry.metrics) ~= "table" then return nil end
+    -- Bifrost reports three rolling windows whose cards read 1d, 7d, 30d; the
+    -- capsule carries the 30-day headline, not the first card on the panel.
+    if tostring(entry.id or "") == "bifrost" then
+        for _, metric in ipairs(entry.metrics) do
+            if tostring(metric.label or "") == "30d cost" then return metric end
+        end
+    end
     local first = entry.metrics[1]
     return type(first) == "table" and first or nil
 end

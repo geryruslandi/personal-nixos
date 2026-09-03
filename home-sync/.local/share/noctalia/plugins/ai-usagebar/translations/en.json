@@ -54,6 +54,7 @@
         "anthropic_api": "Anthropic API",
         "antigravity": "Antigravity",
         "auto": "Automatic (busiest)",
+        "bifrost": "Bifrost",
         "commandcode": "Command Code",
         "cursor": "Cursor",
         "deepseek": "DeepSeek",

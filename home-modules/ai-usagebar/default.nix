@@ -32,8 +32,14 @@ let
     #     Limit" card when a per-key limit is set, plus an unhighlighted
     #     "Credit balance" card for total account credits.
     #   - bifrost.patch: adds a Bifrost vendor — the new src/bifrost module plus
-    #     the wiring into VendorId / config / panels / widget. Applies on top of
-    #     the pinned commit.
+    #     the wiring into VendorId / config / panels / widget. The panel renders
+    #     three pace-gauge cards (1d, 7d, 30d), each from the same
+    #     `{base_url}/usage?period=Xd` endpoint; the 30d card is the headline
+    #     (bar capsule, budget %, Waybar output) and reads the full budget
+    #     while the shorter cards pace against their share of the month. The
+    #     bottom text rows (requests/tokens/models/key) are gone. Windows fail
+    #     independently: one bad period renders as a named text row, not a
+    #     failed vendor. Applies on top of the pinned commit.
     #   - deepseek-peak-hours.patch: the OpenCode Go report opens with a
     #     "DeepSeek V4 Peak Hours" block (above the Rolling/Weekly/Monthly
     #     cards) with the UTC peak schedule (Mon–Fri

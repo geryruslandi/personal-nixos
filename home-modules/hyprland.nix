@@ -280,6 +280,11 @@
         "float on, match:class ^(dev.noctalia.Noctalia)$"
         "size 1080 920, match:class ^(dev.noctalia.Noctalia)$"
 
+        # Waydroid: always floating, sized to S22+ physical screen (19.5:9) for 1440p
+        "float on, match:class ^(Waydroid)$"
+        "size 480 1040, match:class ^(Waydroid)$"
+        "center on, match:class ^(Waydroid)$"
+
         # --- TRANSPARENCY (0.9) ---
         # Applied via Hyprland so it works regardless of app transparency support
         # "opacity 0.90 0.90 1, match:class ^(app\\.zen_browser\\.zen|zen)$"

@@ -8,6 +8,8 @@
 #     ai-usagebar/).
 #   - OpenCode Go drops the CLI's "Resets" lines; its metric cards already
 #     carry reset clocks.
+#   - The vendor dropdown gains "bifrost" (matches bifrost.patch in
+#     home-modules/ai-usagebar/), so a bar capsule can pin to it.
 # Upstream fixes do NOT reach this copy — re-sync manually from the materialized
 # plugin after bumping the community version, and re-apply these deltas.
 id = "felipeartur/ai-usagebar"
@@ -67,6 +69,7 @@ description_key = "settings.vendor.description"
 default = "auto"
 options = [
   { value = "auto", label_key = "settings.vendor.option.auto" },
+  { value = "bifrost", label_key = "settings.vendor.option.bifrost" },
   { value = "anthropic", label_key = "settings.vendor.option.anthropic" },
   { value = "openai", label_key = "settings.vendor.option.openai" },
   { value = "anthropic_api", label_key = "settings.vendor.option.anthropic_api" },
