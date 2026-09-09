@@ -67,10 +67,12 @@ When unsure what a setting/widget/template accepts, query the running shell:
 - Plugin options live in Settings → Plugins; per-plugin defaults can be seeded declaratively under `settings.plugin_settings."<author>/<plugin>"`
 - **Local plugin wiring**: `plugin_settings."gery/services"` gets ports/auto-start flags from `secrets.server.*` (redis/mysql/postgres ports, seaweedfs master/volume/filer ports, mailpit smtp/ui, seanime/stremio port + auto_start) — keep this in sync when editing dev-server settings
 
-### Launcher & clipboard → Vicinae
-The Noctalia launcher and clipboard panels are replaced by Vicinae (`home-modules/vicinae.nix`, user systemd service with `USE_LAYER_SHELL=1`). Hyprland binds live there: `$mainMod+Space` → `vicinae vicinae://toggle`, `$mainMod+V` → clipboard history. Noctalia's own `shell.launcher` settings remain but are not used day-to-day.
+### Launcher & clipboard
+Noctalia's built-in launcher and clipboard panels are used. Hyprland binds live in `home-modules/noctalia.nix`: `$mainMod+Space` → `noctalia msg panel-toggle launcher`, `$mainMod+V` → `panel-toggle clipboard`. Launcher/clipboard panel settings: `shell.launcher` (+ `shell.panel.launcher_placement/position`, `shell.panel.clipboard_placement/position`); clipboard features under `shell.clipboard_*` (`clipboard_enabled = true`).
 
 ### Noctaria-related Keybinds (`home-modules/noctalia.nix`)
+- `$mainMod + Space`: `noctalia msg panel-toggle launcher`
+- `$mainMod + V`: `noctalia msg panel-toggle clipboard`
 - `$mainMod + R`: `noctalia msg panel-toggle control-center`
 - `$mainMod + ,`: `noctalia msg settings-toggle`
 - `$mainMod + L`: `noctalia msg session lock`

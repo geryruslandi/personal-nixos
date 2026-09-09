@@ -22,7 +22,7 @@ let
 
   # Parses every Steam library's appmanifest_*.acf and (re)writes
   # ~/.local/share/applications/steam-game-<appid>.desktop entries so
-  # all installed games show up in launchers (Vicinae, Noctalia, ...).
+  # all installed games show up in launchers (Noctalia, ...).
   # Library roots are read from libraryfolders.vdf at runtime, so games
   # on any mounted SteamLibrary are picked up.
   indexerScript = pkgs.writeShellScript "steam-game-index" ''

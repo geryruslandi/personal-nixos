@@ -6,7 +6,7 @@ A fully declarative, Flake-based NixOS configuration featuring a high-performanc
 
 * **Window Manager:** [Hyprland](https://hyprland.org/) (Wayland Compositor)
 * **Shell & UI:** [Noctalia v5](https://github.com/noctalia-dev/noctalia) — native C++23 Wayland shell for the bar, widgets, notifications, lockscreen and theming.
-* **Launcher:** [Vicinae](https://github.com/vicinaehq/vicinae) — launcher + clipboard history (`Super+Space` / `Super+V`), replaces the Noctalia launcher panels.
+* **Launcher & Clipboard:** Noctalia v5 built-in panels (`Super+Space` launcher / `Super+V` clipboard history).
 * **Lockscreen:** Noctaria lock + [Qylock](https://github.com/Darkkal44/qylock) (theme `pixel-dusk-city`).
 * **User Management:** [Home Manager](https://github.com/nix-community/home-manager) for dotfile and per-user state.
 * **Flatpaks:** Managed declaratively via [nix-flatpak](https://github.com/gmodena/nix-flatpak).
@@ -35,7 +35,6 @@ A fully declarative, Flake-based NixOS configuration featuring a high-performanc
 │   ├── kanshi.nix
 │   ├── kde-associations.nix
 │   ├── noctalia.nix
-│   ├── vicinae.nix
 │   ├── php.nix
 │   ├── react-native-setup.nix
 │   ├── theme.nix
@@ -133,7 +132,7 @@ This setup includes specialized modules for a full-stack development workflow:
 ---
 
 ## 🎨 Theme & Appearance
-Theming is driven by **Noctalia v5**: the community palette `Catppuccin Frappe Blue` feeds Noctalia's template engine, which generates kitty/GTK3/GTK4/KDE-colorscheme/Qt themes at login (see `home-modules/noctalia.nix`). The Vicinae launcher and tmux carry matching hand-pinned Frappe colors.
+Theming is driven by **Noctalia v5**: the community palette `Catppuccin Frappe Blue` feeds Noctalia's template engine, which generates kitty/GTK3/GTK4/KDE-colorscheme/Qt themes at login (see `home-modules/noctalia.nix`). tmux carries matching hand-pinned Frappe colors.
 * **GTK/QT:** Unified via the generated KDE color scheme + Qt platform theme to ensure a cohesive look across toolkit boundaries.
 * **Displays:** Handled by **Kanshi** for dynamic output and monitor profile switching.
 

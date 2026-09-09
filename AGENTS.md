@@ -38,7 +38,7 @@ git add --intent-to-add secrets.nix -f   # rebuild.sh also does this automatical
 | `home-sync/.local/share/noctalia/plugins/services/` | The local `gery/services` Noctalia plugin (consolidated services hub: service+widget+panel+shared lib) — linked into `~/.local/share/noctalia/plugins/services/` where Noctalia loads it from; drop a new plugin folder here to sync it |
 | `home-sync/.local/share/noctalia/plugins/ai-usagebar/` | Vendored fork of the community `felipeartur/ai-usagebar` plugin (v2.1.1, local deltas: panel height 400→550; severity-tinted block cards; hides OpenCode Go's redundant "Resets" lines) — the data-dir copy outranks the auto-updated community source, so upstream fixes need a manual re-sync |
 | `system-modules/` | System-level NixOS modules (audio, hyprland, nvidia, etc.) |
-| `home-modules/` | User-level Home Manager modules (git, zsh, hyprland, noctalia, vicinae, ...); mostly flat, one nested dir module (`ai-usagebar/`) |
+| `home-modules/` | User-level Home Manager modules (git, zsh, hyprland, noctalia, ...); mostly flat, one nested dir module (`ai-usagebar/`) |
 
 ### Architecture & Conventions
 
@@ -47,7 +47,7 @@ git add --intent-to-add secrets.nix -f   # rebuild.sh also does this automatical
 - **Dev services (`secrets.server.*`)**: redis, mysql, postgres, seaweedfs, docker, and the media servers seanime/stremio are **always registered** — `enable = false` only disables auto-start (system services at boot, user services at login), never registration. You can always start them manually (`systemctl start X` / `systemctl --user start X`) or via the Noctalia bar toggle (passwordless — see polkit whitelist). MySQL/Postgres users & databases are provisioned whenever the service actually starts.
 - **Plugin-owned services**: seanime, stremio, and mailpit are declared and managed **by the consolidated `gery/services` Noctalia plugin** (`home-sync/.local/share/noctalia/plugins/services/`) as transient systemd **user** units (`systemd-run --user --unit=<name> --collect --property=Restart=on-failure`); Nix only installs the binary dependency (`home-modules/seanime.nix`, `stremio.nix`, `mailpit.nix`). `secrets.server.*.enable` feeds the plugin's `auto_start` setting (`plugin_settings."gery/services"` in `home-modules/noctalia.nix`). **Warp and seaweedfs stay Nix-declared** — they need root daemon / system user + tmpfiles — the plugin only toggles them.
 - **System vs User separation**: System config lives in `system-modules/`, user config in `home-modules/`.
-- **Theming**: Driven by Noctalia v5 (`theme.source = "community"`, palette `"Catppuccin Frappe Blue"`); its template engine generates kitty/GTK3/GTK4/KDE-colorscheme/Qt themes at login (`theme.templates.builtin_ids` in `home-modules/noctalia.nix`). The launcher (Vicinae) and tmux carry matching hand-pinned Frappe colors. No Catppuccin Nix module anymore.
+- **Theming**: Driven by Noctalia v5 (`theme.source = "community"`, palette `"Catppuccin Frappe Blue"`); its template engine generates kitty/GTK3/GTK4/KDE-colorscheme/Qt themes at login (`theme.templates.builtin_ids` in `home-modules/noctalia.nix`). tmux carries matching hand-pinned Frappe colors. No Catppuccin Nix module anymore.
 - **Flatpaks**: Declared in `flatpak.nix` using `services.flatpak.packages`.
 - **Hostname**: `nixos` — `nixosConfigurations.nixos` in `flake.nix`.
 
@@ -64,7 +64,7 @@ git add --intent-to-add secrets.nix -f   # rebuild.sh also does this automatical
 - **WM**: Hyprland (enabled via `programs.hyprland.enable`)
 - **DM**: SDDM with Wayland (`services.displayManager.sddm.wayland.enable`)
 - **Shell**: Noctalia (bar, widgets, notifications — configured in `home-modules/noctalia.nix` and `system-modules/noctalia.nix`)
-- **Launcher**: Vicinae (`home-modules/vicinae.nix`, user systemd service; `Super+Space` toggle, `Super+V` clipboard history) — replaces the Noctalia launcher/clipboard panels
+- **Launcher & Clipboard**: Noctalia's built-in launcher/clipboard panels (`home-modules/noctalia.nix`; `Super+Space` launcher, `Super+V` clipboard history)
 - **Lockscreen**: Noctaria lock + Qylock (`system-modules/theme.nix`, theme `pixel-dusk-city`)
 - **Flatpak**: Managed by `nix-flatpak` module
 - **Audio**: PipeWire via `system-modules/audio.nix`

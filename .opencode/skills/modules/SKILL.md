@@ -96,7 +96,7 @@ All flake `inputs` are available to both system and home modules through `inputs
 }
 ```
 
-Current inputs: `nixpkgs` (unstable), `hyprland`, `home-manager` (follows nixpkgs), `noctalia` (v5, cachix branch — do NOT add `follows`), `vicinae` (do NOT add `follows` — binary cache), `nix-flatpak`, `qylock`, `aethertune`.
+Current inputs: `nixpkgs` (unstable), `hyprland`, `home-manager` (follows nixpkgs), `noctalia` (v5, cachix branch — do NOT add `follows`), `nix-flatpak`, `qylock`, `aethertune`.
 
 ## Theming
 
@@ -105,7 +105,7 @@ Theming is driven by **Noctalia v5** (no Catppuccin Nix module anymore — it wa
 - **Noctalia**: `theme.source = "community"`, palette `"Catppuccin Frappe Blue"`, mode dark (`home-modules/noctalia.nix`)
 - **Template engine**: generates GTK3/GTK4/KDE-colorscheme/Qt/Hyprland/Kitty themes at login (`theme.templates.builtin_ids`); community templates cover opencode/discord/libreoffice/obsidian/vscode/steam/rofi/hyprtoolkit/lazygit
 - **Kitty**: includes the generated theme via `include ~/.config/kitty/current-theme.conf` (`home.nix`) — no manual colors anymore. Do NOT declare `kdeglobals` in Home Manager; it's runtime-managed from the generated KDE color scheme (`qt.platformTheme.name = "kde"` in `home-modules/theme.nix`)
-- **Hand-pinned accents**: Vicinae theme `catppuccin-frappe` (`home-modules/vicinae.nix`), tmux Frappe colors (`home-modules/tmux.nix`)
+- **Hand-pinned accents**: tmux Frappe colors (`home-modules/tmux.nix`)
 
 ## Module Examples
 

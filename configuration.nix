@@ -14,12 +14,24 @@ let
         ssh = [ ];
         git = { };
         server = {
-          redis = { enable = false; };
-          postgres = { enable = false; };
-          mysql = { enable = false; };
-          mailpit = { enable = false; };
-          seaweedfs = { enable = false; };
-          docker = { enable = false; };
+          redis = {
+            enable = false;
+          };
+          postgres = {
+            enable = false;
+          };
+          mysql = {
+            enable = false;
+          };
+          mailpit = {
+            enable = false;
+          };
+          seaweedfs = {
+            enable = false;
+          };
+          docker = {
+            enable = false;
+          };
         };
         storageMount = [ ];
         nvidia = {
@@ -38,7 +50,9 @@ let
 
   # `projectPath` is REQUIRED — fail the build when it is missing or empty.
   secrets =
-    if rawSecrets ? projectPath && builtins.isString rawSecrets.projectPath && rawSecrets.projectPath != "" then
+    if
+      rawSecrets ? projectPath && builtins.isString rawSecrets.projectPath && rawSecrets.projectPath != ""
+    then
       rawSecrets
     else
       throw ''
@@ -97,7 +111,7 @@ in
   boot.loader.grub.device = "nodev";
   boot.loader.grub.gfxmodeEfi = "1920x1080";
 
-# handle power button and lid close
+  # handle power button and lid close
   services.logind.settings = {
     Login = {
       HandlePowerKey = "ignore";
@@ -139,7 +153,31 @@ in
     expat
     # Add any other libraries you find missing
 
-     # RPGMAKER game Core System Libraries
+    # require for RN 8.6.3 compiler
+    glib
+    nspr
+    dbus
+    atk
+    cups
+    cairo
+    pango
+    gtk3
+    mesa
+    libgbm
+    alsa-lib
+    at-spi2-atk
+    at-spi2-core
+    systemd
+    libxkbcommon
+    libX11
+    libxcb
+    libXcomposite
+    libXdamage
+    libXext
+    libXfixes
+    libXrandr
+
+    # RPGMAKER game Core System Libraries
     # glib
     # nss
     # nspr

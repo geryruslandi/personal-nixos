@@ -577,6 +577,8 @@ in
   wayland.windowManager.hyprland = {
     settings = {
       bind = [
+        "$mainMod, SPACE, exec, noctalia msg panel-toggle launcher"
+        "$mainMod, V, exec, noctalia msg panel-toggle clipboard"
         "$mainMod, R, exec, noctalia msg panel-toggle control-center"
         "$mainMod, comma, exec, noctalia msg settings-toggle"
         "$mainMod, L, exec, noctalia msg session lock"

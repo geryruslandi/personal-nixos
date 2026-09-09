@@ -42,7 +42,6 @@ in
   imports = [
     ./home-modules/hyprland.nix
     ./home-modules/noctalia.nix
-    ./home-modules/vicinae.nix
     ./home-modules/kanshi.nix
     ./home-modules/kde-associations.nix
     ./home-modules/theme.nix

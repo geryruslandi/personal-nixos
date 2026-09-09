@@ -4,11 +4,9 @@
   nixConfig = {
     extra-substituters = [
       "https://noctalia.cachix.org"
-      "https://vicinae.cachix.org"
     ];
     extra-trusted-public-keys = [
       "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4="
-      "vicinae.cachix.org-1:1kDrfienkGHPYbkpNj1mWTr7Fm1+zcenzgTizIcI3oc="
     ];
   };
 
@@ -24,11 +22,6 @@
     # Do NOT add `inputs.nixpkgs.follows` here — it disables the binary cache.
     noctalia.url = "github:noctalia-dev/noctalia/cachix";
 
-    # Vicinae launcher (replaces the Noctalia launcher). The `nixpkgs.follows`
-    # must NOT be added here — it would make the vicinae.cachix.org binary
-    # cache miss (same reason as noctalia).
-    vicinae.url = "github:vicinaehq/vicinae";
-
     nix-flatpak.url = "github:gmodena/nix-flatpak/?ref=latest";
 
     qylock.url = "github:Darkkal44/qylock";
@@ -43,7 +36,6 @@
       nixpkgs,
       home-manager,
       nix-flatpak,
-      vicinae,
       qylock,
       ...
     }:
@@ -59,7 +51,6 @@
         modules = [
           ./configuration.nix
           ./flatpak.nix
-          vicinae.nixosModules.default
           home-manager.nixosModules.home-manager
           nix-flatpak.nixosModules.nix-flatpak
           {

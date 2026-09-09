@@ -64,7 +64,7 @@ All actual Hyprland settings live here. Uses `configType = "hyprlang"`.
 | `$mainMod SHIFT` | Move window to workspace / frozen screenshot |
 | `$mainMod CTRL ←/→` | Cycle workspaces |
 
-App-launch binds that live in other modules: Vicinae launcher `Super+Space` + clipboard history `Super+V` (`home-modules/vicinae.nix`); Noctalia control-center/settings/lock/session binds (`home-modules/noctalia.nix`). Keep this split when adding binds.
+App-launch binds that live in `home-modules/noctalia.nix`: launcher `Super+Space` (`panel-toggle launcher`), clipboard history `Super+V` (`panel-toggle clipboard`), control-center `Super+R`, settings `Super+,`, lock `Super+L`, session `XF86PowerOff`. Keep launcher/clipboard/control-center binds here when adding binds.
 
 ### Bind Types Available
 

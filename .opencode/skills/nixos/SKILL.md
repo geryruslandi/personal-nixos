@@ -23,7 +23,7 @@ sudo nixos-rebuild build --flake . --impure
 `rebuild.sh` auto-stages the gitignored `secrets.nix` (`git add --intent-to-add`) before evaluating and unstages it on exit (success or failure).
 
 > `--impure` is **required** because the flake references `/etc/nixos/hardware-configuration.nix` which sits outside the store.
-> `--accept-flake-config` trusts the flake's `nixConfig` (noctalia/vicinae Cachix substituters).
+> `--accept-flake-config` trusts the flake's `nixConfig` (noctalia Cachix substituter).
 
 ## Hardware Configuration
 
@@ -37,7 +37,7 @@ The file lives at `/etc/nixos/hardware-configuration.nix` and is imported by `co
 
 ## Flake Inputs
 
-Current inputs: `nixpkgs` (nixos-unstable), `hyprland`, `home-manager` (+follows), `noctalia`, `vicinae`, `nix-flatpak`, `qylock`, `aethertune`.
+Current inputs: `nixpkgs` (nixos-unstable), `hyprland`, `home-manager` (+follows), `noctalia`, `nix-flatpak`, `qylock`, `aethertune`.
 
 ```bash
 # Update ALL inputs
@@ -48,7 +48,7 @@ nix flake update nixpkgs
 nix flake update hyprland
 ```
 
-**Binary-cache caveat**: do NOT add `inputs.nixpkgs.follows` to the **noctalia** or **vicinae** inputs — it changes their dependency hashes and makes the `noctalia.cachix.org` / `vicinae.cachix.org` binary caches miss (long source builds). Both are pinned to branches/commits that always have prebuilt binaries.
+**Binary-cache caveat**: do NOT add `inputs.nixpkgs.follows` to the **noctalia** input — it changes its dependency hash and makes the `noctalia.cachix.org` binary cache miss (long source builds). It is pinned to a branch that always has prebuilt binaries.
 
 After updating, rebuild with `./rebuild.sh`.
 
