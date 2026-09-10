@@ -208,6 +208,11 @@ in
 
       lockscreen = {
         enabled = true;
+        # Lock screen drives the fprintd sensor itself; with it enabled the
+        # unlock flow waits on a fingerprint scan after password submission
+        # (stalls the session whenever the lid is closed / sensor unreachable).
+        # Password-only unlock via PAM instead; sudo + SDDM keep fingerprint.
+        fingerprint = false;
       };
 
       lockscreen_widgets = {
@@ -264,6 +269,7 @@ in
       calendar = {
         enabled = true;
         refresh_minutes = 15;
+        event_date_format = "%e %A %B";
 
         # Account names and Outlook ICS URLs contain personal info — they live
         # in secrets.nix (noctaliaCalendar), mirroring [calendar.account.*].
@@ -421,7 +427,6 @@ in
         show_shortcut_labels = true;
 
         calendar = {
-          event_date_format = "%e %A %B";
           show_events_card = true;
           show_week_numbers = false;
         };

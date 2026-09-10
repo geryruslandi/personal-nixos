@@ -50,7 +50,38 @@
   users.groups.battery_ctl = { };
   services.udev.extraRules = ''
     ACTION=="add|change", SUBSYSTEM=="power_supply", KERNEL=="BAT*", RUN+="${pkgs.coreutils}/bin/chgrp battery_ctl /sys$devpath/charge_control_end_threshold", RUN+="${pkgs.coreutils}/bin/chmod 0664 /sys$devpath/charge_control_end_threshold", RUN+="${pkgs.bash}/bin/bash -c 'echo Custom > /sys$devpath/charge_types 2>/dev/null'"
+    # Any HID keyboard/mouse (USB interface class 03, protocol 01=keyboard or
+    # 02=mouse): never runtime-suspend the parent USB device, else the first
+    # input has to remote-wake the device/dongle (2.4GHz receivers) causing
+    # ~1s+ input lag. Matches child interfaces of composite devices; the RUN
+    # strips the interface component to reach the parent's power/control.
+    ACTION=="add|change", SUBSYSTEM=="usb", ATTR{bInterfaceClass}=="03", ATTR{bInterfaceProtocol}=="01|02", RUN+="${pkgs.bash}/bin/bash -c 'echo on > /sys$devpath/../power/control 2>/dev/null || true'"
   '';
+
+  # The udev rule above fires at boot coldplug, but powerManagement.powertop
+  # runs `powertop --auto-tune` LATER (After=multi-user.target) and flips every
+  # HID device back to power/control=auto. This oneshot re-asserts the
+  # keyboard/mouse exemption after powertop so it survives every boot.
+  # Hotplug replugs are covered by the udev rule (powertop runs once per boot).
+  systemd.services.usb-hid-no-autosuspend = {
+    description = "Keep HID keyboards/mice out of USB autosuspend";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "powertop.service" ];
+    wants = [ "powertop.service" ];
+    serviceConfig.Type = "oneshot";
+    script = ''
+      # Interface dirs end in ":<config>.<alt>" (e.g. 3-2.4:1.0) — glob on the
+      # single colon; the earlier "*:*:*" pattern never matched anything.
+      for if in /sys/bus/usb/devices/*:*; do
+        [ -f "$if/bInterfaceClass" ] || continue
+        class=$(cat "$if/bInterfaceClass" 2>/dev/null)
+        proto=$(cat "$if/bInterfaceProtocol" 2>/dev/null)
+        [ "$class" = "03" ] || continue
+        { [ "$proto" = "01" ] || [ "$proto" = "02" ]; } || continue
+        echo on > "$(dirname "$if")/power/control" 2>/dev/null || true
+      done
+    '';
+  };
 
   # The udev rule above only re-applies perms when a battery uevent fires; if
   # none does (e.g. battery idle at steady state), the sysfs node keeps its

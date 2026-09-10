@@ -73,6 +73,12 @@ type       = "bool"
 label_key  = "settings.auto_start.label"
 default    = false
 
+[[setting]]
+key        = "otel_auto_start"
+type       = "bool"
+label_key  = "settings.auto_start.label"
+default    = false
+
 [[service]]
 id    = "poll"
 entry = "service.luau"
