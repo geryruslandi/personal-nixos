@@ -28,6 +28,35 @@
     qylock.inputs.nixpkgs.follows = "nixpkgs";
 
     aethertune.url = "github:nevermore23274/AetherTune";
+    # AetherTune pins an old nixpkgs whose importCargoLock still fetches from
+    # crates.io/api — that endpoint now 403s non-identifying User-Agents.
+    # Follow our pinned nixpkgs, which fetches from static.crates.io instead.
+    aethertune.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Headroom (LLM token-compression proxy), packaged from its own uv.lock
+    # via uv2nix — see nix/headroom.nix and home-modules/headroom.nix.
+    headroom = {
+      url = "github:headroomlabs-ai/headroom";
+      flake = false; # source repo: pyproject.toml + uv.lock + Cargo.lock
+    };
+
+    pyproject-nix = {
+      url = "github:pyproject-nix/pyproject.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    uv2nix = {
+      url = "github:pyproject-nix/uv2nix";
+      inputs.pyproject-nix.follows = "pyproject-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    pyproject-build-systems = {
+      url = "github:pyproject-nix/build-system-pkgs";
+      inputs.pyproject-nix.follows = "pyproject-nix";
+      inputs.uv2nix.follows = "uv2nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
   };
 

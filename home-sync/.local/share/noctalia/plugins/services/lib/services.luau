@@ -142,6 +142,35 @@ M.SERVICES = {
     end,
   },
   {
+    id       = "otel",
+    label    = "Open Telemetry",
+    category = "development",
+    glyph    = "route",
+    glyphOff = "route-off",
+    scope    = "user",
+    kind     = "transient",
+    unit     = "otel-stack.target",
+    binary   = "otelcol-contrib",
+    autoStart = cfg("otel_auto_start", false),
+    blurb    = "Observability",
+    -- Display-only ports: real listeners come from secrets.server.otel via
+    -- home-modules/otel.nix (internal Tempo receivers sit on 14317/14318).
+    ports    = {
+      { name = "Grafana", value = cfg("otel_grafanaPort", 3000), configKey = "otel_grafanaPort", def = 3000 },
+      { name = "OTLP", value = cfg("otel_otlpGrpcPort", 4317), configKey = "otel_otlpGrpcPort", def = 4317 },
+      { name = "Tempo", value = cfg("otel_tempoPort", 3200), configKey = "otel_tempoPort", def = 3200 },
+    },
+    startCmd = function(self)
+      -- --no-block: queue the start job and return immediately. Noctalia's
+      -- runAsync kills commands after 5s, and a synchronous start can block
+      -- >5s (e.g. a previous unit still shutting down gracefully). The job
+      -- itself would keep running in systemd and complete, but the killed
+      -- client triggers a false "failed to start" notification. Polling
+      -- (3s) reflects the real progress instead.
+      return "systemctl --user start --no-block " .. self.unit
+    end,
+  },
+  {
     id       = "seanime",
     label    = "Seanime",
     category = "entertainment",
@@ -288,8 +317,10 @@ function M.detail(service, s)
     if up then table.insert(parts, "Up " .. up) end
   elseif s.state == "inactive" or s.state == "daemon-off" or s.state == "disconnected" then
     table.insert(parts, "Stopped")
-  elseif s.state == "connecting" or s.state == "disconnecting" then
-    table.insert(parts, "Working\u{2026}")
+  elseif s.state == "connecting" or s.state == "activating" then
+    table.insert(parts, "Booting\u{2026}")
+  elseif s.state == "disconnecting" or s.state == "deactivating" then
+    table.insert(parts, "Stopping\u{2026}")
   end
 
   return table.concat(parts, " \u{00b7} ")

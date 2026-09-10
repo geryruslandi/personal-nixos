@@ -562,6 +562,9 @@ in
           seanime_port = toString seanimePort;
           seanime_auto_start = seanime.enable or false;
           stremio_auto_start = stremio.enable or false;
+          # Open Telemetry: one secrets flag gates the plugin's one-shot
+          # auto-start of otel-stack.target (all 5 units) at shell boot.
+          otel_auto_start = (secrets.server or { }).otel.enable or false;
         };
       };
     };

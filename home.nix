@@ -55,6 +55,7 @@ in
     ./home-modules/python.nix
     ./home-modules/swagger.nix
     ./home-modules/opencode.nix
+    ./home-modules/otel.nix
     ./home-modules/tmux.nix
     ./home-modules/go.nix
     ./home-modules/gh.nix
@@ -72,6 +73,7 @@ in
     ./home-modules/mailpit.nix
     ./home-modules/sonar.nix
     ./home-modules/k9s.nix
+    ./home-modules/headroom.nix
   ];
 
   # This is the magic part:

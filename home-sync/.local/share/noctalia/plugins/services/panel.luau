@@ -26,6 +26,7 @@ end
 
 local function isWorking(s)
   return s.state == "connecting" or s.state == "disconnecting"
+    or s.state == "activating" or s.state == "deactivating"
     or s.state == "no-session"
 end
 
@@ -41,8 +42,8 @@ local function statusText(s)
   if s.available == false then return "Not installed" end
   if s.state == "active" or s.state == "connected" then return "Running" end
   if s.state == "failed" then return "Failed" end
-  if s.state == "connecting" then return "Starting\u{2026}" end
-  if s.state == "disconnecting" then return "Stopping\u{2026}" end
+  if s.state == "connecting" or s.state == "activating" then return "Starting\u{2026}" end
+  if s.state == "disconnecting" or s.state == "deactivating" then return "Stopping\u{2026}" end
   if s.state == "no-session" then return "Container only" end
   return "Stopped"
 end

@@ -23,7 +23,12 @@ local function recompute()
         running = running + 1
       elseif st.state == "failed" then
         anyFailed = true
-      elseif st.state == "connecting" or st.state == "disconnecting" then
+      elseif
+        st.state == "connecting"
+        or st.state == "disconnecting"
+        or st.state == "activating"
+        or st.state == "deactivating"
+      then
         anyWorking = true
       end
     end
@@ -51,8 +56,10 @@ local function render()
       table.insert(lines, "  \u{00b7} " .. s.label .. ": running")
     elseif st.state == "failed" then
       table.insert(lines, "  \u{00b7} " .. s.label .. ": failed")
-    elseif st.state == "connecting" or st.state == "disconnecting" then
-      table.insert(lines, "  \u{00b7} " .. s.label .. ": working\u{2026}")
+    elseif st.state == "connecting" or st.state == "activating" then
+      table.insert(lines, "  \u{00b7} " .. s.label .. ": booting\u{2026}")
+    elseif st.state == "disconnecting" or st.state == "deactivating" then
+      table.insert(lines, "  \u{00b7} " .. s.label .. ": stopping\u{2026}")
     elseif st.state == "no-session" then
       table.insert(lines, "  \u{00b7} " .. s.label .. ": container only")
     else

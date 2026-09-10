@@ -136,6 +136,17 @@
         enable = true;
         port = 11470; # optional
       };
+    otel = {
+      enable = false;      # registered even when false; only gates the plugin's
+                           # one-shot auto-start of the 5 units at shell boot
+      # optional ports (defaults shown)
+      grafanaPort = 3000;
+      tempoPort = 3200;
+      mimirPort = 9009;
+      lokiPort = 3100;
+      otlpGrpcPort = 4317;  # what apps send OTLP to (gRPC)
+      otlpHttpPort = 4318;  # what apps send OTLP to (HTTP)
+    };
   };
   storageMount = [
     {
