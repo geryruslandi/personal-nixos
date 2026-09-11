@@ -6,12 +6,6 @@
   secrets,
   ...
 }:
-let
-  seanime = secrets.server.seanime or { };
-  seanimePort = seanime.port or 43211;
-  stremio = secrets.server.stremio or { };
-  seaweedfs = secrets.server.seaweedfs or { enable = false; };
-in
 {
   # import the home manager module
   imports = [
@@ -557,19 +551,10 @@ in
         };
         "gery/services" = {
           services-panel_placement = "floating";
-          # Only ports the plugin actually passes on a start command line
-          # (mailpit, seanime) are configurable; string-typed because int
-          # settings render as a 0-100 slider in the Settings UI. System
-          # service listeners keep coming from secrets.* via Nix modules.
-          mailpit_smtpPort = toString ((secrets.server or { }).mailpit.smtpPort or 1025);
-          mailpit_uiPort = toString ((secrets.server or { }).mailpit.uiPort or 8025);
-          mailpit_auto_start = (secrets.server or { }).mailpit.enable or false;
-          seanime_port = toString seanimePort;
-          seanime_auto_start = seanime.enable or false;
-          stremio_auto_start = stremio.enable or false;
-          # Open Telemetry: one secrets flag gates the plugin's one-shot
-          # auto-start of otel-stack.target (all 5 units) at shell boot.
-          otel_auto_start = (secrets.server or { }).otel.enable or false;
+          # All dev-server settings (ports, passwords, datadirs, auto-start)
+          # are plugin-owned: defaults live in the plugin's plugin.toml, GUI
+          # edits persist in ~/.local/state/noctalia/settings.toml. No
+          # secrets-seeded values anymore.
         };
       };
     };

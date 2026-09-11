@@ -39,7 +39,7 @@ local function setState(id, st, patch)
   end
 end
 
--- systemd poll (system scope: docker/redis/mysql/postgresql/seaweedfs)
+-- systemd poll (system scope: warp/waydroid — the last system-level services)
 local function pollSystemd(service, done)
   local cmd = table.concat({
     "systemctl is-active " .. service.unit,
@@ -76,7 +76,7 @@ local function pollSystemd(service, done)
   end
 end
 
--- systemd poll (user scope: transient seanime/stremio/mailpit)
+-- systemd poll (user scope: all plugin-managed units)
 local function pollTransient(service, done)
   local cmd = table.concat({
     "systemctl --user is-active " .. service.unit,
@@ -85,13 +85,11 @@ local function pollTransient(service, done)
   }, "; ")
   local ok = noctalia.runAsync(cmd, function(res)
     local lines = splitLines(res and res.stdout)
-    local binary = service.binary
-    local available = false
-    if string.sub(binary, 1, 1) == "/" then
-      available = noctalia.fileExists(binary)
-    else
-      available = noctalia.commandExists(binary)
-    end
+    -- Resolve the binary the same way the start command does: settings can
+    -- carry "~" paths (dev wrappers) that don't start with "/" and won't be
+    -- found in the plugin process's PATH either.
+    local expanded = services.expandBinary(service.binary)
+    local available = noctalia.fileExists(expanded)
     local sinceSec = nil
     if lines[2] and lines[3] then
       local sysUp = tonumber(lines[2])

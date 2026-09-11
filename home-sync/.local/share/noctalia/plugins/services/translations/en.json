@@ -1,8 +1,19 @@
 {
-  "settings.mailpit_smtpPort.label": "Mailpit SMTP port",
-  "settings.mailpit_uiPort.label": "Mailpit UI port",
-  "settings.seanime_port.label": "Seanime port",
   "settings.binary.label": "Binary",
   "settings.datadir.label": "Data directory",
-  "settings.auto_start.label": "Start at login"
+  "settings.auto_start.label": "Start at login",
+  "settings.password.label": "Password (empty = none)",
+  "settings.user.label": "User",
+  "settings.databases.label": "Databases (comma or space separated)",
+  "settings.redis_port.label": "Redis port",
+  "settings.postgres_port.label": "PostgreSQL port",
+  "settings.mysql_port.label": "MariaDB port",
+  "settings.seanime_port.label": "Seanime port",
+  "settings.mailpit_smtpPort.label": "Mailpit SMTP port",
+  "settings.mailpit_uiPort.label": "Mailpit UI port",
+  "settings.seaweedfs_bindIp.label": "Bind IP",
+  "settings.seaweedfs_masterPort.label": "Master port",
+  "settings.seaweedfs_volumePort.label": "Volume port",
+  "settings.seaweedfs_filerPort.label": "Filer port",
+  "settings.sonarqube_webPort.label": "SonarQube web port"
 }

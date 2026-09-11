@@ -13,26 +13,6 @@ let
       {
         ssh = [ ];
         git = { };
-        server = {
-          redis = {
-            enable = false;
-          };
-          postgres = {
-            enable = false;
-          };
-          mysql = {
-            enable = false;
-          };
-          mailpit = {
-            enable = false;
-          };
-          seaweedfs = {
-            enable = false;
-          };
-          docker = {
-            enable = false;
-          };
-        };
         storageMount = [ ];
         nvidia = {
           intelBusId = "PCI:0:2:0";
@@ -74,13 +54,10 @@ in
     ./system-modules/bluetooth.nix
     ./system-modules/theme.nix
     ./system-modules/waydroid.nix
-    ./system-modules/mysql.nix
     ./system-modules/dolphin.nix
     ./system-modules/fan-control.nix
     ./system-modules/bitwarden.nix
     ./system-modules/steam.nix
-    ./system-modules/postgresql.nix
-    ./system-modules/redis.nix
     ./system-modules/lutris.nix
     ./system-modules/lsfg-vk.nix
     ./system-modules/docker.nix
@@ -89,8 +66,6 @@ in
     ./system-modules/cloudflare-warp.nix
     ./system-modules/kdeconnect.nix
     ./system-modules/fingerprint-setup.nix
-    ./system-modules/seaweedfs.nix
-    ./system-modules/sonarqube.nix
   ];
 
   _module.args = { inherit secrets; };

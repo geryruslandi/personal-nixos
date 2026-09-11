@@ -2,8 +2,9 @@
 #
 # Five independent systemd --user units, each individually start/stoppable
 # from the gery/services Noctalia hub (passwordless — user units need no
-# polkit). Always registered; `secrets.server.otel.enable` (default false)
-# only feeds the plugin's per-service auto_start one-shot at shell boot.
+# polkit). Always registered; the plugin's `otel_auto_start` setting (a
+# plugin.toml default, GUI-editable) feeds the plugin's one-shot auto-start
+# of the otel-stack.target at shell boot.
 #
 #   tempo   — traces   (query :3200, internal OTLP :14317/:14318)
 #   mimir   — metrics  (:9009)
@@ -18,20 +19,17 @@
   pkgs,
   lib,
   config,
-  secrets,
   ...
 }:
 let
-  otel = secrets.server.otel or { };
-  bootAll = otel.enable or false;
-
-  # Ports (ints for configs, strings for URL interpolation).
-  grafanaPort = otel.grafanaPort or 3000;
-  tempoPort = otel.tempoPort or 3200;
-  mimirPort = otel.mimirPort or 9009;
-  lokiPort = otel.lokiPort or 3100;
-  otlpGrpcPort = otel.otlpGrpcPort or 4317;
-  otlpHttpPort = otel.otlpHttpPort or 4318;
+  # Ports (ints for configs, strings for URL interpolation). Tunable in
+  # home-modules/otel.nix only — not a plugin setting (fixed listeners).
+  grafanaPort = 3000;
+  tempoPort = 3200;
+  mimirPort = 9009;
+  lokiPort = 3100;
+  otlpGrpcPort = 4317;
+  otlpHttpPort = 4318;
 
   # Tempo's internal OTLP receiver ports — offset from 4317/4318 so the
   # collector owns the well-known OTLP ports. Fixed (internal plumbing).

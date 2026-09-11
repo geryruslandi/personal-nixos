@@ -85,69 +85,17 @@
       type = "ics";
     };
   };
-  # Env vars exported at the END of ~/.zshrc. Keep real values only in your
+  # zshEnv is exported at the END of ~/.zshrc. Keep real values only in your
   # gitignored secrets.nix so they never get committed.
   zshEnv = {
     MY_SECRET_API_KEY = "your-secret-value";
   };
-  # `enable = false` means the service/database is REGISTERED but does NOT boot
-  # at startup — you can still start it manually (`systemctl start X`) or via
-  # the Noctalia bar toggle without a password.
-  server = {
-    redis = {
-      enable = false;
-      port = 6379;       # optional
-      password = null;   # optional
-      user = "redis";    # optional
-    };
-    postgres = {
-      enable = true;
-      user = "postgres";
-      password = "postgres";
-      superuser = true;
-      databases = ["postgres"];
-    };
-    mysql = {
-      enable = true;
-      user = "root";
-      password = "root";  # optional
-      databases = ["mydb"];
-    };
-    mailpit = {
-      enable = true;
-      smtpPort = 1025;  # optional
-      uiPort = 8025;    # optional
-    };
-    seaweedfs = {
-      enable = true;
-      masterPort = 9333;             # optional
-      volumePort = 8080;             # optional
-      filerPort = 8888;              # optional
-      dataDir = "/mnt/data-ssd/seaweedfs";  # optional
-    };
-    docker = {
-      enable = true;                 # registered even when false; only boot is gated
-    };
-    seanime = {
-        enable = true;
-        port = 43211; # optional
-      };
-    stremio = {
-        enable = true;
-        port = 11470; # optional
-      };
-    otel = {
-      enable = false;      # registered even when false; only gates the plugin's
-                           # one-shot auto-start of the 5 units at shell boot
-      # optional ports (defaults shown)
-      grafanaPort = 3000;
-      tempoPort = 3200;
-      mimirPort = 9009;
-      lokiPort = 3100;
-      otlpGrpcPort = 4317;  # what apps send OTLP to (gRPC)
-      otlpHttpPort = 4318;  # what apps send OTLP to (HTTP)
-    };
-  };
+  # NOTE: no more `server` attribute — all dev-server configuration (redis,
+  # postgres, mysql, mailpit, seaweedfs, docker, seanime, stremio, otel) now
+  # lives in the gery/services Noctalia plugin (ports/passwords/datadirs/
+  # auto-start, all GUI-editable) or is hardcoded in home-modules/* (otel
+  # ports, dev-servers defaults). Secrets.nix holds only identity/credential
+  # config: git, ssh, keys, calendars, mounts.
   storageMount = [
     {
       mountPath = "/mnt/data-ssd";

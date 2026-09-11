@@ -56,6 +56,8 @@ in
     ./home-modules/swagger.nix
     ./home-modules/opencode.nix
     ./home-modules/otel.nix
+    ./home-modules/dev-servers.nix
+    ./home-modules/sonarqube.nix
     ./home-modules/tmux.nix
     ./home-modules/go.nix
     ./home-modules/gh.nix

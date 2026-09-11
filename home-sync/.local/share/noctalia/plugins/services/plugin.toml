@@ -1,6 +1,6 @@
 id         = "gery/services"
 name       = "Services Hub"
-version    = "1.0.1"
+version    = "1.1.0"
 plugin_api = 22
 author     = "gery"
 icon       = "server"
@@ -8,10 +8,176 @@ license    = "MIT"
 
 description = "Consolidated hub for all gery services: polling, bar count widget and a toggle panel."
 
-# NOTE: no port settings for redis/mysql/postgresql/seaweedfs/stremio/sonarqube
-# — those are display-only there (real listeners come from secrets.nix via Nix
-# modules or the daemon's own config). Only ports the plugin actually passes on
-# the start command line (mailpit, seanime) are configurable.
+# Since secrets.server was removed, ALL dev-server configuration lives here:
+# this plugin owns the full lifecycle of redis/postgres/mysql/seaweedfs/
+# docker/sonarqube (plus seanime/stremio/mailpit/otel). Ports, passwords,
+# datadirs and databases are real (not display-only): they are passed on the
+# plugin-built start command line or consumed by HM-generated unit wrappers.
+# Only the otel stack's listener ports remain display-only (fixed in
+# home-modules/otel.nix). Ports are string-typed because int settings render
+# as a 0-100 slider in the Settings UI.
+
+[[setting]]
+key        = "redis_binary"
+type       = "string"
+label_key  = "settings.binary.label"
+default    = "~/.config/gery-dev-scripts/gery-redis-dev"
+
+[[setting]]
+key        = "redis_port"
+type       = "string"
+label_key  = "settings.redis_port.label"
+default    = "6379"
+
+[[setting]]
+key        = "redis_password"
+type       = "string"
+label_key  = "settings.password.label"
+default    = ""
+
+[[setting]]
+key        = "redis_auto_start"
+type       = "bool"
+label_key  = "settings.auto_start.label"
+default    = false
+
+[[setting]]
+key        = "postgres_binary"
+type       = "string"
+label_key  = "settings.binary.label"
+default    = "~/.config/gery-dev-scripts/gery-pg-dev"
+
+[[setting]]
+key        = "postgres_port"
+type       = "string"
+label_key  = "settings.postgres_port.label"
+default    = "5432"
+
+[[setting]]
+key        = "postgres_user"
+type       = "string"
+label_key  = "settings.user.label"
+default    = "postgres"
+
+[[setting]]
+key        = "postgres_password"
+type       = "string"
+label_key  = "settings.password.label"
+default    = ""
+
+[[setting]]
+key        = "postgres_databases"
+type       = "string"
+label_key  = "settings.databases.label"
+default    = "postgres"
+
+[[setting]]
+key        = "postgres_auto_start"
+type       = "bool"
+label_key  = "settings.auto_start.label"
+default    = false
+
+[[setting]]
+key        = "mysql_binary"
+type       = "string"
+label_key  = "settings.binary.label"
+default    = "~/.config/gery-dev-scripts/gery-mysql-dev"
+
+[[setting]]
+key        = "mysql_port"
+type       = "string"
+label_key  = "settings.mysql_port.label"
+default    = "3306"
+
+[[setting]]
+key        = "mysql_user"
+type       = "string"
+label_key  = "settings.user.label"
+default    = "root"
+
+[[setting]]
+key        = "mysql_password"
+type       = "string"
+label_key  = "settings.password.label"
+default    = ""
+
+[[setting]]
+key        = "mysql_databases"
+type       = "string"
+label_key  = "settings.databases.label"
+default    = ""
+
+[[setting]]
+key        = "mysql_auto_start"
+type       = "bool"
+label_key  = "settings.auto_start.label"
+default    = false
+
+[[setting]]
+key        = "seaweedfs_binary"
+type       = "string"
+label_key  = "settings.binary.label"
+default    = "~/.config/gery-dev-scripts/gery-seaweed-dev"
+
+[[setting]]
+key        = "seaweedfs_bindIp"
+type       = "string"
+label_key  = "settings.seaweedfs_bindIp.label"
+default    = "127.0.0.1"
+
+[[setting]]
+key        = "seaweedfs_masterPort"
+type       = "string"
+label_key  = "settings.seaweedfs_masterPort.label"
+default    = "9333"
+
+[[setting]]
+key        = "seaweedfs_volumePort"
+type       = "string"
+label_key  = "settings.seaweedfs_volumePort.label"
+default    = "8080"
+
+[[setting]]
+key        = "seaweedfs_filerPort"
+type       = "string"
+label_key  = "settings.seaweedfs_filerPort.label"
+default    = "8888"
+
+[[setting]]
+key        = "seaweedfs_datadir"
+type       = "string"
+label_key  = "settings.datadir.label"
+default    = "~/.local/state/seaweedfs"
+
+[[setting]]
+key        = "seaweedfs_auto_start"
+type       = "bool"
+label_key  = "settings.auto_start.label"
+default    = false
+
+[[setting]]
+key        = "sonarqube_binary"
+type       = "string"
+label_key  = "settings.binary.label"
+default    = "~/.config/gery-dev-scripts/gery-sonarqube-dev"
+
+[[setting]]
+key        = "sonarqube_webPort"
+type       = "string"
+label_key  = "settings.sonarqube_webPort.label"
+default    = "9000"
+
+[[setting]]
+key        = "sonarqube_auto_start"
+type       = "bool"
+label_key  = "settings.auto_start.label"
+default    = false
+
+[[setting]]
+key        = "docker_auto_start"
+type       = "bool"
+label_key  = "settings.auto_start.label"
+default    = false
 
 [[setting]]
 key        = "mailpit_binary"
