@@ -16,6 +16,33 @@
     # no need to redefine it in your config for now)
     #media-session.enable = true;
 
+    # Disable PipeWire idle suspend of ALSA nodes: WirePlumber parks the card
+    # device in low-power state ~3s after the last stream goes idle — the same
+    # power-save path that makes Realtek analog outputs buzz between short
+    # sounds (idle, sleep resume, SDDM). Complements snd_hda_intel
+    # power_save=0 (configuration.nix) + the 0x040300 PCI rule in power.nix.
+    wireplumber.extraConfig = {
+      "50-disable-audio-suspend" = {
+        "monitor.alsa.rules" = [
+          {
+            matches = [
+              {
+                node.name = "~alsa_output.*";
+              }
+              {
+                node.name = "~alsa_input.*";
+              }
+            ];
+            actions = {
+              update-props = {
+                "node.suspend-on-idle" = false;
+              };
+            };
+          }
+        ];
+      };
+    };
+
     # As of now we exclude ldac
     # because on current nixos stable, it has ldac bug
     # https://discourse.nixos.org/t/bluetooth-audio-broken-after-recent-update-likely-ldac-pipewire-1-6-2/76805

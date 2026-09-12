@@ -16,6 +16,9 @@
     # Dbeaver with postgres drriver
     dbeaver-bin
     postgresql_jdbc
+    # Postgres client tools (pg_restore/pg_dump/psql) for DBeaver's "client
+    # home" lookup in /run/current-system/sw/bin
+    postgresql
 
     # for media keyboard shortcut
     playerctl
