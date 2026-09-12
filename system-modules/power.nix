@@ -56,32 +56,77 @@
     # ~1s+ input lag. Matches child interfaces of composite devices; the RUN
     # strips the interface component to reach the parent's power/control.
     ACTION=="add|change", SUBSYSTEM=="usb", ATTR{bInterfaceClass}=="03", ATTR{bInterfaceProtocol}=="01|02", RUN+="${pkgs.bash}/bin/bash -c 'echo on > /sys$devpath/../power/control 2>/dev/null || true'"
+    # HDA audio controller (PCI class 0x040300, e.g. Intel Alder Lake PCH +
+    # Realtek codec): never runtime-suspend it. snd_hda_intel power_save=1 or
+    # PCI runtime PM on this device causes analog-output buzzing/hum when the
+    # card is idle — powertop --auto-tune rewrites configuration.nix's
+    # power_save=0 to 1 after boot, so we also re-assert post-powertop below.
+    # Covers coldplug + hotplug immediately at plug time.
+    ACTION=="add|change", SUBSYSTEM=="pci", ATTR{class}=="0x0403*", ATTR{power/control}="on"
   '';
 
-  # The udev rule above fires at boot coldplug, but powerManagement.powertop
-  # runs `powertop --auto-tune` LATER (After=multi-user.target) and flips every
-  # HID device back to power/control=auto. This oneshot re-asserts the
-  # keyboard/mouse exemption after powertop so it survives every boot.
-  # Hotplug replugs are covered by the udev rule (powertop runs once per boot).
-  systemd.services.usb-hid-no-autosuspend = {
-    description = "Keep HID keyboards/mice out of USB autosuspend";
-    wantedBy = [ "multi-user.target" ];
+  # The udev rules above fire at boot coldplug, but powerManagement.powertop
+  # runs `powertop --auto-tune` LATER (After=multi-user.target) and flips HID
+  # devices AND the HDA audio controller (and snd_hda_intel power_save) back to
+  # power-saving. This oneshot re-asserts both exemptions so they survive
+  # every boot.
+  # Ordering v2 (2026-09-12): triggered by powertop.service itself via
+  # systemd.services.powertop.wants + After=powertop.service. v1 used
+  # WantedBy=multi-user with a poll loop — first attempt at a poll (checking
+  # "inactive") always broke immediately BEFORE powertop was even queued, and
+  # an earlier variant (After/Wants on powertop + WantedBy=multi-user on both)
+  # created a dependency cycle so systemd silently DELETED the unit. Both
+  # ordering-by-construction options were wrong: now powertop's own Wants=
+  # guarantees this runs right after auto-tune, every boot, no cycle (this
+  # unit is reached only through powertop, no multi-user wantedBy).
+  systemd.services.post-powertop-reassert = {
+    description = "Re-assert HID keyboard/mouse + HDA audio no-autosuspend after powertop auto-tune";
     after = [ "powertop.service" ];
-    wants = [ "powertop.service" ];
     serviceConfig.Type = "oneshot";
     script = ''
+      # snd_hda_intel can still be mid-load when powertop exits (observed
+      # 2026-09-12: /sys/module/snd_hda_intel/parameters/* did not exist yet
+      # at unit start). Wait briefly for the param node, then write.
+      for _ in $(seq 1 15); do
+        [ -e /sys/module/snd_hda_intel/parameters/power_save ] && break
+        sleep 2
+      done
+
+      # Backstop: powertop rewrites snd_hda_intel power_save to 1 — see the
+      # buzzing diagnosis 2026-09-12. Rewrite it to hold power_save=0 from
+      # configuration.nix's extraModprobeConfig. (noop if already 0)
+      echo 0 > /sys/module/snd_hda_intel/parameters/power_save 2>/dev/null || true
+
       # Interface dirs end in ":<config>.<alt>" (e.g. 3-2.4:1.0) — glob on the
       # single colon; the earlier "*:*:*" pattern never matched anything.
+      # nullglob so an empty /sys/bus/usb/devices (early-boot crash in v1)
+      # can't make bash write to a literal path.
+      shopt -s nullglob
       for if in /sys/bus/usb/devices/*:*; do
         [ -f "$if/bInterfaceClass" ] || continue
         class=$(cat "$if/bInterfaceClass" 2>/dev/null)
         proto=$(cat "$if/bInterfaceProtocol" 2>/dev/null)
         [ "$class" = "03" ] || continue
         { [ "$proto" = "01" ] || [ "$proto" = "02" ]; } || continue
-        echo on > "$(dirname "$if")/power/control" 2>/dev/null || true
+        # NOTE: $if is a VIRTUAL dir under /sys/bus/usb/devices (its ".." is
+        # the devices stub dir, NOT the interface device) — readlink -f onto
+        # the physical tree first, then ".." is the parent USB device.
+        resolved=$(readlink -f "$if") || continue
+        echo on > "$resolved/../power/control" 2>/dev/null || true
+      done
+
+      # HDA audio controller: force PCI runtime PM off for the audio device.
+      # class is 0x040380 here (prog-if 0x80) — match on the 0x0403 prefix.
+      for dev in /sys/bus/pci/devices/*; do
+        case "$(cat "$dev/class" 2>/dev/null)" in
+          0x0403*) echo on > "$dev/power/control" 2>/dev/null || true ;;
+        esac
       done
     '';
   };
+
+  # Chain the reassert unit off powertop.service (see comment above).
+  systemd.services.powertop.wants = [ "post-powertop-reassert.service" ];
 
   # The udev rule above only re-applies perms when a battery uevent fires; if
   # none does (e.g. battery idle at steady state), the sysfs node keeps its
@@ -207,9 +252,16 @@
       # Disable Bluetooth radio before sleep
       rfkill block bluetooth 2>/dev/null || true
 
-      # Enable runtime power management for all PCI devices
-      for dev in /sys/bus/pci/devices/*/power/control; do
-        echo auto > "$dev" 2>/dev/null || true
+      # Enable runtime power management for all PCI devices, EXCEPT the HDA
+      # audio controller (class 0x040300): suspending it while asleep doesn't
+      # help S0ix and on resume this machine buzzes until it is re-armed; keep
+      # it permanently out of runtime PM (see the udev rule above).
+      for ctl in /sys/bus/pci/devices/*/power/control; do
+        cls=$(cat "$(dirname "$(dirname "$ctl")")/class" 2>/dev/null || true)
+        case "$cls" in
+          0x0403*) echo on > "$ctl" 2>/dev/null || true; continue ;;
+        esac
+        echo auto > "$ctl" 2>/dev/null || true
       done
     '';
     postStop = ''
@@ -234,6 +286,16 @@
 
       # Restore Bluetooth after resume
       rfkill unblock bluetooth 2>/dev/null || true
+
+      # Re-assert HDA audio no-power-save after resume (userspace may have
+      # dropped the codec into power-save during sleep — buzzing source).
+      # class is 0x040380 here — match on the 0x0403 prefix.
+      echo 0 > /sys/module/snd_hda_intel/parameters/power_save 2>/dev/null || true
+      for dev in /sys/bus/pci/devices/*; do
+        case "$(cat "$dev/class" 2>/dev/null)" in
+          0x0403*) echo on > "$dev/power/control" 2>/dev/null || true ;;
+        esac
+      done
 
       if [ "$SLEPT" != "yes" ]; then
         exit 0
