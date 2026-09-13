@@ -22,6 +22,14 @@
     # Do NOT add `inputs.nixpkgs.follows` here — it disables the binary cache.
     noctalia.url = "github:noctalia-dev/noctalia/cachix";
 
+    # Noctalia Greeter (greetd greeter). Unlike the noctalia shell input this
+    # has no prebuilt-binary cache, so following our nixpkgs is fine and avoids
+    # a second independent nixpkgs pin.
+    noctalia-greeter = {
+      url = "github:noctalia-dev/noctalia-greeter";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     nix-flatpak.url = "github:gmodena/nix-flatpak/?ref=latest";
 
     qylock.url = "github:Darkkal44/qylock";

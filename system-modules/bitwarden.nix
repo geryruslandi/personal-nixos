@@ -11,8 +11,8 @@
 
   # Enable the GNOME Keyring service
   services.gnome.gnome-keyring.enable = true;
-  # Unlock keyring on login
-  security.pam.services.sddm.enableGnomeKeyring = true;
+  # Unlock keyring on login (greetd / Noctalia Greeter is our display manager)
+  security.pam.services.greetd.enableGnomeKeyring = true;
 
   # Required for the service to find its storage path
   environment.variables.XDG_RUNTIME_DIR = "/run/user/$UID";

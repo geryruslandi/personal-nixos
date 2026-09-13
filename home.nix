@@ -21,7 +21,6 @@ let
           laptopScale = 2.0;
           externalOutput = "";
         };
-        sddmScale = 1.0;
         devPorts = [ ];
       }; # Fallback
 

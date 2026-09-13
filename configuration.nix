@@ -24,7 +24,6 @@ let
           laptopScale = 2.0;
           externalOutput = "";
         };
-        sddmScale = 1.0;
         devPorts = [ ];
       }; # Fallback
 
@@ -66,6 +65,7 @@ in
     ./system-modules/cloudflare-warp.nix
     ./system-modules/kdeconnect.nix
     ./system-modules/fingerprint-setup.nix
+    ./system-modules/greeter.nix
   ];
 
   _module.args = { inherit secrets; };

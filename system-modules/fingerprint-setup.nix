@@ -3,10 +3,13 @@
   # Fingerprint authentication
   services.fprintd.enable = true;
   security.pam.services.sudo.fprintAuth = true;
-  security.pam.services.sddm = {
-    enable = true;
-    fprintAuth = true;
-  };
+
+  # NOTE: the greetd PAM stack (Noctalia Greeter) deliberately has NO
+  # pam_fprintd. The greeter does not drive the sensor over D-Bus, and
+  # pam_fprintd in its stack claims the sensor and blocks the password prompt
+  # until a scan (scan-first UX). Password-only login; fingerprint lives on the
+  # lockscreen (login + D-Bus below) and sudo.
+
   # NOTE: NixOS injects pam_fprintd into EVERY PAM service by default
   # (fprintAuth defaults to services.fprintd.enable, pam.nix) — "not setting
   # it" is not enough, so `login` must opt out explicitly. The Noctalia

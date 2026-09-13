@@ -35,6 +35,13 @@
         password_style = "default";
         screen_time_enabled = true;
 
+        # Greeter appearance-sync (Settings → Security): pushed to
+        # /var/lib/noctalia-greeter by the greeter-sync polkit flow enabled in
+        # system-modules/greeter.nix (passwordless for this user).
+        greeter_sync = {
+          auto_sync = true;
+        };
+
         animation = {
           enabled = true;
           speed = 1.0;
@@ -213,7 +220,10 @@
 
       lockscreen_widgets = {
         enabled = false;
-        widget_order = [ "lockscreen-login-box@eDP-1" ];
+        widget_order = [
+          "lockscreen-login-box@DP-4"
+          "lockscreen-login-box@eDP-1"
+        ];
 
         grid = {
           cell_size = 16;
@@ -222,6 +232,34 @@
         };
 
         widget = {
+          "lockscreen-login-box@DP-4" = {
+            type = "login_box";
+            output = "DP-4";
+            cx = 1720.0;
+            cy = 1258.0;
+            box_width = 810.0;
+            box_height = 196.0;
+            rotation = 0.0;
+            placement_width = 3440.0;
+            placement_height = 1440.0;
+
+            settings = {
+              background_color = "surface_variant";
+              background_opacity = 0.88;
+              background_radius = 12.0;
+              center_password_text = false;
+              input_opacity = 1.0;
+              input_radius = 6.0;
+              layout = "regular";
+              show_caps_lock = true;
+              show_keyboard_layout = true;
+              show_login_button = true;
+              show_media = true;
+              show_session_buttons = true;
+              show_unlock_hint = true;
+              show_weather = true;
+            };
+          };
           "lockscreen-login-box@eDP-1" = {
             type = "login_box";
             output = "eDP-1";
@@ -230,6 +268,8 @@
             box_width = 810.0;
             box_height = 196.0;
             rotation = 0.0;
+            placement_width = 1728.0;
+            placement_height = 1080.0;
 
             settings = {
               background_color = "surface_variant";
@@ -329,7 +369,7 @@
 
         main = {
           position = "top";
-          background_opacity = 0.2;
+          background_opacity = 0.3;
           capsule = true;
           capsule_opacity = 0.46;
           capsule_radius = 7;
@@ -340,7 +380,7 @@
           radius = 0;
           radius_bottom_left = 6;
           radius_bottom_right = 6;
-          shadow = true;
+          shadow = false;
           reserve_space = true;
           auto_hide = false;
           font_family = "JetBrainsMono Nerd Font Propo";
@@ -352,9 +392,9 @@
           ];
           center = [ "workspaces" ];
           end = [
+            "tray"
             "group:g1"
             "group:g2"
-            "tray"
             "volume"
             "widget"
             "clock"
@@ -400,22 +440,13 @@
 
       desktop_widgets = {
         enabled = false;
-        widget_order = [ "desktop-widget-0000000000000001" ];
+        # Desktop clock widget (better-clock) deleted from the desktop — list
+        # empty, same as the GUI state.
+        widget_order = [ ];
         grid = {
           cell_size = 16;
           major_interval = 4;
           visible = true;
-        };
-        widget = {
-          "desktop-widget-0000000000000001" = {
-            type = "yugaaank/better-clock:clock";
-            output = "eDP-1";
-            cx = 990.0;
-            cy = 666.0;
-            box_width = 272.0;
-            box_height = 272.0;
-            rotation = 0.0;
-          };
         };
       };
 
@@ -478,7 +509,8 @@
           hide_when_no_media = true;
         };
         clock = {
-          format = "%d/%m/%Y %H:%M";
+          format = "%A, %d %b, %H:%M";
+          timezone = "Asia/Jakarta";
         };
         privacy = {
           hide_inactive = true;
@@ -515,7 +547,6 @@
         enabled = [
           "noctalia/screen_recorder"
           "noctalia/wallhaven"
-          "ycf/mawaqit"
           "noctalia/bitwarden"
           "noctalia/notes"
           "dunarand/tmux-provider"
@@ -547,6 +578,9 @@
         "nightwatch75/todo" = {
           panel_placement = "floating";
           panel_position = "center";
+        };
+        "noctalia/bitwarden" = {
+          vault_timeout = "30";
         };
         "piero-93/battery-power-management" = {
           panel_placement = "floating";

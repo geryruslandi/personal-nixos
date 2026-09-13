@@ -62,7 +62,7 @@ git add --intent-to-add secrets.nix -f   # rebuild.sh also does this automatical
 ### Key Packages & Services
 
 - **WM**: Hyprland (enabled via `programs.hyprland.enable`)
-- **DM**: SDDM with Wayland (`services.displayManager.sddm.wayland.enable`)
+- **DM**: Noctalia Greeter via greetd (`system-modules/greeter.nix`, project flake module `programs.noctalia-greeter`; Hyprland session, Bibata cursor, `user.default` = primary user; passwordless wallpaper/palette appearance sync for the primary user)
 - **Shell**: Noctalia (bar, widgets, notifications — configured in `home-modules/noctalia.nix` and `system-modules/noctalia.nix`)
 - **Launcher & Clipboard**: Noctalia's built-in launcher/clipboard panels (`home-modules/noctalia.nix`; `Super+Space` launcher, `Super+V` clipboard history)
 - **Lockscreen**: Noctaria lock + Qylock (`system-modules/theme.nix`, theme `pixel-dusk-city`)

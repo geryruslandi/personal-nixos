@@ -555,6 +555,26 @@
         "type": "github"
       }
     },
+    "noctalia-greeter": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1789264777,
+        "narHash": "sha256-MfLKF9Pg3NVM/U/psYz+KsfeyUUausLXL8BVXf0Knoo=",
+        "owner": "noctalia-dev",
+        "repo": "noctalia-greeter",
+        "rev": "8be38dd84b7e8d197c94d800dc93b78c783b80d3",
+        "type": "github"
+      },
+      "original": {
+        "owner": "noctalia-dev",
+        "repo": "noctalia-greeter",
+        "type": "github"
+      }
+    },
     "pre-commit-hooks": {
       "inputs": {
         "flake-compat": "flake-compat",
@@ -654,6 +674,7 @@
         "nix-flatpak": "nix-flatpak",
         "nixpkgs": "nixpkgs_3",
         "noctalia": "noctalia",
+        "noctalia-greeter": "noctalia-greeter",
         "pyproject-build-systems": "pyproject-build-systems",
         "pyproject-nix": "pyproject-nix",
         "qylock": "qylock",
