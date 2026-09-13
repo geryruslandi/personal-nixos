@@ -202,11 +202,13 @@
 
       lockscreen = {
         enabled = true;
-        # Lock screen drives the fprintd sensor itself; with it enabled the
-        # unlock flow waits on a fingerprint scan after password submission
-        # (stalls the session whenever the lid is closed / sensor unreachable).
-        # Password-only unlock via PAM instead; sudo + SDDM keep fingerprint.
-        fingerprint = false;
+        # Noctaria drives the fprintd sensor itself over D-Bus (Windows-style
+        # either-or unlock): a scan alone unlocks, and submitting a password
+        # stops fingerprint verification first (LockScreen::tryAuthenticate).
+        # Requires `login` to have NO pam_fprintd — configured in
+        # system-modules/fingerprint-setup.nix. If the sensor is unreachable,
+        # Noctaria gives up silently and password unlock still works.
+        fingerprint = true;
       };
 
       lockscreen_widgets = {
