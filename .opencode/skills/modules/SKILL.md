@@ -48,14 +48,15 @@ Available arguments: `pkgs`, `lib`, `config`, `inputs`, `secrets` (via `_module.
 
 ## Secrets Pattern
 
-Secrets are passed to all modules via `_module.args = { inherit secrets; }` in `configuration.nix:80` and `home.nix:76`.
+Secrets are passed to all modules via `_module.args = { inherit secrets; }` in `configuration.nix:71` and `home.nix:82`.
 
 ### Accessing secrets
 
 ```nix
 { pkgs, secrets, ... }:
 {
-  services.postgresql.enable = (secrets.server.postgres or {}).enable or false;
+  # Optional field access with a fallback
+  services.kanshi.settings = (secrets.monitor or {});
 }
 ```
 
@@ -70,14 +71,14 @@ secrets =
   if builtins.pathExists ./secrets.nix then
     import ./secrets.nix
   else
-    { ssh = []; git = {}; server = { /* disabled defaults */ }; ... };
+    { ssh = []; git = {}; /* disabled defaults */ };
 ```
 
 **`secrets.projectPath` is required** — both entry points throw at build time when it's missing/empty.
 
 ### Secrets schema (`secrets.nix`)
 
-Top-level fields: `projectPath` (**required**, repo abs path), `git` (`defaultBranch`, `defaultUser`, `projects[]`, `ignores[]`), `ssh[]`, `zshEnv` (attrset exported in zshrc), `timezone`, `monitor` (`laptopOutput/laptopScale/externalOutput`), `devPorts`, `nvidia` (`intelBusId/nvidiaBusId`), `server` (`redis/postgres/mysql/mailpit/seaweedfs/docker/seanime/stremio` — each `{ enable, ... }`; `enable=false` = registered but no auto-start), `storageMount[]`, `swapAltWin`. Dead fields: `wallhavenKey`, `sddmScale`. See the **secrets** skill for the full annotated schema and consumer map.
+Top-level fields: `projectPath` (**required**, repo abs path), `git` (`defaultBranch`, `defaultUser`, `projects[]`, `ignores[]`), `ssh[]`, `zshEnv` (attrset exported in zshrc), `noctaliaCalendar` (calendar widget accounts), `timezone`, `monitor` (`laptopOutput/laptopScale/externalOutput`), `devPorts`, `nvidia` (`intelBusId/nvidiaBusId`), `storageMount[]`, `swapAltWin`. Dead fields: `wallhavenKey`, `sddmScale` (and `server` was **removed** — dev-server config lives in the `gery/services` Noctalia plugin now). See the **secrets** skill for the full annotated schema and consumer map.
 
 ### Modifying secrets
 
@@ -96,7 +97,7 @@ All flake `inputs` are available to both system and home modules through `inputs
 }
 ```
 
-Current inputs: `nixpkgs` (unstable), `hyprland`, `home-manager` (follows nixpkgs), `noctalia` (v5, cachix branch — do NOT add `follows`), `nix-flatpak`, `qylock`, `aethertune`.
+Current inputs: `nixpkgs` (unstable), `hyprland`, `home-manager` (follows nixpkgs), `noctalia` (v5, cachix branch — do NOT add `follows`), `noctalia-greeter`, `nix-flatpak`, `qylock`, `aethertune`, `headroom`, `pyproject-nix`/`uv2nix`/`build-system-pkgs`.
 
 ## Theming
 
@@ -109,7 +110,7 @@ Theming is driven by **Noctalia v5** (no Catppuccin Nix module anymore — it wa
 
 ## Module Examples
 
-- **Conditional enablement + secrets**: `system-modules/postgresql.nix:4` (`pg.enable or false`)
+- **Conditional secrets access**: `system-modules/nvidia.nix:56` (`secrets.nvidia.intelBusId or "PCI:0:2:0"`)
 - **List-to-attrs pattern**: `system-modules/ssd-mounter.nix:3` and `home-modules/ssh.nix:13`
 - **Flake input import**: `system-modules/noctalia.nix:4` and `home-modules/noctalia.nix:19`
 - **GPG conditional includes**: `home-modules/git.nix:18-27`

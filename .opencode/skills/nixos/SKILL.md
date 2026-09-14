@@ -33,11 +33,11 @@ After hardware changes (GPU swap, new drives, etc.):
 sudo nixos-generate-config --show-hardware-config > /etc/nixos/hardware-configuration.nix
 ```
 
-The file lives at `/etc/nixos/hardware-configuration.nix` and is imported by `configuration.nix:52`. Bootloader is **GRUB** with EFI (`boot.loader.grub`, `boot.loader.efi.canTouchEfiVariables`).
+The file lives at `/etc/nixos/hardware-configuration.nix` and is imported by `configuration.nix:45`. Bootloader is **GRUB** with EFI (`boot.loader.grub`, `boot.loader.efi.canTouchEfiVariables`).
 
 ## Flake Inputs
 
-Current inputs: `nixpkgs` (nixos-unstable), `hyprland`, `home-manager` (+follows), `noctalia`, `nix-flatpak`, `qylock`, `aethertune`.
+Current inputs: `nixpkgs` (nixos-unstable), `hyprland`, `home-manager` (+follows), `noctalia`, `noctalia-greeter`, `nix-flatpak`, `qylock`, `aethertune`, `headroom`, `pyproject-nix`/`uv2nix`/`build-system-pkgs`.
 
 ```bash
 # Update ALL inputs

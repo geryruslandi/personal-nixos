@@ -121,7 +121,7 @@ This repo develops its own plugin, **`gery/services`**, at `home-sync/.local/sha
 
 **Nix-side wiring** (required for the plugin to run with sane settings):
 1. Enable it: add `"gery/services"` to `settings.plugins.enabled` in `home-modules/noctalia.nix`.
-2. Seed defaults from secrets via `settings.plugin_settings."gery/services"` in the same file (ports, `*_auto_start` flags fed from `secrets.server.*`). GUI edits persist over these in `~/.local/state/noctalia/settings.toml` (use the `noctalia-sync` skill to fold them back).
+2. All dev-server settings (ports, passwords, datadirs, auto-start) are **plugin-owned**: defaults live in the plugin's `plugin.toml`, GUI edits persist in `~/.local/state/noctalia/settings.toml` (`secrets.server` was removed — nothing is seeded from secrets anymore; use the `noctalia-sync` skill to fold GUI edits back into the repo).
 3. If the plugin needs binaries, install them declaratively (e.g. `home-modules/seanime.nix`, `stremio.nix`, `mailpit.nix` install just the binary; the plugin owns the service lifecycle).
 
 Upstream built-ins are enabled the same way (add the id to `settings.plugins.enabled`). Reference implementations worth reading besides `gery/services`: `example` (widget/service/shortcut + panel), `timer` (desktop widget), `screen_recorder`, `wallhaven` in `github:noctalia-dev/official-plugins`.

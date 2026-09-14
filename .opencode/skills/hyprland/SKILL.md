@@ -1,25 +1,24 @@
 ---
 name: hyprland
-description: Use when modifying or understanding Hyprland window manager configuration — keybindings, monitors, window rules, animations, input settings. Configuration is split between the system module (system-modules/hyprland.nix — enabling+SDDM) and the home module (home-modules/hyprland.nix — all settings).
+description: Use when modifying or understanding Hyprland window manager configuration — keybindings, monitors, window rules, animations, input settings. Configuration is split between the system module (system-modules/hyprland.nix — enabling + packages) and the home module (home-modules/hyprland.nix — all settings). The login screen is the Noctalia Greeter (system-modules/greeter.nix), not SDDM.
 ---
 
 # Hyprland Configuration
 
 Hyprland config is split across **two files**:
 
-## System Module: `system-modules/hyprland.nix` (27 lines)
+## System Module: `system-modules/hyprland.nix` (14 lines)
 
-Enables Hyprland and SDDM with Wayland (kwin compositor), sets the SDDM cursor theme (Bibata-Modern-Classic), and installs `bibata-cursors`:
+Just enables Hyprland and installs `bibata-cursors`:
 
 ```nix
 programs.hyprland.enable = true;
-services.displayManager.sddm = {
-  enable = true;
-  wayland = { enable = true; compositor = "kwin"; };
-};
+environment.systemPackages = with pkgs; [ bibata-cursors ];
 ```
 
-## Home Module: `home-modules/hyprland.nix` (~306 lines)
+The login screen is the **Noctalia Greeter via greetd** (`system-modules/greeter.nix`): Hyprland session by default, Bibata-Modern-Classic cursor, keyboard layout us, and passwordless wallpaper/palette sync for the primary user. There is **no SDDM**.
+
+## Home Module: `home-modules/hyprland.nix` (~311 lines)
 
 All actual Hyprland settings live here. Uses `configType = "hyprlang"`.
 

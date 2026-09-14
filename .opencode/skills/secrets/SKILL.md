@@ -1,6 +1,6 @@
 ---
 name: secrets
-description: Use when editing or managing secrets.nix — adding git projects, SSH hosts, storage mounts, dev-server feature flags, env vars, or timezone/monitor settings. Also covers the git-add dance to make the flake see the gitignored file. Do NOT use for building or deploying — use the 'nixos' skill for that.
+description: Use when editing or managing secrets.nix — adding git projects, SSH hosts, storage mounts, calendar accounts, env vars, or timezone/monitor settings. Also covers the git-add dance to make the flake see the gitignored file. Do NOT use for building or deploying — use the 'nixos' skill for that.
 ---
 
 # Secrets Management
@@ -47,6 +47,22 @@ description: Use when editing or managing secrets.nix — adding git projects, S
 
   wallhavenKey = "...";                # DEAD — no consumer anymore (wallhaven API key moved into the noctalia/wallhaven plugin's own settings)
 
+  # Noctalia calendar accounts — mirrors [calendar.account.*] in
+  # ~/.local/state/noctalia/settings.toml (home-modules/noctalia.nix).
+  # Keep account ids stable — they bind to credentials in the system keyring.
+  noctaliaCalendar = {
+    my_google = {
+      name = "Your Name";
+      type = "google";
+    };
+    outlook_work = {
+      color = "tertiary";
+      name = "Work Calendar";
+      server_url = "https://outlook.office365.com/owa/calendar/[EMAIL]/<hash>/calendar.ics";
+      type = "ics";
+    };
+  };
+
   zshEnv = {                           # exported verbatim at the end of ~/.zshrc
     MY_SECRET_API_KEY = "your-secret-value";
   };
@@ -59,8 +75,6 @@ description: Use when editing or managing secrets.nix — adding git projects, S
     externalOutput = "DP-3";           # used by the dockedAtHome profile
   };
 
-  sddmScale = 1.0;                     # DEAD — only a fallback default remains; nothing consumes it
-
   devPorts = [ ];                      # networking.firewall.allowedTCPPorts
 
   nvidia = {                           # PRIME offload bus IDs (system-modules/nvidia.nix)
@@ -68,18 +82,12 @@ description: Use when editing or managing secrets.nix — adding git projects, S
     nvidiaBusId = "PCI:1:0:0";
   };
 
-  # enable=false = REGISTERED but no auto-start; start manually or via the Noctalia services toggle.
-  server = {
-    redis     = { enable = false; port = 6379; password = null; user = "redis"; };
-    postgres  = { enable = true; user = "postgres"; password = "postgres"; superuser = true; databases = ["postgres"]; };
-    mysql     = { enable = true; user = "root"; password = "root"; databases = ["mydb"]; };   # password/databases optional
-    mailpit   = { enable = true; smtpPort = 1025; uiPort = 8025; };       # ports feed the gery/services plugin
-    seaweedfs = { enable = true; masterPort = 9333; volumePort = 8080; filerPort = 8888;
-                  dataDir = "/mnt/data-ssd/seaweedfs"; };                 # all fields except enable optional
-    docker    = { enable = true; };
-    seanime   = { enable = true; port = 43211; };   # binary-only Nix pkg; service owned by gery/services plugin
-    stremio   = { enable = true; port = 11470; };   # ditto
-  };
+  # NOTE: no `server` attribute — all dev-server configuration (redis,
+  # postgres, mysql, mailpit, seaweedfs, docker, seanime, stremio, sonarqube,
+  # otel) lives in the gery/services Noctalia plugin (ports/passwords/
+  # datadirs/auto-start, GUI-editable in Settings → Plugins, persists to
+  # ~/.local/state/noctalia/settings.toml) or is hardcoded in home-modules/*.
+  # `server` was REMOVED from secrets.nix — do not re-add it.
 
   storageMount = [                     # fileSystems entries (system-modules/ssd-mounter.nix)
     {
@@ -93,7 +101,7 @@ description: Use when editing or managing secrets.nix — adding git projects, S
 }
 ```
 
-> `secrets.example.nix` is missing `timezone`, `monitor`, `sddmScale`, and `devPorts` — the real schema is broader. Copy from the table above if bootstrapping fresh.
+> `secrets.example.nix` is missing `timezone`, `monitor`, and `devPorts` — the real schema is broader. Copy from the schema above if bootstrapping fresh.
 
 ## Consumers
 
@@ -104,16 +112,13 @@ description: Use when editing or managing secrets.nix — adding git projects, S
 | `monitor.*` | Kanshi laptop/docked profiles | `home-modules/kanshi.nix` |
 | `devPorts` | Firewall TCP allowlist | `configuration.nix` |
 | `zshEnv` | Exports at end of `.zshrc` | `home-modules/zsh.nix` |
+| `noctaliaCalendar` | Noctalia calendar widget accounts | `home-modules/noctalia.nix` |
 | `nvidia.*` | PRIME offload bus IDs | `system-modules/nvidia.nix` |
 | `swapAltWin` | Hyprland Alt/Super swap | `home-modules/hyprland.nix` |
 | `git.defaultBranch/defaultUser/projects/ignores` | Git config, includeIf blocks, generated ignores | `home-modules/git.nix` |
 | `ssh` | SSH match blocks | `home-modules/ssh.nix` |
-| `server.redis/mysql/postgres` | Service registration + provisioning | `system-modules/{redis,mysql,postgresql}.nix` |
-| `server.seaweedfs` | weed master/volume/filer units + target | `system-modules/seaweedfs.nix` |
-| `server.docker` | Docker on-boot gating | `system-modules/docker.nix` |
-| `server.{seanime,stremio,mailpit}` | Ports/auto-start for the services hub | `plugin_settings."gery/services"` in `home-modules/noctalia.nix` |
 | `storageMount` | Automatic SSD mounting | `system-modules/ssd-mounter.nix` |
-| `wallhavenKey`, `sddmScale` | **no consumers (dead fields)** | — |
+| `wallhavenKey`, `sddmScale`, `server` | **no consumers (dead/removed fields)** | — |
 
 ## Common Operations
 
@@ -123,7 +128,7 @@ Append entries to `git.projects`, `ssh`, or `storageMount` following the shapes 
 
 ### Toggle a dev server
 
-Flip `server.<name>.enable` — registration never changes, only auto-start. The Noctalia `gery/services` bar widget can start/stop everything regardless (polkit whitelists those units for wheel users).
+There is **no secrets-side toggle anymore**. Use the Noctalia `gery/services` plugin (bar widget / panel / Settings → Plugins) — it owns the full lifecycle and persists its own settings; no rebuild needed.
 
 ## After Editing secrets.nix
 

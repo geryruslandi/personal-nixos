@@ -10,7 +10,7 @@ description: Use when adding, removing, or configuring Flatpak applications and 
 - Flatpak applications are sandboxed, get updates independent of NixOS generations, and work consistently across rebuilds.
 - Nix packages are reserved for: CLI tools, libraries, system services, kernel modules, and apps not available as Flatpaks.
 
-## Configuration: `flatpak.nix` (130 lines)
+## Configuration: `flatpak.nix` (139 lines)
 
 Enabled via the `nix-flatpak` flake input (`github:gmodena/nix-flatpak/?ref=latest`). All changes are declarative — after editing, rebuild with `./rebuild.sh`.
 
@@ -34,7 +34,7 @@ Delete the entry from the list and rebuild. `services.flatpak.uninstallUnmanaged
 
 ### Adding Per-App Overrides
 
-Use `services.flatpak.overrides` (`flatpak.nix:53-128`) — note the option name is **overrides**, not `overlays`:
+Use `services.flatpak.overrides` (`flatpak.nix:54-138`) — note the option name is **overrides**, not `overlays`:
 
 ```nix
 services.flatpak.overrides."app.zen_browser.zen".Context = {
@@ -44,7 +44,7 @@ services.flatpak.overrides."app.zen_browser.zen".Context = {
 
 ### Global Overrides
 
-Current global overrides (`flatpak.nix:53-80`):
+Current global overrides (`flatpak.nix:54-80`):
 - **Wayland-only**: `sockets = ["wayland", "!x11", "!fallback-x11"]`
 - **Theme access**: reads Nix store themes/icons via read-only mounts of `xdg-config/gtk-{3,4}.0`, `~/.icons`, `~/.themes`, `/nix/store`
 - **Environment**: `TZ = secrets.timezone`, `GTK_USE_PORTAL=1`, `QT_QPA_PLATFORMTHEME=gtk3`, `ELECTRON_OZONE_PLATFORM_HINT=auto`, `NIXOS_OZONE_WL=1`
@@ -56,15 +56,16 @@ Current global overrides (`flatpak.nix:53-80`):
 | `dev.vencord.Vesktop` | Wayland + PulseAudio |
 | `chat.rocket.RocketChat` | Wayland + PulseAudio + system-bus |
 | `app.zen_browser.zen` | Full home filesystem access |
+| `com.github.mtkennerly.ludusavi` | Full home filesystem access (rclone via `~/.local/bin/rclone` symlink in `home.nix`) |
 | `io.podman_desktop.PodmanDesktop` | Wayland-only sockets + forces Electron onto Wayland (`XDG_SESSION_TYPE`, `ELECTRON_OZONE_PLATFORM_HINT`) |
 
 ### Remotes
 
 Only `flathub-beta` is added alongside the default Flathub (lines 5-11). Auto-updates are disabled (line 14).
 
-### Current Applications (29 total)
+### Current Applications (30 total)
 
-`net.nokyan.Resources`, `app.zen_browser.zen`, `dev.vencord.Vesktop`, `org.videolan.VLC`, `net.davidotek.pupgui2`, `com.github.tchx84.Flatseal`, `md.obsidian.Obsidian`, `io.github.peazip.PeaZip`, `org.gnome.Calculator`, `de.haeckerfelix.Shortwave`, `com.getpostman.Postman`, `io.github.ilya_zlobintsev.LACT`, `com.github.IsmaelMartinez.teams_for_linux`, `com.wps.Office`, `io.github.wiiznokes.fan-control`, `org.gnome.Calendar`, `io.github.antimicrox.antimicrox`, `de.z_ray.OptimusUI`, `io.github.fabrialberio.pinapp`, `org.kde.koko`, `chat.rocket.RocketChat`, `com.opera.Opera`, `org.libreoffice.LibreOffice`, `org.telegram.desktop`, `org.pulseaudio.pavucontrol`, `com.redis.RedisInsight`, `io.podman_desktop.PodmanDesktop`, `com.github.Murmele.Gittyup`, `org.gnome.seahorse.Application`.
+`net.nokyan.Resources`, `app.zen_browser.zen`, `dev.vencord.Vesktop`, `org.videolan.VLC`, `net.davidotek.pupgui2`, `com.github.tchx84.Flatseal`, `md.obsidian.Obsidian`, `io.github.peazip.PeaZip`, `org.gnome.Calculator`, `de.haeckerfelix.Shortwave`, `com.getpostman.Postman`, `io.github.ilya_zlobintsev.LACT`, `com.github.IsmaelMartinez.teams_for_linux`, `com.wps.Office`, `io.github.wiiznokes.fan-control`, `org.gnome.Calendar`, `io.github.antimicrox.antimicrox`, `de.z_ray.OptimusUI`, `io.github.fabrialberio.pinapp`, `org.kde.koko`, `chat.rocket.RocketChat`, `com.opera.Opera`, `org.libreoffice.LibreOffice`, `org.telegram.desktop`, `org.pulseaudio.pavucontrol`, `com.redis.RedisInsight`, `io.podman_desktop.PodmanDesktop`, `com.github.Murmele.Gittyup`, `org.gnome.seahorse.Application`, `com.github.mtkennerly.ludusavi`.
 
 ### Checking What's Installed
 

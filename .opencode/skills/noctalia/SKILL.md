@@ -42,7 +42,7 @@ When unsure what a setting/widget/template accepts, query the running shell:
 ## Key Configuration Sections
 
 ### Bar (`settings.bar.main`)
-- Position: top, capsule style (`capsule = true`, opacity 0.46, radius 7)
+- Position: top, capsule style (`capsule = true`, `capsule_opacity` 0.46, radius 7, `background_opacity` 0.3)
 - `start`: `services` (the local `gery/services` bar widget), `bar` (mapped to `felipeartur/ai-usagebar:bar`), `privacy`, `active_window`
 - `center`: `workspaces`
 - `end`: `group:g1`, `group:g2`, `tray`, `group:g3`, `control-center`
@@ -61,11 +61,11 @@ When unsure what a setting/widget/template accepts, query the running shell:
 - Generated themes land at login; kitty includes them via `~/.config/kitty/current-theme.conf` (`home.nix`)
 
 ### Plugins (`settings.plugins`)
-- Enabled (11): `noctalia/screen_recorder`, `noctalia/wallhaven`, `ycf/mawaqit`, `noctalia/bitwarden`, `dunarand/tmux-provider`, `nightwatch75/todo`, `tadomika_ari/w-engine`, `gery/services` (**local**, see below), `felipeartur/ai-usagebar`, `piero-93/battery-power-management`, `jamesfeeder/special-workspaces`
+- Enabled (21): `noctalia/screen_recorder`, `noctalia/wallhaven`, `noctalia/bitwarden`, `noctalia/notes`, `dunarand/tmux-provider`, `nightwatch75/todo`, `tadomika_ari/w-engine`, `gery/services` (**local**, see below), `gery/redis`, `gery/mysql`, `gery/postgresql`, `gery/mailpit`, `gery/warp`, `gery/docker`, `gery/seanime`, `gery/seaweedfs`, `gery/stremio`, `gery/sonarqube`, `felipeartur/ai-usagebar`, `piero-93/battery-power-management`, `jamesfeeder/special-workspaces`
 - `auto_update = "all"` (enum `all|official|none` — booleans are rejected since pin 69a90183)
 - `screen_recorder` needs `gpu-screen-recorder` (installed in `home-modules/noctalia.nix` alongside `linux-wallpaperengine` and `ffmpeg`); its bar widget type is `noctalia/screen_recorder:recorder`, its control-center shortcut type is `noctalia/screen_recorder:toggle`
 - Plugin options live in Settings → Plugins; per-plugin defaults can be seeded declaratively under `settings.plugin_settings."<author>/<plugin>"`
-- **Local plugin wiring**: `plugin_settings."gery/services"` gets ports/auto-start flags from `secrets.server.*` (redis/mysql/postgres ports, seaweedfs master/volume/filer ports, mailpit smtp/ui, seanime/stremio port + auto_start) — keep this in sync when editing dev-server settings
+- **Local plugin wiring**: the `gery/services` hub owns ALL dev-server configuration (ports, passwords, datadirs, auto-start) — defaults in the plugin's `plugin.toml`, GUI edits persist to `~/.local/state/noctalia/settings.toml`. `secrets.server` was removed; nothing under `plugin_settings."gery/services"` is secrets-seeded anymore
 
 ### Launcher & clipboard
 Noctalia's built-in launcher and clipboard panels are used. Hyprland binds live in `home-modules/noctalia.nix`: `$mainMod+Space` → `noctalia msg panel-toggle launcher`, `$mainMod+V` → `panel-toggle clipboard`. Launcher/clipboard panel settings: `shell.launcher` (+ `shell.panel.launcher_placement/position`, `shell.panel.clipboard_placement/position`); clipboard features under `shell.clipboard_*` (`clipboard_enabled = true`).
@@ -82,6 +82,7 @@ Noctalia's built-in launcher and clipboard panels are used. Hyprland binds live 
 - Notifications: `settings.notification` (overlay layer; per-app `filter.*` sound exclusions for firefox/chrome/chromium/edge)
 - OSD: `settings.osd` + `settings.osd.kinds`
 - Idle: `settings.idle.behavior.lock` (600s), `.screen-off` (300s), `.suspend` (1800s `lock_and_suspend`)
+- Calendar: `settings.calendar.account = secrets.noctaliaCalendar or { }` — account names/ICS URLs come from `secrets.nix` (credentials live in the system keyring, keyed by stable account ids)
 - Lockscreen: enabled (`settings.lockscreen.enabled`); the decorative `lockscreen_widgets` grid is disabled
 - Location/Weather: `settings.location.address = "Batam, Indonesia"` + `settings.weather` (`unit` is `metric`/`imperial`, not `celsius`/`fahrenheit`)
 - Control center: `settings.control_center.shortcuts` (max 6; currently wifi, bluetooth, screen_recorder toggle, notification, nightlight, caffeine)
