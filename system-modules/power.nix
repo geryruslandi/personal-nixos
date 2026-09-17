@@ -128,6 +128,29 @@
   # Chain the reassert unit off powertop.service (see comment above).
   systemd.services.powertop.wants = [ "post-powertop-reassert.service" ];
 
+  # Mute the headphone pin (ALC289 aux jack) during the final moments of
+  # poweroff/reboot. Same rationale as the suspend hook above: the codec's
+  # output stage dies while an external speaker's amp is still powered, and
+  # an un-muted dying line buzzes. DefaultDependencies=false is REQUIRED —
+  # ordinary services get an implicit Conflicts=shutdown.target and are merely
+  # STOPPED at shutdown, never started; dropping the default deps lets this
+  # unit actually RUN just before shutdown.target is reached (while the codec
+  # is still powered). No restore needed — the machine is going away.
+  systemd.services.shutdown-mute-audio = {
+    description = "Mute headphone pin before poweroff/reboot (aux-jack buzz fix)";
+    wantedBy = [ "shutdown.target" ];
+    before = [ "shutdown.target" ];
+    unitConfig.DefaultDependencies = false;
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      Environment = "PATH=/run/current-system/sw/bin:/run/wrappers/bin:/bin";
+    };
+    script = ''
+      amixer -c0 sset "Headphone Playback Switch" mute 2>/dev/null || true
+    '';
+  };
+
   # The udev rule above only re-applies perms when a battery uevent fires; if
   # none does (e.g. battery idle at steady state), the sysfs node keeps its
   # kernel default (root:root 644) and the plugin's write gets EACCES.
@@ -219,6 +242,19 @@
       # (>= 5 min, resets the re-suspend cap) from a wake-bounce.
       date +%s > /var/run/suspend-power-save-start 2>/dev/null || true
 
+      # Mute the headphone pin (ALC289 node 0x21 aux jack) before the codec's
+      # output stage powers down: an un-muted, dying line is amplified by a
+      # still-powered external speaker as a buzz/hum. Windows' Realtek driver
+      # mutes before amp power-down — replicate that here. Save the prior
+      # state so a user's manual mute survives the cycle. amixer talks to the
+      # kernel codec directly, so this works regardless of PipeWire state.
+      HP_STATE="/var/run/suspend-power-save-hp-mute"
+      rm -f "$HP_STATE"
+      if amixer -c0 sget "Headphone Playback Switch" 2>/dev/null | grep -q "\[on\]"; then
+        echo unmuted > "$HP_STATE" 2>/dev/null || true
+        amixer -c0 sset "Headphone Playback Switch" mute 2>/dev/null || true
+      fi
+
       # Record the ground-truth lid state at suspend time. This laptop's lid
       # switch is non-compliant and can misreport "open" right after an RTC
       # rescue-resume, so the re-suspend guard in postStop trusts what we
@@ -286,6 +322,16 @@
 
       # Restore Bluetooth after resume
       rfkill unblock bluetooth 2>/dev/null || true
+
+      # Restore the headphone pin mute state recorded before suspend (only
+      # unmute if it was unmuted pre-sleep — preserves a user's manual mute).
+      HP_STATE="/var/run/suspend-power-save-hp-mute"
+      if [ -f "$HP_STATE" ]; then
+        if grep -q unmuted "$HP_STATE"; then
+          amixer -c0 sset "Headphone Playback Switch" unmute 2>/dev/null || true
+        fi
+        rm -f "$HP_STATE"
+      fi
 
       # Re-assert HDA audio no-power-save after resume (userspace may have
       # dropped the codec into power-save during sleep — buzzing source).

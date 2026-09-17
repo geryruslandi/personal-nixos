@@ -6,7 +6,7 @@ return {
     { "<leader>uz", "<cmd>NoNeckPain<cr>", desc = "Toggle no-neck-pain" },
   },
   opts = {
-    width = 140,
+    width = 200,
   },
   config = function(_, opts)
     require("no-neck-pain").setup(opts)

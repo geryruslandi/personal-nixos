@@ -32,7 +32,7 @@ in
   home.packages = with pkgs; [
     redis
     postgresql
-    mariadb
+    mysql84
     seaweedfs
   ];
 
@@ -140,13 +140,13 @@ in
     '';
   };
 
-  # MariaDB -------------------------------------------------------------------
+  # MySQL 8.4 ------------------------------------------------------------------
 
   xdg.configFile."${scriptDir}/gery-mysql-dev" = {
     executable = true;
     text = ''
       #!/bin/sh
-      # Provision-on-start MariaDB user service for the services hub plugin.
+      # Provision-on-start MySQL 8.4 user service for the services hub plugin.
       #   gery-mysql-dev --port N [--password P] [--user U] [--databases "db1 db2 ..."]
       set -eu
       usage() { echo "usage: gery-mysql-dev --port N [--password P] [--user U] [--databases LIST]" >&2; exit 1; }
@@ -163,7 +163,9 @@ in
       done
       [ -n "$port" ] || { echo "gery-mysql-dev: --port required" >&2; exit 1; }
       case "''${user:-x}" in *[!a-zA-Z0-9_-]*) echo "gery-mysql-dev: invalid user" >&2; exit 1 ;; esac
-      case "$databases" in *[!a-zA-Z0-9_-]*) echo "gery-mysql-dev: invalid database name" >&2; exit 1 ;; esac
+      for db in $databases; do
+        case "$db" in *[!a-zA-Z0-9_-]*) echo "gery-mysql-dev: invalid database name" >&2; exit 1 ;; esac
+      done
 
       stateDir="''${XDG_STATE_HOME:-$HOME/.local/state}/mysql-dev"
       datadir="$stateDir/data"
@@ -171,13 +173,12 @@ in
       mkdir -p "$datadir"
 
       if [ ! -d "$datadir/mysql" ]; then
-        "${pkgs.mariadb}/bin/mariadb-install-db" \
-          --auth-root-authentication-method=normal \
-          --datadir="$datadir" \
-          --skip-test-db >/dev/null
+        "${pkgs.mysql84}/bin/mysqld" \
+          --initialize-insecure \
+          --datadir="$datadir" >/dev/null
       fi
 
-      "${pkgs.mariadb}/bin/mariadbd" --datadir="$datadir" --socket="$socket" \
+      "${pkgs.mysql84}/bin/mysqld" --datadir="$datadir" --socket="$socket" \
         --port="$port" --bind-address=127.0.0.1 &
       mypid=$!
       trap 'kill "$mypid" 2>/dev/null || true; wait "$mypid" 2>/dev/null || true' TERM INT EXIT
@@ -187,13 +188,13 @@ in
       # only the timeout means actually not ready.
       i=0
       while :; do
-        out=$( ("${pkgs.mariadb}/bin/mysqladmin" -u root -S "$socket" ping) 2>&1 || true)
+        out=$( ("${pkgs.mysql84}/bin/mysqladmin" -u root -S "$socket" ping) 2>&1 || true)
         case "$out" in
           *"mysqld is alive"*|*"Access denied"*) break ;;
         esac
         i=$((i + 1))
         if [ "$i" -ge 60 ]; then
-          echo "gery-mysql-dev: mariadb did not become ready in 60s" >&2
+          echo "gery-mysql-dev: mysqld did not become ready in 60s" >&2
           exit 1
         fi
         sleep 1
@@ -203,18 +204,25 @@ in
       # password); fall back to the desired password (datadirs provisioned
       # in a previous run, where the setting matches).
       msql() {
-        if "${pkgs.mariadb}/bin/mysql" -u root -S "$socket" -e "$1" >/dev/null 2>&1; then
+        if "${pkgs.mysql84}/bin/mysql" -u root -S "$socket" -e "$1" >/dev/null 2>&1; then
           return 0
         fi
         if [ -n "$password" ]; then
-          "${pkgs.mariadb}/bin/mysql" -u root -S "$socket" --password="$password" -e "$1" >/dev/null 2>&1 || true
+          "${pkgs.mysql84}/bin/mysql" -u root -S "$socket" --password="$password" -e "$1" >/dev/null 2>&1 || true
         fi
       }
       if [ "$user" != "root" ]; then
+        # Dev user on both loopback hosts: 'localhost' covers the socket,
+        # '127.0.0.1' covers TCP clients (MySQL treats them as distinct
+        # accounts). Privileges are granted so the user is actually usable.
         msql "CREATE USER IF NOT EXISTS '$user'@'localhost';"
-      fi
-      if [ -n "$password" ]; then
-        msql "ALTER USER IF EXISTS '$user'@'localhost' IDENTIFIED BY '$password';"
+        msql "CREATE USER IF NOT EXISTS '$user'@'127.0.0.1';"
+        if [ -n "$password" ]; then
+          msql "ALTER USER IF EXISTS '$user'@'localhost' IDENTIFIED BY '$password';"
+          msql "ALTER USER IF EXISTS '$user'@'127.0.0.1' IDENTIFIED BY '$password';"
+        fi
+        msql "GRANT ALL PRIVILEGES ON *.* TO '$user'@'localhost';"
+        msql "GRANT ALL PRIVILEGES ON *.* TO '$user'@'127.0.0.1';"
       fi
       for db in $databases; do
         msql "CREATE DATABASE IF NOT EXISTS \`$db\`;"

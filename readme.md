@@ -130,7 +130,7 @@ To populate app entries on dolphin, you need to run commands:
 This setup includes specialized modules for a full-stack development workflow:
 * **Mobile:** React Native setup via `home-modules/react-native-setup.nix`.
 * **Backend:** PHP, Python, and Go toolchains (home modules).
-* **Dev services:** redis, postgres, mysql/mariadb, seaweedfs, docker (rootless), sonarqube, otel, seanime, stremio, mailpit — owned by the local `gery/services` Noctalia plugin (lifecycle + live tuning; ports/passwords/datadirs/auto-start are GUI-editable plugin settings, no rebuild needed). Wrapper scripts/binaries come from `home-modules/dev-servers.nix` (`~/.config/gery-dev-scripts/`).
+* **Dev services:** redis, postgres, mysql (8.4), seaweedfs, docker (rootless), sonarqube, otel, seanime, stremio, mailpit — owned by the local `gery/services` Noctalia plugin (lifecycle + live tuning; ports/passwords/datadirs/auto-start are GUI-editable plugin settings, no rebuild needed). Wrapper scripts/binaries come from `home-modules/dev-servers.nix` (`~/.config/gery-dev-scripts/`).
 * **Virtualization:** Docker for containers and Waydroid for running Android applications natively.
 
 ---

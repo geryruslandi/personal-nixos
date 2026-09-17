@@ -2,7 +2,7 @@
 
 {
   environment.systemPackages = with pkgs; [
-    mariadb
+    mysql84
     fnm
     htop
     tree
@@ -24,6 +24,11 @@
     playerctl
     # for brightness keyboard shortcut
     brightnessctl
+
+    # ALSA CLI (amixer/aplay): mute the headphone pin before suspend/shutdown
+    # so external speakers on the aux jack don't buzz (see power.nix) — works
+    # even when PipeWire is already down.
+    alsa-utils
 
     # Hardware video acceleration verification
     libva-utils
