@@ -32,9 +32,6 @@
 
     nix-flatpak.url = "github:gmodena/nix-flatpak/?ref=latest";
 
-    qylock.url = "github:Darkkal44/qylock";
-    qylock.inputs.nixpkgs.follows = "nixpkgs";
-
     aethertune.url = "github:nevermore23274/AetherTune";
     # AetherTune pins an old nixpkgs whose importCargoLock still fetches from
     # crates.io/api — that endpoint now 403s non-identifying User-Agents.
@@ -73,7 +70,6 @@
       nixpkgs,
       home-manager,
       nix-flatpak,
-      qylock,
       ...
     }:
     let

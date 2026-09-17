@@ -8,7 +8,7 @@ A fully declarative, Flake-based NixOS configuration featuring a high-performanc
 * **Shell & UI:** [Noctalia v5](https://github.com/noctalia-dev/noctalia) — native C++23 Wayland shell for the bar, widgets, notifications, lockscreen and theming.
 * **Greeter:** [Noctalia Greeter](https://github.com/noctalia-dev/noctalia-greeter) via greetd (Hyprland session, Bibata cursor).
 * **Launcher & Clipboard:** Noctalia v5 built-in panels (`Super+Space` launcher / `Super+V` clipboard history).
-* **Lockscreen:** Noctaria lock + [Qylock](https://github.com/Darkkal44/qylock) (theme `pixel-dusk-city`).
+* **Lockscreen:** Noctaria lock (Noctalia's built-in lockscreen).
 * **User Management:** [Home Manager](https://github.com/nix-community/home-manager) for dotfile and per-user state.
 * **Flatpaks:** Managed declaratively via [nix-flatpak](https://github.com/gmodena/nix-flatpak).
 * **Dev Stacks:** Out-of-the-box support for **React Native**, **PHP**, **Python/Go**, and **Docker**; dev services (redis, postgres, mysql, seaweedfs, sonarqube, ...) are owned by the local `gery/services` Noctalia plugin.
@@ -59,7 +59,6 @@ A fully declarative, Flake-based NixOS configuration featuring a high-performanc
 │   ├── polkit.nix
 │   ├── power.nix
 │   ├── ssd-mounter.nix
-│   ├── theme.nix            # qylock lockscreen
 │   ├── users.nix
 │   └── waydroid.nix         # (+ more: bitwarden, dolphin, kdeconnect, ...)
 └── readme.md

@@ -97,7 +97,7 @@ All flake `inputs` are available to both system and home modules through `inputs
 }
 ```
 
-Current inputs: `nixpkgs` (unstable), `hyprland`, `home-manager` (follows nixpkgs), `noctalia` (v5, cachix branch — do NOT add `follows`), `noctalia-greeter`, `nix-flatpak`, `qylock`, `aethertune`, `headroom`, `pyproject-nix`/`uv2nix`/`build-system-pkgs`.
+Current inputs: `nixpkgs` (unstable), `hyprland`, `home-manager` (follows nixpkgs), `noctalia` (v5, cachix branch — do NOT add `follows`), `noctalia-greeter`, `nix-flatpak`, `aethertune`, `headroom`, `pyproject-nix`/`uv2nix`/`build-system-pkgs`.
 
 ## Theming
 

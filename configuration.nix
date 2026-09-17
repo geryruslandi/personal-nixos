@@ -51,7 +51,6 @@ in
     ./system-modules/nvidia.nix
     ./system-modules/power.nix
     ./system-modules/bluetooth.nix
-    ./system-modules/theme.nix
     ./system-modules/waydroid.nix
     ./system-modules/dolphin.nix
     ./system-modules/fan-control.nix
