@@ -32,6 +32,12 @@
 
     nix-flatpak.url = "github:gmodena/nix-flatpak/?ref=latest";
 
+    # OpenCode built from its own flake at release v1.18.31 (always use this
+    # fork's flake, not nixpkgs). Keep nixpkgs independent — its node_modules
+    # build is tuned for its own nixpkgs-unstable pin (same reasoning as the
+    # noctalia input). Bump the ref manually to upgrade releases.
+    opencode.url = "github:anomalyco/opencode/v1.18.31";
+
     aethertune.url = "github:nevermore23274/AetherTune";
     # AetherTune pins an old nixpkgs whose importCargoLock still fetches from
     # crates.io/api — that endpoint now 403s non-identifying User-Agents.
@@ -41,7 +47,10 @@
     # Headroom (LLM token-compression proxy), packaged from its own uv.lock
     # via uv2nix — see nix/headroom.nix and home-modules/headroom.nix.
     headroom = {
-      url = "github:headroomlabs-ai/headroom";
+      # Pinned: v0.37.0 (2c56a1b3) has a broken cargo vendoring hash upstream
+      # ("hash mismatch in fixed-output derivation ... headroom-cargo-0.37.0-vendor-staging").
+      # Unpin once upstream ships a release with fixed Cargo.lock/vendor hashes.
+      url = "github:headroomlabs-ai/headroom/e67b3c8a29443a60d6b0018fb22f525c5cd7e709";
       flake = false; # source repo: pyproject.toml + uv.lock + Cargo.lock
     };
 

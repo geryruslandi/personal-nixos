@@ -1,8 +1,10 @@
-{ pkgs, lib, ... }:
+{ pkgs, lib, inputs, ... }:
 {
+  # OpenCode always comes from the fork's own flake (see the `opencode` input
+  # in flake.nix), not nixpkgs.
   home.packages = with pkgs; [
-    opencode
     rtk
+    inputs.opencode.packages.${pkgs.stdenv.hostPlatform.system}.default
   ];
 
   home.activation.setupOpenCode = lib.hm.dag.entryAfter ["writeBoundary"] ''

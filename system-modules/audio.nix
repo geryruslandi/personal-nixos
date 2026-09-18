@@ -43,6 +43,17 @@
       };
     };
 
+    # Intel Alder Lake CNVi (AX201) mSBC SCO instability: the controller keeps
+    # tearing down the HFP transport mid-call ("Failure in Bluetooth audio
+    # transport", "SCO packet for unknown connection handle", "Missing
+    # completion reports for packet: Bluetooth adapter firmware bug?").
+    # Fall back to CVSD, which this adapter handles reliably.
+    wireplumber.extraConfig."51-bluez-hfp" = {
+      "monitor.bluez.properties" = {
+        "bluez5.enable-msbc" = false;
+      };
+    };
+
     # As of now we exclude ldac
     # because on current nixos stable, it has ldac bug
     # https://discourse.nixos.org/t/bluetooth-audio-broken-after-recent-update-likely-ldac-pipewire-1-6-2/76805
