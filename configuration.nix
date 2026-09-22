@@ -234,6 +234,11 @@ in
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
 
+  # Lix as the Nix implementation (from nixpkgs, cache.nixos.org-served).
+  # Forked from CppNix 2.18 — no content-addressed derivations / lazy trees.
+  # Revert by deleting this line; old boot generations keep CppNix.
+  nix.package = pkgs.lixPackageSets.stable.lix;
+
   nix.settings.experimental-features = [
     "nix-command"
     "flakes"
