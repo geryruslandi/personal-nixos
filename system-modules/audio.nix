@@ -41,42 +41,35 @@
           }
         ];
       };
-    };
 
-    # Intel Alder Lake CNVi (AX201) mSBC SCO instability: the controller keeps
-    # tearing down the HFP transport mid-call ("Failure in Bluetooth audio
-    # transport", "SCO packet for unknown connection handle", "Missing
-    # completion reports for packet: Bluetooth adapter firmware bug?").
-    # Fall back to CVSD, which this adapter handles reliably.
-    wireplumber.extraConfig."51-bluez-hfp" = {
-      "monitor.bluez.properties" = {
-        "bluez5.enable-msbc" = false;
+      # Hide the raw per-profile HFP capture node from client enumeration: WP
+      # 0.5.17 also creates a persistent "loopback" source per BT headset
+      # (bluez_input.<MAC-with-colons>, no codec suffix) that survives
+      # A2DP<->HFP profile switches — apps should link to that one. Without
+      # this rule pavucontrol/Noctalia list two identical "WH-1000XM5" inputs
+      # (the loopback proxy + the raw bluez_input.<MAC_underscores>.0 node).
+      "52-hide-bt-raw-mic" = {
+        "monitor.bluez.rules" = [
+          {
+            matches = [
+              {
+                node.name = "~bluez_input\\.[0-9A-F_]+\\.[0-9]+$";
+              }
+            ];
+            actions = {
+              update-props = {
+                "node.hidden" = true;
+              };
+            };
+          }
+        ];
       };
     };
 
-    # As of now we exclude ldac
-    # because on current nixos stable, it has ldac bug
+    # LDAC stays enabled: the 1.6.2 ldac bug from the link below no longer
+    # reproduces on PipeWire 1.6.8 (WH-1000XM5 streams LDAC fine, verified
+    # 2026-09-21). The commented-out codec/roles whitelist below is how to
+    # restrict bluez5 codecs if we ever need to pin them again.
     # https://discourse.nixos.org/t/bluetooth-audio-broken-after-recent-update-likely-ldac-pipewire-1-6-2/76805
-    # wireplumber.extraConfig = {
-    #   "bluetooth" = {
-    #     "monitor.bluez.properties" = {
-    #       "bluez5.codecs" = [
-    #         "sbc"
-    #         "sbc_xq"
-    #         "aac"
-    #         "aptx"
-    #         "aptx_hd"
-    #       ];
-    #       "bluez5.roles" = [
-    #         "a2dp_sink"
-    #         "a2dp_source"
-    #         "hsp_hs"
-    #         "hsp_ag"
-    #         "hfp_hf"
-    #         "hfp_ag"
-    #       ];
-    #     };
-    #   };
-    # };
   };
 }

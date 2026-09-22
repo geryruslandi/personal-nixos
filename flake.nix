@@ -44,6 +44,15 @@
     # Follow our pinned nixpkgs, which fetches from static.crates.io instead.
     aethertune.inputs.nixpkgs.follows = "nixpkgs";
 
+    # NUR: community package collection; supplies nur.repos.ataraxiasjel.
+    # waydroid-script (libhoudini/libndk/GApps injector for Waydroid) — see
+    # system-modules/waydroid.nix. No binary cache, so following our nixpkgs
+    # is fine and avoids a second nixpkgs pin.
+    nur = {
+      url = "github:nix-community/NUR";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Headroom (LLM token-compression proxy), packaged from its own uv.lock
     # via uv2nix — see nix/headroom.nix and home-modules/headroom.nix.
     headroom = {

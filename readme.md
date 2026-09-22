@@ -135,7 +135,7 @@ This setup includes specialized modules for a full-stack development workflow:
 ---
 
 ## 🎨 Theme & Appearance
-Theming is driven by **Noctalia v5**: the community palette `Catppuccin Frappe Blue` feeds Noctalia's template engine, which generates kitty/GTK3/GTK4/KDE-colorscheme/Qt themes at login (see `home-modules/noctalia.nix`). tmux carries matching hand-pinned Frappe colors.
+Theming is driven by **Noctalia v5**: the community palette `Catppuccin Frappe Blue` feeds Noctalia's template engine, which generates kitty/GTK3/GTK4/KDE-colorscheme/Qt themes at login (see `home-modules/noctalia.nix`). tmux uses the `tokyo-night-tmux` theme plugin (`night`, transparent + git/netspeed/battery widgets).
 * **GTK/QT:** Unified via the generated KDE color scheme + Qt platform theme to ensure a cohesive look across toolkit boundaries.
 * **Displays:** Handled by **Kanshi** for dynamic output and monitor profile switching.
 
