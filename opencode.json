@@ -7,8 +7,7 @@
   "model": "personal-deepseek/deepseek-v4-flash",
   "permission": {
     "read": {
-      "*": "allow",
-      "secrets.nix": "deny"
+      "*": "allow"
     },
     "bash": {
       "/nix/store/**": "allow"

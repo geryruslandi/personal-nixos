@@ -62,7 +62,8 @@
       ];
     }
   ];
-  wallhavenKey = "someSecretKeyHere";
+  # Ports opened in the firewall (networking.firewall.allowedTCPPorts)
+  exposePorts = [ ];
   # Noctalia calendar accounts — mirrors the [calendar.account.*] structure in
   # ~/.local/state/noctalia/settings.toml. Account names and Outlook ICS URLs
   # (which contain your email) stay here, never in the repo config. Keep the

@@ -24,7 +24,7 @@ let
           laptopScale = 2.0;
           externalOutput = "";
         };
-        devPorts = [ ];
+        exposePorts = [ ];
       }; # Fallback
 
   # `projectPath` is REQUIRED — fail the build when it is missing or empty.
@@ -51,6 +51,8 @@ in
     ./system-modules/nvidia.nix
     ./system-modules/power.nix
     ./system-modules/bluetooth.nix
+
+    ./system-modules/ajazz-keyboard
     ./system-modules/waydroid.nix
     ./system-modules/dolphin.nix
     ./system-modules/fan-control.nix
@@ -227,7 +229,7 @@ in
   # services.openssh.enable = true;
 
   # Open ports in the firewall.
-  networking.firewall.allowedTCPPorts = secrets.devPorts;
+  networking.firewall.allowedTCPPorts = secrets.exposePorts;
   # networking.firewall.allowedUDPPorts = [ ... ];
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;

@@ -21,7 +21,7 @@ let
           laptopScale = 2.0;
           externalOutput = "";
         };
-        devPorts = [ ];
+        exposePorts = [ ];
       }; # Fallback
 
   # `projectPath` is REQUIRED — fail the build when it is missing or empty.

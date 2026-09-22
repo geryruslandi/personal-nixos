@@ -53,7 +53,7 @@ When unsure what a setting/widget/template accepts, query the running shell:
 - Directory: `/home/geryruslandi/.config/gery/Pictures/Wallpapers`
 - Fill: `crop`; transition list = all 6 types (random), 1500ms
 - Default + per-monitor path pinned to `firewatch.jpg` (`wallpaper.default.path` and `wallpaper.monitors."eDP-1".path`) — keep as repo-relative home paths, never `/nix/store/...`
-- Automation disabled. Wallhaven is the `noctalia/wallhaven` **plugin**; its API key is a plugin setting (Settings → Plugins), not `secrets.wallhavenKey` (that secret field is dead)
+- Automation disabled. Wallhaven is the `noctalia/wallhaven` **plugin**; its API key is a plugin setting (Settings → Plugins) — the old `secrets.wallhavenKey` field was removed from secrets.nix
 
 ### Theme (`settings.theme`)
 - `source = "community"`, `community_palette = "Catppuccin Frappe Blue"`, `mode = "dark"`, `builtin = "Nord"` (fallback when source switches back), `wallpaper_scheme = "m3-content"`

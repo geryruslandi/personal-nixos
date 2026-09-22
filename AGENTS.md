@@ -37,7 +37,7 @@ git add --intent-to-add secrets.nix -f   # rebuild.sh also does this automatical
 | `home-sync/` | Files linked into `$HOME` as **editable out-of-store symlinks** — edits write back to the repo and show up in `git status` (see `home-modules/home-sync.nix`). `.config` and `.local/share/noctalia/plugins` are **merged** (children linked individually) into their real `$HOME` dirs |
 | `home-sync/.local/share/noctalia/plugins/services/` | The local `gery/services` Noctalia plugin (consolidated services hub: service+widget+panel+shared lib) — linked into `~/.local/share/noctalia/plugins/services/` where Noctalia loads it from; drop a new plugin folder here to sync it |
 | `home-sync/.local/share/noctalia/plugins/ai-usagebar/` | Vendored fork of the community `felipeartur/ai-usagebar` plugin (v2.1.1, local deltas: panel height 400→550; severity-tinted block cards; hides OpenCode Go's redundant "Resets" lines; "bifrost" vendor entry). The matching Rust CLI is built by `home-modules/ai-usagebar/` with local patches (`bifrost`, `deepseek-peak-hours`, `opencode-go-usd-limits`, `openrouter-daily-limit`) — the data-dir copy outranks the auto-updated community source, so upstream fixes need a manual re-sync |
-| `system-modules/` | System-level NixOS modules (audio, hyprland, nvidia, etc.) |
+| `system-modules/` | System-level NixOS modules (audio, hyprland, nvidia, etc.); one nested dir module (`ajazz-keyboard/` — AK820 Max HE mini-screen clock sync, enabled via `secrets.ajazzKeyboard.enable`) |
 | `home-modules/` | User-level Home Manager modules (git, zsh, hyprland, noctalia, ...); mostly flat, one nested dir module (`ai-usagebar/`) |
 
 ### Architecture & Conventions

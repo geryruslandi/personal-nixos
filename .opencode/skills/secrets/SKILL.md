@@ -56,8 +56,6 @@ description: Use when editing or managing secrets.nix — adding git projects, S
     }
   ];
 
-  wallhavenKey = "...";                # DEAD — no consumer anymore (wallhaven API key moved into the noctalia/wallhaven plugin's own settings)
-
   # Noctalia calendar accounts — mirrors [calendar.account.*] in
   # ~/.local/state/noctalia/settings.toml (home-modules/noctalia.nix).
   # Keep account ids stable — they bind to credentials in the system keyring.
@@ -86,7 +84,7 @@ description: Use when editing or managing secrets.nix — adding git projects, S
     externalOutput = "DP-3";           # used by the dockedAtHome profile
   };
 
-  devPorts = [ ];                      # networking.firewall.allowedTCPPorts
+  exposePorts = [ ];                   # networking.firewall.allowedTCPPorts
 
   nvidia = {                           # PRIME offload bus IDs (system-modules/nvidia.nix)
     intelBusId = "PCI:0:2:0";
@@ -112,7 +110,7 @@ description: Use when editing or managing secrets.nix — adding git projects, S
 }
 ```
 
-> `secrets.example.nix` is missing `timezone`, `monitor`, and `devPorts` — the real schema is broader. Copy from the schema above if bootstrapping fresh.
+> `secrets.example.nix` is missing `timezone` and `monitor` — the real schema is broader. Copy from the schema above if bootstrapping fresh.
 
 ## Consumers
 
@@ -121,7 +119,7 @@ description: Use when editing or managing secrets.nix — adding git projects, S
 | `projectPath` | Build-time throw guard + home-sync symlink root | `configuration.nix`, `home.nix`, `home-modules/home-sync.nix` |
 | `timezone` | `time.timeZone`; Flatpak `TZ` env | `configuration.nix`, `flatpak.nix` |
 | `monitor.*` | Kanshi laptop/docked profiles | `home-modules/kanshi.nix` |
-| `devPorts` | Firewall TCP allowlist | `configuration.nix` |
+| `exposePorts` | Firewall TCP allowlist | `configuration.nix` |
 | `zshEnv` | Exports at end of `.zshrc` | `home-modules/zsh.nix` |
 | `noctaliaCalendar` | Noctalia calendar widget accounts | `home-modules/noctalia.nix` |
 | `nvidia.*` | PRIME offload bus IDs | `system-modules/nvidia.nix` |
@@ -129,7 +127,7 @@ description: Use when editing or managing secrets.nix — adding git projects, S
 | `git.defaultBranch/defaultUser/projects/ignores` | Git config, includeIf blocks, generated ignores | `home-modules/git.nix` |
 | `ssh` | SSH match blocks | `home-modules/ssh.nix` |
 | `storageMount` | Automatic SSD mounting | `system-modules/ssd-mounter.nix` |
-| `wallhavenKey`, `sddmScale`, `server` | **no consumers (dead/removed fields)** | — |
+| `sddmScale`, `server` | **no consumers (dead/removed fields)** | — |
 
 ## Common Operations
 

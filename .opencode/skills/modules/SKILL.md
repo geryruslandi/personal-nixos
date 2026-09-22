@@ -78,7 +78,7 @@ secrets =
 
 ### Secrets schema (`secrets.nix`)
 
-Top-level fields: `projectPath` (**required**, repo abs path), `git` (`defaultBranch`, `defaultUser`, `projects[]`, `ignores[]`), `ssh[]`, `zshEnv` (attrset exported in zshrc), `noctaliaCalendar` (calendar widget accounts), `timezone`, `monitor` (`laptopOutput/laptopScale/externalOutput`), `devPorts`, `nvidia` (`intelBusId/nvidiaBusId`), `storageMount[]`, `swapAltWin`. Dead fields: `wallhavenKey`, `sddmScale` (and `server` was **removed** — dev-server config lives in the `gery/services` Noctalia plugin now). See the **secrets** skill for the full annotated schema and consumer map.
+Top-level fields: `projectPath` (**required**, repo abs path), `git` (`defaultBranch`, `defaultUser`, `projects[]`, `ignores[]`), `ssh[]`, `zshEnv` (attrset exported in zshrc), `noctaliaCalendar` (calendar widget accounts), `timezone`, `monitor` (`laptopOutput/laptopScale/externalOutput`), `exposePorts` (firewall TCP allowlist), `nvidia` (`intelBusId/nvidiaBusId`), `storageMount[]`, `swapAltWin`. Dead field: `sddmScale` (`server` and `wallhavenKey` were **removed** — dev-server config lives in the `gery/services` Noctalia plugin now). See the **secrets** skill for the full annotated schema and consumer map.
 
 ### Modifying secrets
 
