@@ -48,7 +48,7 @@ Available arguments: `pkgs`, `lib`, `config`, `inputs`, `secrets` (via `_module.
 
 ## Secrets Pattern
 
-Secrets are passed to all modules via `_module.args = { inherit secrets; }` in `configuration.nix:71` and `home.nix:82`.
+Secrets are passed to all modules via `_module.args = { inherit secrets; }` in `configuration.nix:70` and `home.nix:82`.
 
 ### Accessing secrets
 
@@ -97,7 +97,7 @@ All flake `inputs` are available to both system and home modules through `inputs
 }
 ```
 
-Current inputs: `nixpkgs` (unstable), `hyprland`, `home-manager` (follows nixpkgs), `noctalia` (v5, cachix branch — do NOT add `follows`), `noctalia-greeter`, `nix-flatpak`, `aethertune`, `headroom`, `pyproject-nix`/`uv2nix`/`build-system-pkgs`.
+Current inputs: `nixpkgs` (unstable), `hyprland`, `home-manager` (follows nixpkgs), `noctalia` (v5, cachix branch — do NOT add `follows`), `noctalia-greeter` (follows nixpkgs), `nix-flatpak`, `opencode` (fork flake, pinned ref — see flake.nix), `aethertune` (follows nixpkgs), `nur` (follows nixpkgs; waydroid-script), `headroom` (pinned, flake = false), `pyproject-nix`/`uv2nix`/`build-system-pkgs`.
 
 ## Theming
 

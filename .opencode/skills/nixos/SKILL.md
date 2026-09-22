@@ -37,7 +37,7 @@ The file lives at `/etc/nixos/hardware-configuration.nix` and is imported by `co
 
 ## Flake Inputs
 
-Current inputs: `nixpkgs` (nixos-unstable), `hyprland`, `home-manager` (+follows), `noctalia`, `noctalia-greeter`, `nix-flatpak`, `aethertune`, `headroom`, `pyproject-nix`/`uv2nix`/`build-system-pkgs`.
+Current inputs: `nixpkgs` (nixos-unstable), `hyprland`, `home-manager` (+follows), `noctalia`, `noctalia-greeter` (+follows), `nix-flatpak`, `opencode` (fork flake, pinned ref — see flake.nix), `aethertune` (+follows), `nur` (+follows; waydroid-script), `headroom` (pinned, flake = false), `pyproject-nix`/`uv2nix`/`build-system-pkgs`.
 
 ```bash
 # Update ALL inputs

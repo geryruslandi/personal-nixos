@@ -45,8 +45,8 @@ When unsure what a setting/widget/template accepts, query the running shell:
 - Position: top, capsule style (`capsule = true`, `capsule_opacity` 0.46, radius 7, `background_opacity` 0.3)
 - `start`: `services` (the local `gery/services` bar widget), `bar` (mapped to `felipeartur/ai-usagebar:bar`), `privacy`, `active_window`
 - `center`: `workspaces`
-- `end`: `group:g1`, `group:g2`, `tray`, `group:g3`, `control-center`
-- **Capsule groups** (`settings.bar.main.capsule_group`): `g1` = temp/cpu/ram, `g2` = network_rx/network_tx, `g3` = volume/widget(clock)+battery widget/clock; referenced from lanes as `group:<id>`
+- `end`: `tray`, `group:g1`, `group:g2`, `volume`, `widget`, `clock`, `control-center`
+- **Capsule groups** (`settings.bar.main.capsule_group`): `g1` = temp/cpu/ram, `g2` = network_rx/network_tx; referenced from lanes as `group:<id>` (there is no `g3` — volume/widget/clock sit directly on the `end` lane; `widget` maps to `piero-93/battery-power-management:widget`)
 - Widget-specific settings live under top-level `settings.widget.<name>` (e.g. `widget.temp.type = "sysmon"`); custom/plugin widgets are declared there too (`widget.services.type = "gery/services:services"`)
 
 ### Wallpaper (`settings.wallpaper`)

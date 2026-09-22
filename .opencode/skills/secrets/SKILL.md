@@ -43,6 +43,17 @@ description: Use when editing or managing secrets.nix — adding git projects, S
       identityFile = "~/.ssh/id_github_personal";
       extraOptions = { "ForwardAgent" = "yes"; };  # optional
     }
+    # localForwards is optional; each entry renders one `LocalForward` line
+    {
+      host = "bastion-dev";
+      hostName = "[IP_ADDRESS]";
+      user = "devuser";
+      identityFile = "~/.ssh/bastion-devuser";
+      localForwards = [
+        { bind.port = 6443; host.address = "[IP_ADDRESS]"; host.port = 6443; }
+        { bind.port = 6300; bind.address = "localhost"; host.address = "[IP_ADDRESS]"; host.port = 6379; }
+      ];
+    }
   ];
 
   wallhavenKey = "...";                # DEAD — no consumer anymore (wallhaven API key moved into the noctalia/wallhaven plugin's own settings)
