@@ -310,15 +310,20 @@
           radius = 0;
           radius_bottom_left = 6;
           radius_bottom_right = 6;
+          scale = 1.15;
           shadow = false;
           reserve_space = true;
           auto_hide = false;
+          thickness = 40;
           font_family = "JetBrainsMono Nerd Font Propo";
           start = [
             "services"
+            "notes"
             "bar"
+            "indicator"
             "privacy"
             "active_window"
+            "radio"
           ];
           center = [ "workspaces" ];
           end = [
@@ -445,6 +450,15 @@
         privacy = {
           hide_inactive = true;
         };
+        "indicator" = {
+          type = "rxtsel/portctl:indicator";
+        };
+        "notes" = {
+          type = "noctalia/notes:notes";
+        };
+        "radio" = {
+          type = "nilsonlinux/world-radio:radio";
+        };
         "bar" = {
           style = "label";
           type = "felipeartur/ai-usagebar:bar";
@@ -480,6 +494,12 @@
           "felipeartur/ai-usagebar"
           "piero-93/battery-power-management"
           "jamesfeeder/special-workspaces"
+          "rxtsel/portctl"
+          "nilsonlinux/world-radio"
+          "samuelskovbakke/calculator-plus"
+          "icefish/phone-connect"
+          "icefish/phone-operate"
+          "ahmedhossamdev/sticky-notes"
         ];
         auto_update = "all";
       };
@@ -498,6 +518,9 @@
         };
         "piero-93/battery-power-management" = {
           panel_placement = "floating";
+        };
+        "nilsonlinux/world-radio" = {
+          Panel_placement = "floating";
         };
         "gery/services" = {
           services-panel_placement = "floating";
