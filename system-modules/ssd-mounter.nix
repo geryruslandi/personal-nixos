@@ -1,4 +1,4 @@
-{ pkgs, secrets, ... }:
+{ secrets, ... }:
 {
   fileSystems = builtins.listToAttrs (map (mount: {
     name = mount.mountPath;

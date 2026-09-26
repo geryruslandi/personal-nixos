@@ -1,8 +1,4 @@
-{
-  lib,
-  pkgs,
-  ...
-}:
+{ pkgs, ... }:
 {
   # Combined into a single attribute block so nothing gets overwritten
   home.sessionVariables = {

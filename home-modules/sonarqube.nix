@@ -30,8 +30,6 @@
 let
   stateDir = "${config.xdg.stateHome}/sonarqube";
   envFile = "${stateDir}/.db.env";
-  tokenFile = "${stateDir}/scanner-token";
-  composeFile = "${config.xdg.configHome}/sonarqube/compose.yaml";
 
   compose = pkgs.formats.yaml { };
 in

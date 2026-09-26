@@ -1,9 +1,4 @@
-{
-  lib,
-  pkgs,
-  inputs,
-  ...
-}:
+{ pkgs, ... }:
 {
   # reason why i had a lot of packages installation
   # is for fixing default apps option on dolphin

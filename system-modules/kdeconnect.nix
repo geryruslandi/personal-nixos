@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ pkgs, ... }:
 {
   # Enable KDE Connect daemon — pairs your phone with the desktop
   # for notifications, file transfer, remote input, etc.
