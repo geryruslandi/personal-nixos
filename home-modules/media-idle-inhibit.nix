@@ -80,9 +80,9 @@ let
 
 
     def main():
+        global child
         streak = 0
         inhibited = False
-        c = None
         while True:
             if media_running():
                 streak += 1
@@ -90,7 +90,7 @@ let
                 streak = 0
             want = streak >= DEBOUNCE_POLLS
             if want and not inhibited:
-                c = subprocess.Popen(
+                child = subprocess.Popen(
                     ["systemd-inhibit", "--what=idle", "sleep", "infinity"],
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,
@@ -98,8 +98,8 @@ let
                 log("idle inhibited: media is playing")
                 inhibited = True
             elif not want and inhibited:
-                c.kill()
-                c.wait()
+                child.kill()
+                child.wait()
                 log("idle uninhibited: no media playing")
                 inhibited = False
             time.sleep(POLL_SECONDS)

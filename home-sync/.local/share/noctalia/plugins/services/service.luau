@@ -10,6 +10,14 @@ local state = {}
 local bootStarted = {}
 local lastReqSeq = 0
 
+-- Forward declarations: pollTransient calls startService, and startService /
+-- stopService call refresh. Lua/Luau locals are not hoisted, so these must be
+-- declared BEFORE the functions that reference them (the real definitions
+-- follow further down).
+local startService = nil
+local stopService = nil
+local refresh = nil
+
 for _, s in ipairs(services.SERVICES) do
   state[s.id] = { state = "unknown", available = nil, sinceSec = nil, enabled = "unknown", busy = false }
 end
@@ -276,11 +284,6 @@ local function pollWaydroid(done)
 end
 
 -- start / stop --------------------------------------------------------------
--- Forward declarations (pollTransient / refresh call these before the real
--- definitions below are reached at runtime via callbacks).
-local startService = nil
-local stopService = nil
-local refresh = nil
 
 startService = function(id)
   local service = services.find(id)

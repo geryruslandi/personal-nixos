@@ -119,7 +119,6 @@
       theme = {
         mode = "dark";
         source = "community";
-        builtin = "Nord";
         community_palette = "Catppuccin Frappe Blue";
         wallpaper_scheme = "m3-content";
 
@@ -218,77 +217,10 @@
         fingerprint = true;
       };
 
+      # Disabled: the built-in lockscreen is used, so no positioned login-box
+      # widgets are needed.
       lockscreen_widgets = {
         enabled = false;
-        widget_order = [
-          "lockscreen-login-box@DP-4"
-          "lockscreen-login-box@eDP-1"
-        ];
-
-        grid = {
-          cell_size = 16;
-          major_interval = 4;
-          visible = true;
-        };
-
-        widget = {
-          "lockscreen-login-box@DP-4" = {
-            type = "login_box";
-            output = "DP-4";
-            cx = 1720.0;
-            cy = 1258.0;
-            box_width = 810.0;
-            box_height = 196.0;
-            rotation = 0.0;
-            placement_width = 3440.0;
-            placement_height = 1440.0;
-
-            settings = {
-              background_color = "surface_variant";
-              background_opacity = 0.88;
-              background_radius = 12.0;
-              center_password_text = false;
-              input_opacity = 1.0;
-              input_radius = 6.0;
-              layout = "regular";
-              show_caps_lock = true;
-              show_keyboard_layout = true;
-              show_login_button = true;
-              show_media = true;
-              show_session_buttons = true;
-              show_unlock_hint = true;
-              show_weather = true;
-            };
-          };
-          "lockscreen-login-box@eDP-1" = {
-            type = "login_box";
-            output = "eDP-1";
-            cx = 864.0;
-            cy = 898.0;
-            box_width = 810.0;
-            box_height = 196.0;
-            rotation = 0.0;
-            placement_width = 1728.0;
-            placement_height = 1080.0;
-
-            settings = {
-              background_color = "surface_variant";
-              background_opacity = 0.88;
-              background_radius = 12.0;
-              center_password_text = false;
-              input_opacity = 1.0;
-              input_radius = 6.0;
-              layout = "regular";
-              show_caps_lock = true;
-              show_keyboard_layout = true;
-              show_login_button = true;
-              show_media = true;
-              show_session_buttons = true;
-              show_unlock_hint = true;
-              show_weather = true;
-            };
-          };
-        };
       };
 
       system = {
@@ -529,12 +461,6 @@
         "services" = {
           type = "gery/services:services";
         };
-        "seaweedfs" = {
-          enabled = false;
-        };
-        "sonarqube_2" = {
-          type = "gery/sonarqube:sonarqube";
-        };
         "todo" = {
           type = "nightwatch75/todo:todo";
         };
@@ -553,16 +479,6 @@
           "nightwatch75/todo"
           "tadomika_ari/w-engine"
           "gery/services"
-          "gery/redis"
-          "gery/mysql"
-          "gery/postgresql"
-          "gery/mailpit"
-          "gery/warp"
-          "gery/docker"
-          "gery/seanime"
-          "gery/seaweedfs"
-          "gery/stremio"
-          "gery/sonarqube"
           "felipeartur/ai-usagebar"
           "piero-93/battery-power-management"
           "jamesfeeder/special-workspaces"

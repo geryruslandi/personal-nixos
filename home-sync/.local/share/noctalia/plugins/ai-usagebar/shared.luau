@@ -9,6 +9,7 @@ local M = {}
 -- semantic one. The glyph is identity: it carries no colour of its own, so every
 -- colour left in the panel means something.
 local PROVIDER_GLYPHS = {
+    bifrost = "network",
     anthropic = "asterisk-simple",
     anthropic_api = "asterisk-simple",
     openai = "brand-openai",
@@ -176,10 +177,14 @@ function M.headline(entry)
     if type(entry) ~= "table" or type(entry.metrics) ~= "table" then return nil end
     -- Bifrost reports three rolling windows whose cards read 1d, 7d, 30d; the
     -- capsule carries the 30-day headline, not the first card on the panel.
-    if tostring(entry.id or "") == "bifrost" then
+    if M.baseProvider(entry.id) == "bifrost" then
         for _, metric in ipairs(entry.metrics) do
             if tostring(metric.label or "") == "30d cost" then return metric end
         end
+        -- The 30d window failed and was emitted as a text row, so there is no
+        -- 30d card. Do NOT fall back to metrics[1] (the 1d card): it is paced
+        -- against a monthly budget and would misreport on the capsule.
+        return nil
     end
     local first = entry.metrics[1]
     return type(first) == "table" and first or nil

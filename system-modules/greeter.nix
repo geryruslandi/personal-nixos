@@ -6,7 +6,7 @@
 {
   imports = [ inputs.noctalia-greeter.nixosModules.default ];
 
-  programs.noctalia-greeter = {
+  services.displayManager.noctalia-greeter = {
     enable = true;
     # Wallpaper/palette sync from the Noctalia shell without a polkit prompt
     passwordless-sync-users = [ "geryruslandi" ];

@@ -27,13 +27,17 @@
     serviceConfig = {
       Type = "oneshot";
       User = "geryruslandi";
-      Environment = [
-        "WAYLAND_DISPLAY=wayland-1"
-        "DISPLAY=:0"
-        "XDG_RUNTIME_DIR=/run/user/1000"
-        "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus"
-      ];
       ExecStart = pkgs.writeShellScript "noctalia-lock-before-suspend" ''
+        # Derive the runtime dir + Wayland socket instead of hardcoding the
+        # UID and "wayland-1" (the socket name is not stable across sessions).
+        uid="$(id -u)"
+        export XDG_RUNTIME_DIR="''${XDG_RUNTIME_DIR:-/run/user/$uid}"
+        for sock in "$XDG_RUNTIME_DIR"/wayland-*; do
+          [ -S "$sock" ] || continue
+          export WAYLAND_DISPLAY="''${sock##*/}"
+          break
+        done
+        export DBUS_SESSION_BUS_ADDRESS="unix:path=$XDG_RUNTIME_DIR/bus"
         ${lib.getExe inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default} msg session lock
         # Give the shell time to process the IPC and render the lock screen
         # before systemd freezes user.slice, otherwise the desktop flashes on wake

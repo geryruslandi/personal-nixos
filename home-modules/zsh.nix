@@ -28,10 +28,12 @@ in
         "sudo"
       ];
     };
-    initExtra = envExports;
-    initContent = ''
-      source ${pkgs.spaceship-prompt}/share/zsh/themes/spaceship.zsh-theme;
-      eval "$(fnm env --use-on-cd)";
-    '';
+    initContent = lib.mkMerge [
+      ''
+        source ${pkgs.spaceship-prompt}/share/zsh/themes/spaceship.zsh-theme;
+        eval "$(fnm env --use-on-cd)";
+      ''
+      (lib.mkAfter envExports)
+    ];
   };
 }

@@ -123,6 +123,9 @@ M.SERVICES = {
   },
   {
     id       = "postgresql",
+    -- Setting keys are prefixed `postgres_` (not `postgresql_`) in plugin.toml,
+    -- so reloadConfig must not derive them from the service id.
+    settingPrefix = "postgres",
     label    = "PgSQL",
     category = "databases",
     glyph    = "database",
@@ -342,6 +345,7 @@ M.CATEGORIES = {
 -- service entry's onConfigChanged so GUI edits apply without a reload.
 function M.reloadConfig()
   for _, s in ipairs(M.SERVICES) do
+    local prefix = s.settingPrefix or s.id
     if s.ports then
       for _, p in ipairs(s.ports) do
         p.value = cfg(p.configKey, p.def)
@@ -351,11 +355,11 @@ function M.reloadConfig()
       -- Only re-read declared settings: docker's binary is fixed ("docker"),
       -- and an undeclared `docker_binary` key would log a loud warning.
       if s.fixedBinary ~= true then
-        s.binary = cfg(s.id .. "_binary", s.binary)
+        s.binary = cfg(prefix .. "_binary", s.binary)
       end
     end
     if s.autoStart ~= nil then
-      s.autoStart = cfg(s.id .. "_auto_start", false)
+      s.autoStart = cfg(prefix .. "_auto_start", false)
     end
   end
 end

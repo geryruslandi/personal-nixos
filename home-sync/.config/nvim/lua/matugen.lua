@@ -43,8 +43,10 @@ end
  signal:start(
    'sigusr1',
    vim.schedule_wrap(function()
-     package.loaded['matugen'] = nil
-     require('matugen').setup()
+     -- Call the already-loaded setup directly: clearing package.loaded and
+     -- re-requiring would re-run this chunk and register yet another signal
+     -- handler on every update.
+     M.setup()
    end)
  )
 

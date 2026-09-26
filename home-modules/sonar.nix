@@ -1,5 +1,6 @@
 {
   pkgs,
+  lib,
   config,
   ...
 }:
@@ -19,7 +20,7 @@ in
   # just work - no -D flags.
   home.packages = [ pkgs.sonar-scanner-cli ];
 
-  programs.zsh.initExtra = ''
+  programs.zsh.initContent = lib.mkAfter ''
     export SONAR_TOKEN="$(cat ${tokenFile} 2>/dev/null || true)"
   '';
 }

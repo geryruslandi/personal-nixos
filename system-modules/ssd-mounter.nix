@@ -4,7 +4,7 @@
     name = mount.mountPath;
     value = {
       device = "/dev/disk/by-uuid/${mount.storageUUID}";
-      fsType = "ext4";
+      fsType = mount.fsType or "ext4";
       options = [
         "defaults"
         "nofail"

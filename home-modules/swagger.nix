@@ -2,8 +2,10 @@
 { pkgs, ... }:
 
 let
-  # Classic Swagger UI static files shipped by the swagger-ui-bundle pip package
-  swaggerStatic = "${pkgs.python313Packages.swagger-ui-bundle}/lib/${pkgs.python313.libPrefix}/site-packages/swagger_ui_bundle/vendor/swagger-ui-4.15.5";
+  # Vendor directory shipped by the swagger-ui-bundle pip package. The
+  # swagger-ui-<version> subdir name changes on package bumps, so it is
+  # resolved at runtime below instead of being pinned here.
+  swaggerVendor = "${pkgs.python313Packages.swagger-ui-bundle}/lib/${pkgs.python313.libPrefix}/site-packages/swagger_ui_bundle/vendor";
 
   swaggerRead = pkgs.writeShellScriptBin "swagger-read" ''
     set -euo pipefail
@@ -17,10 +19,22 @@ let
       exit 1
     fi
 
+    # Pick the bundled swagger-ui-* directory without pinning its version.
+    swaggerStatic=""
+    for d in "${swaggerVendor}"/swagger-ui-*; do
+      if [ -d "$d" ]; then
+        swaggerStatic="$d"
+      fi
+    done
+    if [ -z "$swaggerStatic" ]; then
+      echo "swagger-read: no swagger-ui bundle found in ${swaggerVendor}" >&2
+      exit 1
+    fi
+
     TMPDIR="$(mktemp -d)"
     trap 'rm -rf "$TMPDIR"' EXIT
 
-    cp -r "${swaggerStatic}"/. "$TMPDIR"/
+    cp -r "''${swaggerStatic}"/. "$TMPDIR"/
 
     # Bundle external $refs (./other.yaml etc.) into a single spec file.
     # Falls back to copying the raw file if bundling fails.
