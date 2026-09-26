@@ -56,6 +56,15 @@
     };
   };
 
+  # XDPH screencopy config: embed the pointer in shared/recorded video.
+  # Default is 0 (protocol default -> hidden), which hides the cursor for
+  # clients like browsers that don't request a cursor mode.
+  xdg.configFile."hypr/xdph.conf".text = ''
+    screencopy {
+      cursor_mode = 2
+    }
+  '';
+
   # Qt Configuration
   qt = {
     enable = true;
