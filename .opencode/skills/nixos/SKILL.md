@@ -48,7 +48,7 @@ nix flake update nixpkgs
 nix flake update hyprland
 ```
 
-**Binary-cache caveat**: do NOT add `inputs.nixpkgs.follows` to the **noctalia** input — it changes its dependency hash and makes the `noctalia.cachix.org` binary cache miss (long source builds). It is pinned to a branch that always has prebuilt binaries.
+**Noctalia build note**: the **noctalia** input follows our `nixpkgs` (`inputs.nixpkgs.follows = "nixpkgs"`), so it builds from source rather than using the `noctalia.cachix.org` prebuilt binaries. The prebuilts are built against noctalia's own older nixpkgs (glibc 2.42) and cannot dlopen the system Mesa EGL vendor once the system nixpkgs advanced to glibc 2.44 (mesa needs `GLIBC_2.43`); the shell then crashed at startup with `fatal: eglGetDisplay failed`. Following nixpkgs keeps it glibc-consistent. Expect a longer build on nixpkgs bumps.
 
 After updating, rebuild with `./rebuild.sh`.
 

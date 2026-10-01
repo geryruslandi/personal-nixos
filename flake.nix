@@ -1,15 +1,6 @@
 {
   description = "A very basic flake";
 
-  nixConfig = {
-    extra-substituters = [
-      "https://noctalia.cachix.org"
-    ];
-    extra-trusted-public-keys = [
-      "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4="
-    ];
-  };
-
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
     hyprland.url = "github:hyprwm/Hyprland";
@@ -17,10 +8,17 @@
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
-    # Noctalia v5 (standalone native shell). The `cachix` branch always points
-    # to the latest commit that has prebuilt binaries on noctalia.cachix.org.
-    # Do NOT add `inputs.nixpkgs.follows` here — it disables the binary cache.
-    noctalia.url = "github:noctalia-dev/noctalia/cachix";
+    # Noctalia v5 (standalone native shell). The `cachix` branch has prebuilt
+    # binaries, but they are built against noctalia's own older nixpkgs
+    # (glibc 2.42). That glibc cannot dlopen the system Mesa EGL vendor once the
+    # system nixpkgs moved to glibc 2.44 (mesa needs GLIBC_2.43), so noctalia
+    # crashed at startup with `fatal: eglGetDisplay failed`. Follow our nixpkgs
+    # so the shell is glibc-consistent and can load the system EGL vendor.
+    # Tradeoff: builds noctalia from source (the cachix cache no longer matches).
+    noctalia = {
+      url = "github:noctalia-dev/noctalia/cachix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     # Noctalia Greeter (greetd greeter). Unlike the noctalia shell input this
     # has no prebuilt-binary cache, so following our nixpkgs is fine and avoids
@@ -36,7 +34,7 @@
     # fork's flake, not nixpkgs). Keep nixpkgs independent — its node_modules
     # build is tuned for its own nixpkgs-unstable pin (same reasoning as the
     # noctalia input). Bump the ref manually to upgrade releases.
-    opencode.url = "github:anomalyco/opencode/v1.18.31";
+    opencode.url = "github:anomalyco/opencode/v1.18.33";
 
     aethertune.url = "github:nevermore23274/AetherTune";
     # AetherTune pins an old nixpkgs whose importCargoLock still fetches from

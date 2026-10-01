@@ -347,6 +347,20 @@
         exit 0
       fi
 
+      # Elan I2C-HID touchpad (VEN_04F3:00 04F3:311C) desyncs its report
+      # transport after s2idle resume: the kernel floods
+      # "i2c_hid_get_input: incomplete report (14/N)" and the pointer pins to
+      # the bottom of the screen. Re-probe the i2c-hid client so probe
+      # re-powers the device and re-reads its report descriptor on every
+      # resume. Runs before the clamshell early-exit below so it also applies
+      # on clamshell resumes.
+      if [ -e /sys/bus/i2c/devices/i2c-VEN_04F3:00 ] && \
+         [ -e /sys/bus/i2c/drivers/i2c_hid_acpi/unbind ]; then
+        echo i2c-VEN_04F3:00 > /sys/bus/i2c/drivers/i2c_hid_acpi/unbind 2>/dev/null || true
+        sleep 1
+        echo i2c-VEN_04F3:00 > /sys/bus/i2c/drivers/i2c_hid_acpi/bind 2>/dev/null || true
+      fi
+
       # A real sleep (>= 5 min) is not a wake-bounce: reset the shared
       # re-suspend cap so long healthy cycles never exhaust it.
       GUARD_COUNT="/var/run/lid-resuspend-count"

@@ -489,5 +489,5 @@ noctalia msg plugins enable|disable|update <id>
 - **Weather `unit`** is `metric`/`imperial`, not `celsius`/`fahrenheit`.
 - **Plugin entries** are addressed as `author/plugin:entry` (e.g. screen_recorder widget = `noctalia/screen_recorder:recorder`, its control-center shortcut = `noctalia/screen_recorder:toggle`). A bare name like `screen_recorder` does not resolve.
 - **Idle behaviors** are named tables (`lock`, `screen-off`, `lock-and-suspend` defaults); `behavior_order` is exporter-managed.
-- The `cachix` flake input is pinned to the latest commit with prebuilt binaries; do not add `inputs.nixpkgs.follows`.
+- The `cachix` flake input follows our `nixpkgs` (`inputs.nixpkgs.follows`), so Noctalia builds from source and stays glibc-consistent with the system Mesa EGL vendor. Do not remove the `follows` (the prebuilt binaries are built against an older glibc and fail with `fatal: eglGetDisplay failed`).
 - GUI overrides persist to `~/.local/state/noctalia/settings.toml` and layer over the declarative config.

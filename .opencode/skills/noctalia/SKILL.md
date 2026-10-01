@@ -5,7 +5,7 @@ description: Use when modifying or troubleshooting Noctalia shell configuration 
 
 # Noctalia Shell Configuration (v5)
 
-Noctalia v5 is pinned to `github:noctalia-dev/noctalia/cachix` (`flake.nix`). The `cachix` branch always points to the latest commit with prebuilt binaries on `noctalia.cachix.org`. **Do not add `inputs.nixpkgs.follows`** to the noctalia input — it disables the binary cache.
+Noctalia v5 is pinned to `github:noctalia-dev/noctalia/cachix` (`flake.nix`). The noctalia input **follows our `nixpkgs`** (`inputs.nixpkgs.follows = "nixpkgs"`), so the shell is built from source and is glibc-consistent with the system Mesa EGL vendor. The prebuilt `noctalia.cachix.org` binaries are built against noctalia's own older nixpkgs (glibc 2.42) and cannot dlopen the system Mesa once the system nixpkgs reached glibc 2.44 (mesa needs `GLIBC_2.43`) — that caused `fatal: eglGetDisplay failed` and Noctalia not starting. Do not remove the `follows`; do not change the input URL off the `cachix` branch.
 
 v5 is a from-scratch native C++23 Wayland shell (no Quickshell/Qt/GTK). Key differences from v4:
 - Binary is `noctalia` (not `noctalia-shell`); IPC is `noctalia msg ...` (not `noctalia-shell ipc call ...`).
