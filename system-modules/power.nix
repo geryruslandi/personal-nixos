@@ -1,5 +1,62 @@
 { pkgs, ... }:
 
+let
+  # Re-probe every relative-pointer HID device regardless of transport. A
+  # 2.4 GHz dongle, a wired USB mouse, and a Bluetooth mouse all surface as HID
+  # devices on the shared HID bus, so unbinding/rebinding their HID driver
+  # forces the HID core to re-read the report descriptor and re-register the
+  # input nodes — the transport-agnostic equivalent of the per-device resets we
+  # used to hardcode. Selection is by capability (REL_X), never by name, VID:PID
+  # or port. Internal i2c (bus 0018/0019) HID devices are skipped; the built-in
+  # touchpad is handled by the i2c_designware runtime-PM rules in this module.
+  reprobePointers = pkgs.writeShellScriptBin "reprobe-pointers" ''
+    collect() {
+      for inp in /sys/class/input/input*; do
+        rel=$(cat "$inp/capabilities/rel" 2>/dev/null) || continue
+        [ -n "$rel" ] || continue
+        read -r first _ <<< "$rel"
+        [ -n "$first" ] || continue
+        case "$first" in *[!0-9a-fA-F]*) continue ;; esac
+        [ $((16#$first & 1)) -eq 1 ] || continue
+        hid=$(basename "$(readlink -f "$inp/device" 2>/dev/null)")
+        [ -n "$hid" ] || continue
+        case "$hid" in 0018:*|0019:*) continue ;; esac
+        [ -d "/sys/bus/hid/devices/$hid" ] || continue
+        drv=$(basename "$(readlink -f "/sys/bus/hid/devices/$hid/driver" 2>/dev/null)")
+        [ -n "$drv" ] || continue
+        printf '%s %s\n' "$drv" "$hid"
+      done
+    }
+
+    # USB re-enumeration and BlueZ reconnect are asynchronous; wait for a
+    # pointer to appear before giving up (best-effort for Bluetooth).
+    pairs=""
+    for _ in $(seq 1 10); do
+      pairs=$(collect | sort -u)
+      [ -n "$pairs" ] && break
+      sleep 1
+    done
+
+    if [ -z "$pairs" ]; then
+      echo "reprobe-pointers: no relative-pointer HID devices present"
+      exit 0
+    fi
+
+    while read -r drv hid; do
+      [ -n "$drv" ] || continue
+      echo "$hid" > "/sys/bus/hid/drivers/$drv/unbind" 2>/dev/null || true
+    done <<< "$pairs"
+
+    sleep 1
+
+    while read -r drv hid; do
+      [ -n "$drv" ] || continue
+      echo "$hid" > "/sys/bus/hid/drivers/$drv/bind" 2>/dev/null || true
+    done <<< "$pairs"
+
+    echo "reprobe-pointers: re-probed $(printf '%s\n' "$pairs" | wc -l) device(s)"
+  '';
+in
 {
   # Kernel power-saving parameters (applied at boot)
   boot.kernelParams = [
@@ -63,6 +120,15 @@
     # power_save=0 to 1 after boot, so we also re-assert post-powertop below.
     # Covers coldplug + hotplug immediately at plug time.
     ACTION=="add|change", SUBSYSTEM=="pci", ATTR{class}=="0x0403*", ATTR{power/control}="on"
+    # i2c-designware runtime PM: the Elan touchpad (VEN_04F3:00 @ i2c-2) and
+    # touchscreen (ELAN2D25 @ i2c-1) hang off these platform controllers. When
+    # a controller runtime-suspends, the i2c-hid transport desyncs on the next
+    # transfer and the kernel floods "i2c_hid_get_input: incomplete report
+    # (14/N)" while the pointer goes wild. Keep the controllers permanently
+    # awake (powertop --auto-tune flips them back; re-asserted post-powertop
+    # below). Measured 2026-10-04: both controllers were auto/1s-suspended and
+    # produced a 742-line error burst mid-use.
+    ACTION=="add|change", SUBSYSTEM=="platform", DRIVER=="i2c_designware", RUN+="${pkgs.bash}/bin/bash -c 'echo on > /sys$devpath/power/control 2>/dev/null || true'"
   '';
 
   # The udev rules above fire at boot coldplug, but powerManagement.powertop
@@ -122,6 +188,14 @@
           0x0403*) echo on > "$dev/power/control" 2>/dev/null || true ;;
         esac
       done
+
+      # i2c-designware controllers: powertop --auto-tune re-enables runtime
+      # autosuspend on these platform devices, which is what desyncs the Elan
+      # i2c-hid touchpad (see the udev rule + reprobe service in this module).
+      for ctl in /sys/bus/platform/devices/i2c_designware.*/power/control; do
+        [ -e "$ctl" ] || continue
+        echo on > "$ctl" 2>/dev/null || true
+      done
     '';
   };
 
@@ -177,7 +251,10 @@
     '';
   };
 
-  environment.systemPackages = [ pkgs.powertop ];
+  # `reprobe-pointers` (sudo) is the manual equivalent of the automatic
+  # resume hook, for the rare case the automatic pass runs before a slow
+  # dongle/Bluetooth link is back.
+  environment.systemPackages = [ pkgs.powertop reprobePointers ];
 
   # Keyboard backlight idle timeout: firmware default is 10s, which turns the
   # backlight off almost immediately after you stop typing. Bump it to 2 min
@@ -347,20 +424,6 @@
         exit 0
       fi
 
-      # Elan I2C-HID touchpad (VEN_04F3:00 04F3:311C) desyncs its report
-      # transport after s2idle resume: the kernel floods
-      # "i2c_hid_get_input: incomplete report (14/N)" and the pointer pins to
-      # the bottom of the screen. Re-probe the i2c-hid client so probe
-      # re-powers the device and re-reads its report descriptor on every
-      # resume. Runs before the clamshell early-exit below so it also applies
-      # on clamshell resumes.
-      if [ -e /sys/bus/i2c/devices/i2c-VEN_04F3:00 ] && \
-         [ -e /sys/bus/i2c/drivers/i2c_hid_acpi/unbind ]; then
-        echo i2c-VEN_04F3:00 > /sys/bus/i2c/drivers/i2c_hid_acpi/unbind 2>/dev/null || true
-        sleep 1
-        echo i2c-VEN_04F3:00 > /sys/bus/i2c/drivers/i2c_hid_acpi/bind 2>/dev/null || true
-      fi
-
       # A real sleep (>= 5 min) is not a wake-bounce: reset the shared
       # re-suspend cap so long healthy cycles never exhaust it.
       GUARD_COUNT="/var/run/lid-resuspend-count"
@@ -432,6 +495,30 @@
         echo "resumed with lid open; guard reset." | \
           systemd-cat -t suspend-power-save
       fi
+    '';
+  };
+
+  # Re-probe external pointer HID devices after every resume, for every sleep
+  # type (s2idle, deep/S3, hibernate, hybrid-sleep, suspend-then-hibernate).
+  # Hooking sleep.target is the same mechanism suspend-power-save and NixOS's
+  # own post-resume use, so it fires for all of them; StopWhenUnneeded makes
+  # the unit stop (running postStop) when sleep.target deactivates on wake.
+  # This restores the button-report stream that a Logitech receiver/HID++ link
+  # (or a wired/Bluetooth mouse) loses across a resume. The script is
+  # transport-agnostic — see reprobePointers at the top of this file.
+  systemd.services.pointer-reprobe-on-resume = {
+    description = "Re-probe external pointer HID devices after resume";
+    before = [ "sleep.target" ];
+    wantedBy = [ "sleep.target" ];
+    unitConfig.StopWhenUnneeded = true;
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      Environment = "PATH=/run/current-system/sw/bin:/run/wrappers/bin:/bin";
+    };
+    script = "true";
+    postStop = ''
+      ${reprobePointers}/bin/reprobe-pointers || true
     '';
   };
 

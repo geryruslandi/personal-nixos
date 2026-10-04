@@ -92,6 +92,7 @@ in
     extraConfig = ''
       include ~/.config/kitty/current-theme.conf
       background_opacity 0.9
+      remember_window_size no
       mouse_map alt+left release ungrabbed,grabbed mouse_handle_click link
     '';
     keybindings = {
