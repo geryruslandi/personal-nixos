@@ -1,11 +1,49 @@
 {
   secrets,
+  inputs,
+  pkgs,
   ...
 }:
 
+let
+  # ScrollOverview plugin, built against the same `pkgs.hyprland` the system
+  # runs (see flake.nix input `scroll-overview`). Built with mkHyprlandPlugin
+  # instead of the plugin's own flake package so the ABI hash matches the
+  # compositor and Hyprland accepts it. HM loads it via
+  # `exec-once = hyprctl plugin load <pkg>/lib/libscrolloverview.so`.
+  scrolloverview = pkgs.hyprlandPlugins.mkHyprlandPlugin {
+    hyprland = pkgs.hyprland;
+    pluginName = "scrolloverview";
+    version = "unstable-2026-09-21";
+    src = inputs.scroll-overview;
+    buildInputs = [ pkgs.lua5_4 ];
+    dontUseCmakeConfigure = true;
+    buildPhase = ''
+      runHook preBuild
+      export SCROLLOVERVIEW_BUILD_VERSION="$version"
+      make all
+      runHook postBuild
+    '';
+    installPhase = ''
+      runHook preInstall
+      mkdir -p "$out/lib"
+      mv scrolloverview.so "$out/lib/libscrolloverview.so"
+      runHook postInstall
+    '';
+    meta = {
+      description = "Scrollable workspace overview plugin for Hyprland";
+      homepage = "https://github.com/yayuuu/hyprland-scroll-overview";
+      license = pkgs.lib.licenses.bsd3;
+      platforms = pkgs.lib.platforms.linux;
+    };
+  };
+in
 {
   wayland.windowManager.hyprland = {
     enable = true;
+    # Declared plugins are written into the generated hyprland.conf and loaded
+    # at session start with `hyprctl plugin load`.
+    plugins = [ scrolloverview ];
     # Explicitly set to "hyprlang" to keep legacy behavior and silence the warning
     # about the default changing from "hyprlang" to "lua"
     configType = "hyprlang";
@@ -51,7 +89,8 @@
         "col.inactive_border" = "rgba(595959aa)";
         resize_on_border = false;
         allow_tearing = false;
-        layout = "dwindle";
+        # Built-in niri-style scrolling layout (Hyprland >= 0.55).
+        layout = "scrolling";
       };
 
       decoration = {
@@ -116,10 +155,40 @@
         new_status = "master";
       };
 
+      # Niri-style scrolling layout (built into Hyprland, no plugin).
+      # Windows sit on an endless horizontal tape; the view scrolls to follow
+      # focus. One window fills the screen, more become columns.
+      scrolling = {
+        direction = "right";
+        column_width = 0.5;
+        fullscreen_on_one_column = true;
+        focus_fit_method = 1; # 1 = fit (niri-like), 0 = center
+        follow_focus = true;
+      };
+
       misc = {
         vrr = 1;
         force_default_wallpaper = -1;
         disable_hyprland_logo = false;
+      };
+
+      ## ----------------------------------------------------
+      ## PLUGINS
+      ## ----------------------------------------------------
+      # ScrollOverview (niri-like scrollable overview). Loaded via the
+      # `plugins` option above; `Super+G` toggles every monitor's overview.
+      plugin.scrolloverview = {
+        gesture_distance = 300;
+        scale = 0.5;
+        workspace_gap = 100;
+        layout = "vertical";
+        wallpaper = 2;
+        blur = true;
+
+        shadow = {
+          enabled = true;
+          range = 50;
+        };
       };
 
       ## ----------------------------------------------------
@@ -171,13 +240,21 @@
         "$mainMod, M, exit,"
         "$mainMod, E, exec, $fileManager"
         "$mainMod, W, togglefloating,"
-        "$mainMod, J, layoutmsg, togglesplit" # dwindle
+        "$mainMod, J, layoutmsg, consume_or_expel next" # scrolling: join/split column
 
         # Move focus
         "$mainMod, left, movefocus, l"
         "$mainMod, right, movefocus, r"
         "$mainMod, up, movefocus, u"
         "$mainMod, down, movefocus, d"
+
+        # Scrolling layout (niri-style): scroll the tape with `[`/`]`
+        # and move the focused column with Shift+`[`/`]`.
+        # (Not `,`/`.` — Super+comma is Noctalia's settings toggle.)
+        "$mainMod, bracketleft, layoutmsg, move -col"
+        "$mainMod, bracketright, layoutmsg, move +col"
+        "$mainMod SHIFT, bracketleft, layoutmsg, swapcol l"
+        "$mainMod SHIFT, bracketright, layoutmsg, swapcol r"
 
         # Switch workspaces
         "$mainMod, 1, workspace, 1"
@@ -229,6 +306,11 @@
         "$mainMod SHIFT, P, exec, grimblast --freeze copy area"
 
         "$mainMod, f,  fullscreen, 2"
+
+        # ScrollOverview: toggle the overview on all monitors.
+        # NB: no quotes around the arg — Hyprland passes them through literally
+        # and the plugin's arg parser rejects `"toggle all"`.
+        "$mainMod, g, scrolloverview:overview, toggle all"
       ];
 
       bindm = [

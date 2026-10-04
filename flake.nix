@@ -5,6 +5,16 @@
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
     hyprland.url = "github:hyprwm/Hyprland";
 
+    # ScrollOverview (niri-like overview) Hyprland plugin. Source only
+    # (flake = false) — the plugin is built in home-modules/hyprland.nix with
+    # `pkgs.hyprlandPlugins.mkHyprlandPlugin` against OUR `pkgs.hyprland`, so
+    # its ABI hash matches the running compositor. Bump via `nix flake update`
+    # (or pin a rev here).
+    scroll-overview = {
+      url = "github:yayuuu/hyprland-scroll-overview";
+      flake = false;
+    };
+
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
