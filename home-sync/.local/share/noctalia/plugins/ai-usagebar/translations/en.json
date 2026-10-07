@@ -26,6 +26,10 @@
         "before": "Before"
       }
     },
+    "opencode_go_monthly_budget_usd": {
+      "description": "OpenCode Go's monthly dollar budget; the API only reports a percent. The 5-hour (20%) and weekly (50%) cards are derived from it. Go is $60.",
+      "label": "OpenCode Go monthly budget (USD)"
+    },
     "provider_limit": {
       "description": "How many providers one capsule shows, busiest first, with a +N for the rest. Only applies when the provider is Automatic.",
       "label": "Providers in the capsule"

@@ -47,15 +47,15 @@ let
     #     the local and UTC clock time, and the countdown to the next boundary.
     #     The block also carries a machine-readable `severity` ("critical"
     #     during peak) that the vendored panel fork tints the card with.
-    #   - opencode-go-usd-limits.patch: the OpenCode Go window cards show real
-    #     dollars (remaining as value, "$x of $limit used (n%)" as footnote),
-    #     derived from the plan limits $12/5h, $30/wk, $60/mo — the API only
-    #     reports percentages. Bump these constants if OpenCode repricing.
+    #   - OpenCode Go's USD cards are NOT patched here: the API only reports a
+    #     percent, and the vendored Noctalia plugin derives the dollars from a
+    #     user-tunable monthly budget (see
+    #     home-sync/.../plugins/ai-usagebar/service.luau), so there are no
+    #     constants to reprice here.
     patches = [
       ./openrouter-daily-limit.patch
       ./bifrost.patch
       ./deepseek-peak-hours.patch
-      ./opencode-go-usd-limits.patch
     ];
 
     meta = with lib; {

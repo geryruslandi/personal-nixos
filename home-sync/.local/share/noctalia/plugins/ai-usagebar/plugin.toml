@@ -8,6 +8,10 @@
 #     ai-usagebar/).
 #   - OpenCode Go drops the CLI's "Resets" lines; its metric cards already
 #     carry reset clocks.
+#   - OpenCode Go's USD cards are derived here from the `percent` the API
+#     returns, against the `opencode_go_monthly_budget_usd` setting; the CLI no
+#     longer hardcodes a budget. service.luau rewrites the report before the bar
+#     and the panel read it, so both surfaces agree.
 #   - The vendor dropdown gains "bifrost" (matches bifrost.patch in
 #     home-modules/ai-usagebar/), so a bar capsule can pin to it.
 # Upstream fixes do NOT reach this copy — re-sync manually from the materialized
@@ -21,8 +25,9 @@ license = "MIT"
 icon = "brain"
 description = "AI plan usage in the bar, powered by the ai-usagebar CLI."
 tags = ["bar", "panel", "ai", "indicator", "utility"]
-# The CLI owns credentials, vendor endpoints and caching. This plugin only runs
-# `ai-usagebar usage --json` and draws the result.
+# The CLI owns credentials, vendor endpoints and caching. This plugin runs
+# `ai-usagebar usage --json`, derives OpenCode Go's dollar figures, and draws the
+# result.
 dependencies = ["ai-usagebar"]
 
 # ── Plugin-level settings (shared by the poller, every capsule and the panel) ──
@@ -37,6 +42,18 @@ description_key = "settings.refresh_minutes.description"
 default = 5
 min = 1
 max = 120
+
+# OpenCode Go's /usage endpoint reports only a percent. The plan's budget is a
+# dollar amount the docs fix at monthly = 100%, weekly = 50%, 5-hour = 20%, so
+# one number is enough to draw all three cards. Go is $60; raise it for Go Plus.
+[[setting]]
+key = "opencode_go_monthly_budget_usd"
+type = "int"
+label_key = "settings.opencode_go_monthly_budget_usd.label"
+description_key = "settings.opencode_go_monthly_budget_usd.description"
+default = 60
+min = 1
+max = 100000
 
 # ── Entries ───────────────────────────────────────────────────────────────────
 

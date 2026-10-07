@@ -106,6 +106,42 @@ local function scrub(value)
     return value
 end
 
+-- OpenCode Go's /usage endpoint reports only a percent. The plan's budget is a
+-- dollar amount the docs fix at monthly = 100%, weekly = 50%, 5-hour = 20%, so
+-- one setting draws all three cards. Rewritten in the report, not at draw time:
+-- the bar tooltip and the panel both read `value`/`detail`, and one transform
+-- keeps them from disagreeing.
+local GO_WINDOW_SHARE = { Rolling = 0.2, Weekly = 0.5, Monthly = 1.0 }
+
+local function applyGoBudgets(entry)
+    if type(entry) ~= "table" then return end
+    -- Named accounts arrive as `<provider>@<label>`; the budget is the plan's,
+    -- not the account's.
+    if (tostring(entry.id or ""):match("^[^@]+") or "") ~= "opencode-go" then return end
+    local monthly = tonumber(noctalia.getConfig("opencode_go_monthly_budget_usd")) or 60
+    if monthly <= 0 then return end
+
+    local function rewrite(row)
+        if type(row) ~= "table" then return end
+        local share = GO_WINDOW_SHARE[tostring(row.label or "")]
+        if share == nil then return end
+        local budget = monthly * share
+        local pct = math.floor(tonumber(row.percent) or 0)
+        local used = budget * pct / 100
+        row.value = string.format("$%.2f", budget - used)
+        row.detail = string.format("$%.2f of $%.2f used (%d%%)", used, budget, pct)
+    end
+
+    -- `sections` is the lossless view the panel draws; `metrics` is the gauge
+    -- view the bar tooltip draws. They are separate copies of the same rows.
+    for _, section in ipairs(type(entry.sections) == "table" and entry.sections or {}) do
+        if type(section) == "table" and section.type == "metric" then rewrite(section) end
+    end
+    for _, metric in ipairs(type(entry.metrics) == "table" and entry.metrics or {}) do
+        rewrite(metric)
+    end
+end
+
 -- The one place a failure is named. Subscribers translate the code; the CLI's
 -- own words travel with it as `detail`.
 local function failure(code, detail)
@@ -170,7 +206,9 @@ local function refresh()
         if type(decoded) == "table" and type(decoded.entries) == "table" then
             -- A failed vendor still comes back as an entry with `status = "error"`,
             -- so a non-zero exit is no reason to drop the report.
-            noctalia.state.set("report", scrub(decoded))
+            scrub(decoded)
+            for _, entry in ipairs(decoded.entries) do applyGoBudgets(entry) end
+            noctalia.state.set("report", decoded)
             noctalia.state.set("error", failure(""))
         else
             noctalia.state.set("error", classify(result))
