@@ -318,6 +318,7 @@
           font_family = "JetBrainsMono Nerd Font Propo";
           start = [
             "services"
+            "note-tuxedo"
             "notes"
             "bar"
             "indicator"
@@ -456,6 +457,9 @@
         "notes" = {
           type = "noctalia/notes:notes";
         };
+        "note-tuxedo" = {
+          type = "gery/note-tuxedo:todo";
+        };
         "radio" = {
           type = "nilsonlinux/world-radio:radio";
         };
@@ -473,9 +477,6 @@
         "services" = {
           type = "gery/services:services";
         };
-        "todo" = {
-          type = "nightwatch75/todo:todo";
-        };
         "widget" = {
           type = "piero-93/battery-power-management:widget";
         };
@@ -488,7 +489,7 @@
           "noctalia/bitwarden"
           "noctalia/notes"
           "dunarand/tmux-provider"
-          "nightwatch75/todo"
+          "gery/note-tuxedo"
           "tadomika_ari/w-engine"
           "gery/services"
           "felipeartur/ai-usagebar"
@@ -509,9 +510,10 @@
           panel_open_near_click = true;
           panel_placement = "floating";
         };
-        "nightwatch75/todo" = {
-          panel_placement = "floating";
-          panel_position = "center";
+        "gery/note-tuxedo" = {
+          # Panel host settings; the panel entry is `todo-panel`.
+          todo-panel_placement = "floating";
+          todo-panel_open_near_click = true;
         };
         "noctalia/bitwarden" = {
           vault_timeout = "30";

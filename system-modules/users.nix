@@ -9,6 +9,7 @@
       "networkmanager"
       "wheel"
       "battery_ctl"
+      "docker"
     ];
     packages = with pkgs; [
       vscode

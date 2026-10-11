@@ -75,6 +75,7 @@ in
     ./home-modules/sonar.nix
     ./home-modules/k9s.nix
     ./home-modules/headroom.nix
+    ./home-modules/tuxedo.nix
   ];
 
   # This is the magic part:
@@ -140,6 +141,8 @@ in
       qbittorrent
       glab
       rclone
+
+      antigravity-cli
 
       inputs.aethertune.packages.${pkgs.stdenv.hostPlatform.system}.aethertune
     ];

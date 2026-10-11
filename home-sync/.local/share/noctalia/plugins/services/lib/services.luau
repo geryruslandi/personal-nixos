@@ -51,20 +51,6 @@ local function transientStart(unit, bin, args)
     .. " -- " .. expandBinary(bin) .. (args and (" " .. args) or "")
 end
 
--- Start an existing HM-declared user unit (docker rootless daemon, sonarqube
--- stack); the plugin only front-ends `systemctl --user`. `env` carries the
--- plugin settings these units consume (e.g. SONARQUBE_WEB_PORT baked at
--- generation time by HM — pass nil for build-time fixed values).
-local function unitStart(unit)
-  -- --no-block: queue the start job and return immediately. Noctalia's
-  -- runAsync kills commands after 5s, and a synchronous start can block
-  -- >5s (e.g. a previous unit still shutting down gracefully). The job
-  -- itself would keep running in systemd and complete, but the killed
-  -- client triggers a false "failed to start" notification. Polling
-  -- (3s) reflects the real progress instead.
-  return "systemctl --user start --no-block " .. unit
-end
-
 -- Split a comma/space separated list into space separated (for wrappers that
 -- expect one argument carrying multiple values after validation).
 local function listArg(raw, def)
@@ -149,22 +135,22 @@ M.SERVICES = {
     end,
   },
   {
-    -- User-level rootless daemon unit (HM-generated): the plugin toggles
-    -- `systemctl --user` and nothing else; no config keys do anything here.
+    -- System-level daemon unit: the plugin toggles the system `docker.service`
+    -- (start/stop handled by service.luau's "system" kind). Polkit authorizes
+    -- the wheel user without a password prompt (system-modules/polkit.nix).
     id       = "docker",
     label    = "Docker",
     category = "development",
     glyph    = "container",
     glyphOff = "container-off",
-    scope    = "user",
-    kind     = "transient",
+    scope    = "system",
+    kind     = "system",
     unit     = "docker.service",
     binary   = "docker",
     fixedBinary = true,
     autoStart = cfg("docker_auto_start", false),
     blurb    = "Container daemon",
     ports    = nil,
-    startCmd = function(self) return unitStart(self.unit) end,
   },
   {
     -- SonarQube stack as user-level containers (HM-generated compose + a

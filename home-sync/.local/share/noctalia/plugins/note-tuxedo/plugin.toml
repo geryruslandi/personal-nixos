@@ -1,0 +1,98 @@
+id         = "gery/note-tuxedo"
+name       = "Note (tuxedo)"
+version    = "1.0.0"
+plugin_api = 24
+author     = "gery"
+icon       = "list-check"
+license    = "MIT"
+
+description = "Frontend for the tuxedo todo.txt CLI — grouped by project, context and priority."
+
+# Every path/ENV the tuxedo CLI needs is a setting. Settings are shared by all
+# entries; defaults live here, GUI edits persist in
+# ~/.local/state/noctalia/settings.toml. The CLI resolves its file purely from
+# the environment (it has no path flag), so the service prefixes every call with
+# these values via `env`:
+#   TODO_FILE wins over TODO_DIR when both are set; leave a field empty to omit
+#   its ENV and let tuxedo fall back to its own default.
+
+[[setting]]
+key             = "tuxedo_binary"
+type            = "string"
+label_key       = "settings.tuxedo_binary.label"
+description_key = "settings.tuxedo_binary.description"
+default         = "tuxedo"
+
+[[setting]]
+key             = "todo_dir"
+type            = "string"
+label_key       = "settings.todo_dir.label"
+description_key = "settings.todo_dir.description"
+default         = "~/Documents/Todo"
+
+[[setting]]
+key             = "todo_file"
+type            = "string"
+label_key       = "settings.todo_file.label"
+description_key = "settings.todo_file.description"
+default         = ""
+
+[[setting]]
+key             = "done_file"
+type            = "string"
+label_key       = "settings.done_file.label"
+description_key = "settings.done_file.description"
+default         = ""
+
+[[setting]]
+key             = "notes_dir"
+type            = "string"
+label_key       = "settings.notes_dir.label"
+description_key = "settings.notes_dir.description"
+default         = ""
+
+[[setting]]
+key             = "refresh_seconds"
+type            = "string"
+label_key       = "settings.refresh_seconds.label"
+description_key = "settings.refresh_seconds.description"
+default         = "30"
+
+[[setting]]
+key             = "default_group_by"
+type            = "select"
+label_key       = "settings.default_group_by.label"
+description_key = "settings.default_group_by.description"
+default         = "priority"
+options = [
+  { value = "priority", label_key = "settings.default_group_by.option.priority" },
+  { value = "project",  label_key = "settings.default_group_by.option.project" },
+  { value = "context",  label_key = "settings.default_group_by.option.context" },
+  { value = "none",     label_key = "settings.default_group_by.option.none" },
+]
+
+[[service]]
+id    = "poll"
+entry = "service.luau"
+
+[[widget]]
+id    = "todo"
+entry = "widget.luau"
+
+  [widget.actions]
+  middle = "none"
+
+[[panel]]
+id              = "todo-panel"
+entry           = "panel.luau"
+width           = 760
+height          = 480
+placement       = "floating"
+open_near_click = true
+
+[[launcher_provider]]
+id          = "capture"
+entry       = "launcher.luau"
+prefix      = "t"
+glyph       = "list-check"
+debounce_ms = 100

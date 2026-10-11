@@ -47,7 +47,7 @@ local function setState(id, st, patch)
   end
 end
 
--- systemd poll (system scope: warp/waydroid — the last system-level services)
+-- systemd poll (system scope: docker + warp/waydroid)
 local function pollSystemd(service, done)
   local cmd = table.concat({
     "systemctl is-active " .. service.unit,
@@ -74,6 +74,13 @@ local function pollSystemd(service, done)
       sinceSec = sinceSec,
       enabled = enabledOut,
     })
+    local st = state[service.id].state
+    if not bootStarted[service.id] and service.autoStart and available and st ~= "active" then
+      bootStarted[service.id] = true
+      startService(service.id)
+      if done then done() end
+      return
+    end
     publish()
     if done then done() end
   end)
@@ -310,6 +317,12 @@ startService = function(id)
   elseif service.kind == "transient" then
     cmd = service.startCmd(service)
     setState(id, "connecting", {})
+  elseif service.kind == "system" then
+    -- Rootful system unit (docker): polkit authorizes the wheel user, so no
+    -- password prompt. --no-block: queue the start job and return immediately
+    -- (runAsync kills commands after 5s); polling reflects real progress.
+    cmd = "systemctl start --no-block " .. service.unit
+    setState(id, "connecting", {})
   else
     cmd = "systemctl start " .. service.unit
     setState(id, "connecting", {})
@@ -353,6 +366,9 @@ stopService = function(id)
     setState(id, "disconnecting", {})
   elseif service.kind == "transient" then
     cmd = "systemctl --user stop " .. service.unit
+    setState(id, "disconnecting", {})
+  elseif service.kind == "system" then
+    cmd = "systemctl stop " .. service.unit
     setState(id, "disconnecting", {})
   else
     cmd = "systemctl stop " .. service.unit

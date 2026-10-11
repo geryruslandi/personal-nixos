@@ -1,6 +1,6 @@
 # SonarQube stack — fully Home-Manager / user-level after the secrets.server
 # removal. Two containers (sonar-postgres backend + the SonarQube app) driven
-# by `docker compose` against the ROOTLESS user daemon (system-modules/
+# by `docker compose` against the ROOTFUL system daemon (system-modules/
 # docker.nix), started/stopped by the services hub plugin through the
 # gery-sonarqube-dev wrapper.
 #
@@ -59,7 +59,10 @@ in
         };
         volumes = [ "sonar-pgdata:/var/lib/postgresql/data" ];
         healthcheck = {
-          test = [ "CMD-SHELL" "pg_isready -U sonarqube -d sonarqube" ];
+          test = [
+            "CMD-SHELL"
+            "pg_isready -U sonarqube -d sonarqube"
+          ];
           interval = "10s";
           timeout = "5s";
           retries = 12;
@@ -130,8 +133,7 @@ in
       fi
 
       dc() {
-        DOCKER_HOST="''${DOCKER_HOST:-unix://''${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/docker.sock}" \
-          "${pkgs.docker-compose}/bin/docker-compose" -f "$compose" --project-directory "$state" "$@"
+        "${pkgs.docker-compose}/bin/docker-compose" -f "$compose" --project-directory "$state" "$@"
       }
       export SONARQUBE_WEB_PORT="$port"
 

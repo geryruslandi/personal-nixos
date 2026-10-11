@@ -49,6 +49,7 @@
     "com.github.Murmele.Gittyup"
     "org.gnome.seahorse.Application"
     "com.github.mtkennerly.ludusavi"
+    "com.usebruno.Bruno"
   ];
 
   services.flatpak.overrides = {
