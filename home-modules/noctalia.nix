@@ -141,6 +141,7 @@
             "rofi"
             "hyprtoolkit"
             "lazygit"
+            "tmux"
           ];
         };
       };
@@ -318,13 +319,14 @@
           font_family = "JetBrainsMono Nerd Font Propo";
           start = [
             "services"
-            "note-tuxedo"
+            "mini-docker"
             "notes"
+            "todo_2"
             "bar"
             "indicator"
-            "privacy"
-            "active_window"
             "radio"
+            "active_window"
+            "privacy"
           ];
           center = [ "workspaces" ];
           end = [
@@ -457,8 +459,14 @@
         "notes" = {
           type = "noctalia/notes:notes";
         };
-        "note-tuxedo" = {
+        "todo" = {
+          type = "nightwatch75/todo:todo";
+        };
+        "todo_2" = {
           type = "gery/note-tuxedo:todo";
+        };
+        "mini-docker" = {
+          type = "gery/mini-docker:mini-docker";
         };
         "radio" = {
           type = "nilsonlinux/world-radio:radio";
@@ -487,20 +495,22 @@
           "noctalia/screen_recorder"
           "noctalia/wallhaven"
           "noctalia/bitwarden"
-          "noctalia/notes"
           "dunarand/tmux-provider"
-          "gery/note-tuxedo"
+          "nightwatch75/todo"
           "tadomika_ari/w-engine"
-          "gery/services"
-          "felipeartur/ai-usagebar"
           "piero-93/battery-power-management"
           "jamesfeeder/special-workspaces"
+          "noctalia/notes"
           "rxtsel/portctl"
-          "nilsonlinux/world-radio"
+          "gery/services"
           "samuelskovbakke/calculator-plus"
           "icefish/phone-connect"
           "icefish/phone-operate"
           "ahmedhossamdev/sticky-notes"
+          "nilsonlinux/world-radio"
+          "felipeartur/ai-usagebar"
+          "gery/note-tuxedo"
+          "gery/mini-docker"
         ];
         auto_update = "all";
       };
@@ -514,6 +524,10 @@
           # Panel host settings; the panel entry is `todo-panel`.
           todo-panel_placement = "floating";
           todo-panel_open_near_click = true;
+        };
+        "nightwatch75/todo" = {
+          panel_placement = "floating";
+          panel_position = "center";
         };
         "noctalia/bitwarden" = {
           vault_timeout = "30";

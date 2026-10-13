@@ -1,0 +1,86 @@
+# Vendored fork of the community plugin "8bury/mini-docker" (v1.0.5, MIT),
+# copied from ~/.local/state/noctalia/plugins/materialized/community/mini-docker.
+# This data-dir copy outranks the auto-updated community source. Re-authored as
+# gery/mini-docker; local deltas:
+#   - Bar icon + running counter use the gery/services hub status palette
+#     (green running / red stopped / gray unavailable) instead of the
+#     per-theme-role color settings; glyph_color/active_color/inactive_color
+#     settings removed.
+#   - Container rows gain "Logs" (docker logs -f) and "Shell"
+#     (docker exec -it ...) actions that open in the terminal.
+id = "gery/mini-docker"
+name = "Mini Docker"
+version = "1.1.0"
+plugin_api = 9
+author = "gery"
+license = "MIT"
+icon = "brand-docker"
+description = "Manage Docker containers, images, volumes, and networks from Noctalia."
+tags = ["bar", "panel", "service", "development", "system", "utility"]
+dependencies = ["docker"]
+
+[[setting]]
+key = "refresh_interval"
+type = "int"
+label_key = "settings.refresh_interval.label"
+description_key = "settings.refresh_interval.description"
+default = 5
+min = 1
+max = 30
+
+[[setting]]
+key = "default_network"
+type = "string"
+label_key = "settings.default_network.label"
+description_key = "settings.default_network.description"
+default = "bridge"
+
+[[setting]]
+key = "container_shell"
+type = "string"
+label_key = "settings.container_shell.label"
+description_key = "settings.container_shell.description"
+default = "sh"
+
+[[setting]]
+key = "logs_tail"
+type = "string"
+label_key = "settings.logs_tail.label"
+description_key = "settings.logs_tail.description"
+default = "200"
+
+[[widget]]
+id = "mini-docker"
+entry = "widget.luau"
+
+  [[widget.setting]]
+  key = "show_count"
+  type = "bool"
+  label_key = "settings.show_count.label"
+  description_key = "settings.show_count.description"
+  default = true
+
+  [[widget.setting]]
+  key = "status_mode"
+  type = "select"
+  label_key = "settings.status_mode.label"
+  description_key = "settings.status_mode.description"
+  default = "always"
+  options = [
+    { value = "always", label_key = "settings.status_mode.options.always" },
+    { value = "running_only", label_key = "settings.status_mode.options.running_only" },
+    { value = "hidden", label_key = "settings.status_mode.options.hidden" }
+  ]
+
+[[panel]]
+id = "manager"
+entry = "panel.luau"
+width = 860
+height = 620
+placement = "floating"
+position = "center"
+open_near_click = true
+
+[[service]]
+id = "docker-service"
+entry = "service.luau"
