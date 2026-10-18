@@ -1,0 +1,119 @@
+id         = "gery/spotify"
+name       = "Spotify"
+version    = "1.1.0"
+plugin_api = 24
+author     = "gery"
+icon       = "brand-spotify"
+license    = "MIT"
+description = "Launch the Spicetify-patched (adblocked) Spotify client, control playback, and toggle a mini audio visualizer / synced lyrics in the bar."
+tags = ["bar", "music", "media", "spotify", "launcher", "visualizer", "lyrics"]
+dependencies = ["playerctl", "cava"]
+
+# The Nix side (home-modules/spotify.nix) installs the Spicetify-patched
+# `spotify` binary and `cava`:
+#   - the Spotify glyph runs `spotify` (starts it, or raises the single instance),
+#   - prev / play-pause / next go through `playerctl` over MPRIS,
+#   - the media area toggles a cava visualizer (PipeWire capture) and the
+#     current lrclib lyric line.
+
+[[setting]]
+key             = "spotify_binary"
+type            = "string"
+label_key       = "settings.spotify_binary.label"
+description_key = "settings.spotify_binary.description"
+default         = "spotify"
+
+[[setting]]
+key             = "playerctl_binary"
+type            = "string"
+label_key       = "settings.playerctl_binary.label"
+description_key = "settings.playerctl_binary.description"
+default         = "playerctl"
+
+[[setting]]
+key             = "cava_binary"
+type            = "string"
+label_key       = "settings.cava_binary.label"
+description_key = "settings.cava_binary.description"
+default         = "cava"
+
+[[setting]]
+key             = "player_name"
+type            = "string"
+label_key       = "settings.player_name.label"
+description_key = "settings.player_name.description"
+default         = "spotify"
+
+[[setting]]
+key             = "refresh_seconds"
+type            = "int"
+label_key       = "settings.refresh_seconds.label"
+description_key = "settings.refresh_seconds.description"
+default         = 2
+min             = 1
+max             = 30
+
+[[setting]]
+key             = "lyrics_enabled"
+type            = "bool"
+label_key       = "settings.lyrics_enabled.label"
+description_key = "settings.lyrics_enabled.description"
+default         = true
+
+[[service]]
+id    = "poll"
+entry = "service.luau"
+
+[[widget]]
+id    = "spotify"
+entry = "widget.luau"
+
+  [[widget.setting]]
+  key             = "show_previous"
+  type            = "bool"
+  label_key       = "settings.show_previous.label"
+  description_key = "settings.show_previous.description"
+  default         = true
+
+  [[widget.setting]]
+  key             = "show_title"
+  type            = "bool"
+  label_key       = "settings.show_title.label"
+  description_key = "settings.show_title.description"
+  default         = false
+
+  [[widget.setting]]
+  key             = "start_mode"
+  type            = "select"
+  label_key       = "settings.start_mode.label"
+  description_key = "settings.start_mode.description"
+  default         = "viz"
+  options = [
+    { value = "viz", label_key = "settings.start_mode.options.viz" },
+    { value = "lyric", label_key = "settings.start_mode.options.lyric" },
+  ]
+
+  [[widget.setting]]
+  key             = "viz_width"
+  type            = "int"
+  label_key       = "settings.viz_width.label"
+  description_key = "settings.viz_width.description"
+  default         = 56
+  min             = 24
+  max             = 200
+
+  [[widget.setting]]
+  key             = "viz_height"
+  type            = "int"
+  label_key       = "settings.viz_height.label"
+  description_key = "settings.viz_height.description"
+  default         = 20
+  min             = 8
+  max             = 40
+
+  [[widget.setting]]
+  key             = "viz_color"
+  type            = "color"
+  label_key       = "settings.viz_color.label"
+  description_key = "settings.viz_color.description"
+  default         = "primary"

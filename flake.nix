@@ -40,6 +40,16 @@
 
     nix-flatpak.url = "github:gmodena/nix-flatpak/?ref=latest";
 
+    # Spicetify: patches the native Spotify client for theming and extensions
+    # (home-modules/spotify.nix uses the `adblockify` extension for the adblock
+    # the Firefox "Spotify Adblock" add-on does on the web player). Follow our
+    # nixpkgs so the patched client is built against the same Spotify/Mesa/glibc
+    # as the rest of the system (same reasoning as the noctalia input).
+    spicetify-nix = {
+      url = "github:Gerg-L/spicetify-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # OpenCode built from its own flake at release v1.18.31 (always use this
     # fork's flake, not nixpkgs). Keep nixpkgs independent — its node_modules
     # build is tuned for its own nixpkgs-unstable pin (same reasoning as the

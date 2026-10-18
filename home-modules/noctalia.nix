@@ -333,6 +333,7 @@
             "tray"
             "group:g1"
             "group:g2"
+            "spotify"
             "volume"
             "widget"
             "clock"
@@ -488,6 +489,9 @@
         "widget" = {
           type = "piero-93/battery-power-management:widget";
         };
+        "spotify" = {
+          type = "gery/spotify:spotify";
+        };
       };
 
       plugins = {
@@ -511,6 +515,7 @@
           "felipeartur/ai-usagebar"
           "gery/note-tuxedo"
           "gery/mini-docker"
+          "gery/spotify"
         ];
         auto_update = "all";
       };

@@ -26,7 +26,7 @@ let
 
     POLL_SECONDS = 5
     DEBOUNCE_POLLS = 2
-    SKIP_SUBSTRINGS = ("noctalia",)
+    SKIP_SUBSTRINGS = ("noctalia", "cava")
     QUALIFYING_CLASSES = ("Stream/Output/Audio", "Stream/Input/Audio")
 
 

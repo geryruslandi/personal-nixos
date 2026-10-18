@@ -39,6 +39,8 @@ in
 {
   # home.nix
   imports = [
+    # Spicetify (patched Spotify + adblock) and its `programs.spicetify` options.
+    inputs.spicetify-nix.homeManagerModules.default
     ./home-modules/hyprland.nix
     ./home-modules/noctalia.nix
     ./home-modules/kanshi.nix
@@ -76,6 +78,7 @@ in
     ./home-modules/k9s.nix
     ./home-modules/headroom.nix
     ./home-modules/tuxedo.nix
+    ./home-modules/spotify.nix
   ];
 
   # This is the magic part:
