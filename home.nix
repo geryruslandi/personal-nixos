@@ -79,6 +79,7 @@ in
     ./home-modules/headroom.nix
     ./home-modules/tuxedo.nix
     ./home-modules/spotify.nix
+    ./home-modules/xm5
   ];
 
   # This is the magic part:

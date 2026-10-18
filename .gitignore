@@ -1,2 +1,6 @@
 secrets.nix
 result
+
+# Python
+__pycache__/
+*.pyc
