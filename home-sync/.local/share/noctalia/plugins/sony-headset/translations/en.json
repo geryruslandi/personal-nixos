@@ -1,0 +1,22 @@
+{
+  "settings.binary.label": "Helper binary",
+  "settings.binary.description": "The sonyctl executable that talks to the headphones.",
+  "settings.address.label": "Bluetooth address",
+  "settings.address.description": "Pin a specific device MAC. Leave empty to auto-discover the paired Sony device.",
+  "settings.name_filter.label": "Name filter",
+  "settings.name_filter.description": "Only auto-discover devices whose name contains this text (optional).",
+  "settings.channel.label": "RFCOMM channel",
+  "settings.channel.description": "Bluetooth serial channel. Leave empty to resolve it automatically via SDP.",
+  "settings.state_dir.label": "State directory",
+  "settings.state_dir.description": "Where the daemon writes status.json and its control socket.",
+  "settings.bluetoothctl_binary.label": "bluetoothctl path",
+  "settings.bluetoothctl_binary.description": "Used to discover the paired device.",
+  "settings.sdptool_binary.label": "sdptool path",
+  "settings.sdptool_binary.description": "Used to resolve the RFCOMM channel via SDP.",
+  "settings.keep_alive.label": "Keep connection alive",
+  "settings.keep_alive.description": "Stay connected for live battery. Turn off to release the control channel for the Sony phone app when idle.",
+  "settings.idle_timeout.label": "Idle timeout (seconds)",
+  "settings.idle_timeout.description": "When keep-alive is off, disconnect after this many seconds without a command.",
+  "settings.refresh_seconds.label": "Refresh interval (seconds)",
+  "settings.refresh_seconds.description": "How often the daemon re-reads state and the widget re-reads the status file."
+}

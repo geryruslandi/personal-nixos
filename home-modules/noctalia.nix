@@ -341,7 +341,7 @@
             "tray"
             "group:g1"
             "group:g2"
-            "xm5"
+            "headset"
             "spotify"
             "volume"
             "widget"
@@ -501,8 +501,8 @@
         "spotify" = {
           type = "gery/spotify:spotify";
         };
-        "xm5" = {
-          type = "gery/xm5:xm5";
+        "headset" = {
+          type = "gery/sony-headset:headset";
         };
       };
 
@@ -528,7 +528,7 @@
           "gery/note-tuxedo"
           "gery/mini-docker"
           "gery/spotify"
-          "gery/xm5"
+          "gery/sony-headset"
         ];
         auto_update = "all";
       };

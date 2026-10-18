@@ -1,4 +1,4 @@
--- Shared helpers for the gery/xm5 plugin (Sony WH-1000XM5 control).
+-- Shared helpers for the gery/sony-headset plugin (Sony MDR v2 headphones).
 -- Single source of truth for settings, colours/glyphs, argv construction and
 -- subprocess binary resolution.
 
@@ -15,7 +15,7 @@ function M.cfg(key, default)
 end
 
 function M.baseDir()
-  return noctalia.expandPath(M.cfg("state_dir", "~/.local/state/noctalia-xm5"))
+  return noctalia.expandPath(M.cfg("state_dir", "~/.local/state/noctalia-sony-headset"))
 end
 
 function M.stateFile()
@@ -49,15 +49,23 @@ function M.expandBinary(binary)
 end
 
 function M.binary()
-  return M.expandBinary(M.cfg("binary", "xm5ctl"))
-end
-
-function M.channel()
-  return tostring(M.cfg("channel", "9"))
+  return M.expandBinary(M.cfg("binary", "sonyctl"))
 end
 
 function M.address()
   return tostring(M.cfg("address", ""))
+end
+
+function M.channel()
+  local c = tostring(M.cfg("channel", ""))
+  if c == "" then
+    return "0" -- 0 = auto-resolve via SDP
+  end
+  return c
+end
+
+function M.nameFilter()
+  return tostring(M.cfg("name_filter", ""))
 end
 
 -- global args that must precede the subcommand
@@ -68,8 +76,17 @@ function M.globalArgs()
     table.insert(args, "--address")
     table.insert(args, address)
   end
+  local nameFilter = M.nameFilter()
+  if nameFilter ~= "" then
+    table.insert(args, "--name-filter")
+    table.insert(args, nameFilter)
+  end
   table.insert(args, "--channel")
   table.insert(args, M.channel())
+  table.insert(args, "--bluetoothctl")
+  table.insert(args, M.expandBinary(M.cfg("bluetoothctl_binary", "bluetoothctl")))
+  table.insert(args, "--sdptool")
+  table.insert(args, M.expandBinary(M.cfg("sdptool_binary", "sdptool")))
   table.insert(args, "--state-file")
   table.insert(args, M.stateFile())
   table.insert(args, "--socket-file")
@@ -113,7 +130,7 @@ function M.actionArgv(req)
   return args
 end
 
--- The single systemd-run statement that launches/keeps the detector daemon.
+-- The single systemd-run statement that launches/keeps the daemon.
 function M.daemonCommand()
   local idle = M.cfg("keep_alive", true) and 0 or tonumber(M.cfg("idle_timeout", 90)) or 90
   local poll = tonumber(M.cfg("refresh_seconds", 15)) or 15
@@ -121,8 +138,8 @@ function M.daemonCommand()
     return "'" .. tostring(s):gsub("'", "'\\''") .. "'"
   end
   local parts = {
-    "systemctl --user reset-failed xm5d 2>/dev/null; systemctl --user stop xm5d 2>/dev/null; systemd-run --user",
-    "--unit=xm5d --collect",
+    "systemctl --user reset-failed sonyd 2>/dev/null; systemctl --user stop sonyd 2>/dev/null; systemd-run --user",
+    "--unit=sonyd --collect",
     "--property=Restart=on-failure --property=RestartSec=3",
     "--",
     shq(M.binary()),
@@ -133,8 +150,17 @@ function M.daemonCommand()
     table.insert(parts, "--address")
     table.insert(parts, shq(address))
   end
+  local nameFilter = M.nameFilter()
+  if nameFilter ~= "" then
+    table.insert(parts, "--name-filter")
+    table.insert(parts, shq(nameFilter))
+  end
   table.insert(parts, "--channel")
   table.insert(parts, shq(M.channel()))
+  table.insert(parts, "--bluetoothctl")
+  table.insert(parts, shq(M.expandBinary(M.cfg("bluetoothctl_binary", "bluetoothctl"))))
+  table.insert(parts, "--sdptool")
+  table.insert(parts, shq(M.expandBinary(M.cfg("sdptool_binary", "sdptool"))))
   table.insert(parts, "--state-file")
   table.insert(parts, shq(M.stateFile()))
   table.insert(parts, "--socket-file")
@@ -157,9 +183,13 @@ M.COLOR_OK = "#a6e3a1"
 
 function M.deviceShort(model)
   if type(model) ~= "string" or model == "" then
-    return "XM5"
+    return "Sony"
   end
-  local short = model:gsub("^WH%-1000", ""):gsub("^WF%-1000", "")
+  local short = model
+  short = short:gsub("^WH%-1000", ""):gsub("^WF%-1000", ""):gsub("^WI%-1000", "")
+  if short == model then
+    short = short:gsub("^WH%-", ""):gsub("^WF%-", ""):gsub("^WI%-", ""):gsub("^MDR%-", "")
+  end
   if short == "" then
     return model
   end

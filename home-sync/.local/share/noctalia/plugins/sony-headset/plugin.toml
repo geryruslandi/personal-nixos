@@ -1,42 +1,64 @@
-id         = "gery/xm5"
-name       = "Sony XM5"
+id         = "gery/sony-headset"
+name       = "Sony Headset"
 version    = "1.0.0"
 plugin_api = 24
 author     = "gery"
 icon       = "headphones"
 license    = "MIT"
 
-description = "Battery, noise cancelling and full control for Sony WH-1000XM5 headphones over Bluetooth (MDR v2)."
+description = "Battery, noise cancelling and full control for Sony MDR-v2 headphones (WH-1000XM5/XM6, WF-series, LinkBuds, WH-CH720N, ...) over Bluetooth. Auto-discovers the paired device."
 
 # The helper owns the Bluetooth control channel; these settings are passed on
-# its command line. Defaults target this machine's WH-1000XM5.
+# its command line. Empty address/channel = auto-discover the device and its
+# RFCOMM channel.
 [[setting]]
 key        = "binary"
 type       = "string"
 label_key  = "settings.binary.label"
 description_key = "settings.binary.description"
-default    = "xm5ctl"
+default    = "sonyctl"
 
 [[setting]]
 key        = "address"
 type       = "string"
 label_key  = "settings.address.label"
 description_key = "settings.address.description"
-default    = "AC:80:0A:87:CD:36"
+default    = ""
+
+[[setting]]
+key        = "name_filter"
+type       = "string"
+label_key  = "settings.name_filter.label"
+description_key = "settings.name_filter.description"
+default    = ""
 
 [[setting]]
 key        = "channel"
 type       = "string"
 label_key  = "settings.channel.label"
 description_key = "settings.channel.description"
-default    = "9"
+default    = ""
 
 [[setting]]
 key        = "state_dir"
 type       = "string"
 label_key  = "settings.state_dir.label"
 description_key = "settings.state_dir.description"
-default    = "~/.local/state/noctalia-xm5"
+default    = "~/.local/state/noctalia-sony-headset"
+
+[[setting]]
+key        = "bluetoothctl_binary"
+type       = "string"
+label_key  = "settings.bluetoothctl_binary.label"
+description_key = "settings.bluetoothctl_binary.description"
+default    = "bluetoothctl"
+
+[[setting]]
+key        = "sdptool_binary"
+type       = "string"
+label_key  = "settings.sdptool_binary.label"
+description_key = "settings.sdptool_binary.description"
+default    = "sdptool"
 
 [[setting]]
 key        = "keep_alive"
@@ -66,11 +88,11 @@ id    = "poll"
 entry = "service.luau"
 
 [[widget]]
-id    = "xm5"
+id    = "headset"
 entry = "widget.luau"
 
 [[panel]]
-id              = "xm5-panel"
+id              = "headset-panel"
 entry           = "panel.luau"
 width           = 380
 height          = 620

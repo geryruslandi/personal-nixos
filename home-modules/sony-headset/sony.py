@@ -1,8 +1,15 @@
 #!/usr/bin/env python3
-"""Control Sony WH-1000XM5 headphones (Sony MDR v2 protocol) over Bluetooth RFCOMM.
+"""Control Sony headphones (Sony MDR protocol) over Bluetooth RFCOMM.
 
-Speaks the reverse-engineered "Serial HPC" protocol exposed by Sony headphones
-(service UUID 956C7B26-D49A-4BA8-B03F-B17D393CB6E2, usually RFCOMM channel 9).
+Targets modern Sony headphones that speak the reverse-engineered **MDR v2**
+"Serial HPC" protocol (service UUID 956C7B26-D49A-4BA8-B03F-B17D393CB6E2,
+usually RFCOMM channel 9): WH-1000XM5/XM6, WF-series, LinkBuds, WH-CH720N, ...
+The device is discovered automatically via BlueZ (bluetoothctl); the RFCOMM
+channel is resolved via SDP (sdptool). A specific device can be pinned with
+--address / --channel.
+
+Older **v1**-only devices (96CC203E-5068-46AD-B32D-E316F5E069BA) are detected
+and reported as unsupported.
 
 Wire format (a "Tandem" frame):
 
@@ -17,16 +24,17 @@ Protocol documentation and byte layouts come from the public reverse-engineering
 work in mos9527/SonyHeadphonesClient (libmdr, MIT) and the mdr-protocol project.
 
 Usage:
-  xm5.py status  [--json]                 # connect, read state, print
-  xm5.py noise   {off|anc|ambient}
-  xm5.py ambient-level N
-  xm5.py focus-on-voice on|off
-  xm5.py speak-to-chat on|off
-  xm5.py dsee    on|off
-  xm5.py connection {quality|stable}
-  xm5.py volume  N
-  xm5.py power-off
-  xm5.py daemon                           # long-running, serves control.sock
+  sony.py discover                        # print the detected device + channel
+  sony.py status  [--json]                # connect, read state, print
+  sony.py noise   {off|anc|ambient}
+  sony.py ambient-level N
+  sony.py focus-on-voice on|off
+  sony.py speak-to-chat on|off
+  sony.py dsee    on|off
+  sony.py connection {quality|stable}
+  sony.py volume  N
+  sony.py power-off
+  sony.py daemon                          # long-running, serves control.sock
 """
 
 import argparse
@@ -34,17 +42,26 @@ import errno
 import json
 import os
 import select
+import shutil
 import socket
+import subprocess
 import sys
 import tempfile
 import threading
 import time
 
-DEFAULT_ADDRESS = "AC:80:0A:87:CD:36"
-DEFAULT_CHANNEL = 9
+# Empty = auto-discover the paired/connected Sony device via BlueZ.
+DEFAULT_ADDRESS = ""
+DEFAULT_CHANNEL = 0  # 0 = auto-resolve via SDP
 STATE_HOME = os.path.join(
-    os.environ.get("XDG_STATE_HOME", os.path.expanduser("~/.local/state")), "noctalia-xm5"
+    os.environ.get("XDG_STATE_HOME", os.path.expanduser("~/.local/state")),
+    "noctalia-sony-headset",
 )
+
+MDR_V2_UUID = "956c7b26-d49a-4ba8-b03f-b17d393cb6e2"
+MDR_V1_UUID = "96cc203e-5068-46ad-b32d-e316f5e069ba"
+BLUETOOTHCTL = "bluetoothctl"
+SDPTOOL = "sdptool"
 
 START, END, ESC = 0x3E, 0x3C, 0x3D
 DATA_MDR = 0x0C
@@ -87,8 +104,13 @@ C_PLAY_NTFY_PARAM = 0xA9
 
 # Support-function types (table 1)
 F_BATTERY = 0x20
+F_LR_BATTERY = 0x21
+F_CRADLE_BATTERY = 0x22
 F_POWER_OFF = 0x23
 F_AUTO_POWER_OFF_WEARING = 0x25
+F_BATTERY_THRESHOLD = 0x28
+F_LR_BATTERY_THRESHOLD = 0x29
+F_CRADLE_BATTERY_THRESHOLD = 0x2A
 F_NCASM_BASE = 0x61  # .. 0x6D
 F_CONNECTION_MODE = 0xE1
 F_CONNECTION_MODE_LDAC = 0xE3
@@ -96,6 +118,14 @@ F_UPSCALING = 0xE2
 F_SMART_TALKING1 = 0xF2
 F_SMART_TALKING2 = 0xFC
 F_PLAYBACK_CTRL = 0xA1
+
+# POWER inquired types (battery shapes)
+POWER_BATTERY = 0x00
+POWER_LEFT_RIGHT_BATTERY = 0x01
+POWER_CRADLE_BATTERY = 0x02
+POWER_BATTERY_THRESHOLD = 0x08
+POWER_LR_BATTERY_THRESHOLD = 0x09
+POWER_CRADLE_BATTERY_THRESHOLD = 0x0A
 
 # NCASM inquired types
 NCASM_NC_ON_OFF = 0x01
@@ -123,6 +153,7 @@ MODE_OUT_TIME = {"fast": 0x00, "mid": 0x01, "slow": 0x02, "none": 0x03}
 ENABLE_DISABLE = {"on": 0x00, "off": 0x01}
 
 PLAY_MUSIC_VOLUME = 0x20
+PLAY_MUSIC_VOLUME_WITH_MUTE = 0x30
 
 
 class ProtocolError(Exception):
@@ -131,6 +162,124 @@ class ProtocolError(Exception):
 
 class DeviceError(Exception):
     pass
+
+
+# --------------------------------------------------------------------------
+# Device discovery (BlueZ via bluetoothctl + sdptool for the RFCOMM channel)
+# --------------------------------------------------------------------------
+def _run(argv, timeout=8.0):
+    try:
+        result = subprocess.run(
+            argv, capture_output=True, text=True, timeout=timeout, errors="replace"
+        )
+        return result.stdout or ""
+    except (OSError, subprocess.SubprocessError):
+        return ""
+
+
+def _which(name, override=None):
+    if override:
+        return override
+    return shutil.which(name) or name
+
+
+def list_devices(bluetoothctl=None):
+    """Return [(mac, name), ...] for every device BlueZ knows about."""
+    out = _run([_which(BLUETOOTHCTL, bluetoothctl), "devices"], timeout=6.0)
+    devices = []
+    for line in out.splitlines():
+        parts = line.split(None, 2)
+        if len(parts) >= 2 and parts[0] == "Device":
+            name = parts[2].strip() if len(parts) > 2 else ""
+            devices.append((parts[1].strip(), name))
+    return devices
+
+
+def device_info(mac, bluetoothctl=None):
+    """Return {'name','connected','uuids':set()} for one device."""
+    out = _run([_which(BLUETOOTHCTL, bluetoothctl), "info", mac], timeout=6.0)
+    info = {"name": "", "connected": False, "uuids": set()}
+    for line in out.splitlines():
+        line = line.strip()
+        if line.startswith("Name:"):
+            info["name"] = line.split(":", 1)[1].strip()
+        elif line.startswith("Connected:"):
+            info["connected"] = line.split(":", 1)[1].strip().lower() == "yes"
+        elif line.startswith("UUID:") and "(" in line and ")" in line:
+            info["uuids"].add(line[line.rfind("(") + 1 : line.rfind(")")].strip().lower())
+    return info
+
+
+def discover_device(name_filter=None, bluetoothctl=None):
+    """Find the Sony MDR device to control.
+
+    Prefers a connected v2 device, then any v2, then a v1 device. Optional
+    `name_filter` is a case-insensitive substring match on the device name.
+    """
+    v2 = None
+    v1 = None
+    for mac, name in list_devices(bluetoothctl):
+        if name_filter and name_filter.lower() not in name.lower():
+            continue
+        info = device_info(mac, bluetoothctl)
+        name = info["name"] or name
+        if name_filter and name_filter.lower() not in name.lower():
+            continue
+        if MDR_V2_UUID in info["uuids"]:
+            if info["connected"]:
+                return {"address": mac, "name": name, "protocol": "v2", "connected": True}
+            v2 = v2 or {"address": mac, "name": name, "protocol": "v2", "connected": False}
+        elif MDR_V1_UUID in info["uuids"]:
+            if info["connected"]:
+                v1 = v1 or {"address": mac, "name": name, "protocol": "v1", "connected": True}
+            else:
+                v1 = v1 or {"address": mac, "name": name, "protocol": "v1", "connected": False}
+    target = v2 or v1
+    if target is None:
+        raise DeviceError(
+            "no Sony MDR device found (pair/connect it in Bluetooth settings, "
+            "or set a device address in the plugin settings)"
+        )
+    return target
+
+
+def discover_channel(mac, protocol="v2", sdptool=None):
+    """Resolve the RFCOMM channel of the Sony control service via SDP."""
+    uuid = MDR_V2_UUID if protocol == "v2" else MDR_V1_UUID
+    out = _run([_which(SDPTOOL, sdptool), "browse", mac], timeout=12.0)
+    channel = None
+    for block in out.split("Service RecHandle:"):
+        if uuid in block.lower():
+            for line in block.splitlines():
+                line = line.strip()
+                if line.lower().startswith("channel:"):
+                    try:
+                        channel = int(line.split(":", 1)[1].strip())
+                    except ValueError:
+                        pass
+                    break
+            if channel:
+                break
+    return channel
+
+
+def resolve_target(address="", channel=0, name_filter=None, bluetoothctl=None, sdptool=None):
+    """Resolve (address, channel, protocol) using config or auto-discovery."""
+    if address:
+        protocol = "v2"
+        discovered = {"address": address, "name": "", "protocol": protocol, "connected": True}
+    else:
+        discovered = discover_device(name_filter, bluetoothctl)
+    protocol = discovered.get("protocol", "v2")
+    if protocol == "v1":
+        raise DeviceError(
+            f"{discovered.get('name') or discovered['address']} uses the older MDR v1 "
+            "protocol, which is not supported"
+        )
+    if not channel:
+        channel = discover_channel(discovered["address"], protocol, sdptool) or 9
+    discovered["channel"] = channel
+    return discovered
 
 
 def _escape(data):
@@ -379,6 +528,33 @@ class Session:
             return 0x02
         return None
 
+    @property
+    def battery_shapes(self):
+        """Map of the battery shapes this device advertises (main/lr/cradle)."""
+        shapes = {}
+        shapes["main"] = (
+            POWER_BATTERY_THRESHOLD
+            if F_BATTERY_THRESHOLD in self.supports
+            else POWER_BATTERY
+            if F_BATTERY in self.supports
+            else None
+        )
+        shapes["lr"] = (
+            POWER_LR_BATTERY_THRESHOLD
+            if F_LR_BATTERY_THRESHOLD in self.supports
+            else POWER_LEFT_RIGHT_BATTERY
+            if F_LR_BATTERY in self.supports
+            else None
+        )
+        shapes["cradle"] = (
+            POWER_CRADLE_BATTERY_THRESHOLD
+            if F_CRADLE_BATTERY_THRESHOLD in self.supports
+            else POWER_CRADLE_BATTERY
+            if F_CRADLE_BATTERY in self.supports
+            else None
+        )
+        return shapes
+
     # -- reads -----------------------------------------------------------
     def read(self):
         state = {
@@ -393,7 +569,7 @@ class Session:
                 "connection": self.supports_function(F_CONNECTION_MODE, F_CONNECTION_MODE_LDAC),
                 "volume": self.supports_function(F_PLAYBACK_CTRL),
                 "power_off": self.supports_function(F_POWER_OFF),
-                "battery": self.supports_function(F_BATTERY),
+                "battery": any(v is not None for v in self.battery_shapes.values()),
             },
         }
         readers = [
@@ -414,12 +590,30 @@ class Session:
         return state
 
     def read_battery(self):
-        frame = self.request([C_POWER_GET_STATUS, 0x00], C_POWER_RET_STATUS)
-        charging = {0: "not_charging", 1: "charging", 2: "unknown", 3: "charged"}
-        return {
-            "battery": frame.payload[2],
-            "charging": charging.get(frame.payload[3], "unknown"),
-        }
+        charging_names = {0: "not_charging", 1: "charging", 2: "unknown", 3: "charged"}
+        shapes = self.battery_shapes
+        result = {}
+
+        def query(itype):
+            return self.request([C_POWER_GET_STATUS, itype], C_POWER_RET_STATUS).payload
+
+        if shapes["main"] is not None:
+            p = query(shapes["main"])
+            result["battery"] = p[2]
+            result["charging"] = charging_names.get(p[3], "unknown")
+        if shapes["lr"] is not None:
+            p = query(shapes["lr"])
+            result["battery_left"] = p[2]
+            result["charging_left"] = charging_names.get(p[3], "unknown")
+            result["battery_right"] = p[4]
+            result["charging_right"] = charging_names.get(p[5], "unknown")
+            result.setdefault("battery", min(p[2], p[4]))
+            result.setdefault("charging", result["charging_left"])
+        if shapes["cradle"] is not None:
+            p = query(shapes["cradle"])
+            result["battery_case"] = p[2]
+            result["charging_case"] = charging_names.get(p[3], "unknown")
+        return result
 
     def read_noise(self):
         ntype = self.ncasam_type
@@ -466,7 +660,11 @@ class Session:
         return result
 
     def read_volume(self):
+        # MUSIC_VOLUME returns [cmd][type][volume]; the *_WITH_MUTE status adds a
+        # mute byte, so only the first value byte is meaningful either way.
         frame = self.request([C_PLAY_GET_PARAM, PLAY_MUSIC_VOLUME], C_PLAY_RET_PARAM)
+        if len(frame.payload) < 3:
+            return {}
         return {"volume": frame.payload[2]}
 
     # -- writes ----------------------------------------------------------
@@ -552,7 +750,14 @@ def open_session(address, channel, debug=False, retries=6, pause=0.7):
 
 def with_session(args, action):
     """Run `action(session)` against a freshly connected device."""
-    session = open_session(args.address, args.channel, debug=args.debug)
+    target = resolve_target(
+        args.address,
+        args.channel,
+        getattr(args, "name_filter", None),
+        getattr(args, "bluetoothctl", None),
+        getattr(args, "sdptool", None),
+    )
+    session = open_session(target["address"], target["channel"], debug=args.debug)
     try:
         return action(session)
     finally:
@@ -567,15 +772,31 @@ def print_status(state):
 # daemon
 # --------------------------------------------------------------------------
 class Daemon:
-    def __init__(self, address, channel, state_file, socket_file, poll, idle_timeout, debug):
+    def __init__(
+        self,
+        address,
+        channel,
+        state_file,
+        socket_file,
+        poll,
+        idle_timeout,
+        debug,
+        name_filter=None,
+        bluetoothctl=None,
+        sdptool=None,
+    ):
         self.address = address
         self.channel = channel
+        self.name_filter = name_filter
+        self.bluetoothctl = bluetoothctl
+        self.sdptool = sdptool
         self.state_file = state_file
         self.socket_file = socket_file
         self.poll = poll
         self.idle_timeout = idle_timeout
         self.debug = debug
         self.session = None
+        self.target = None
         self.state = {"connected": False, "address": address}
         self.last_command = 0.0
         self.lock = threading.RLock()
@@ -583,7 +804,7 @@ class Daemon:
 
     def log(self, *a):
         if self.debug:
-            print("[xm5d]", *a, file=sys.stderr, flush=True)
+            print("[sonyd]", *a, file=sys.stderr, flush=True)
 
     def publish(self):
         os.makedirs(os.path.dirname(self.state_file), exist_ok=True)
@@ -592,12 +813,37 @@ class Daemon:
             json.dump(self.state, fh)
         os.replace(tmp, self.state_file)
 
+    def _connect(self):
+        """Resolve the target (if needed) and open a session, retrying once
+        with a fresh discovery when the cached target fails."""
+        last = None
+        for _ in range(2):
+            try:
+                if self.target is None:
+                    self.target = resolve_target(
+                        self.address,
+                        self.channel,
+                        self.name_filter,
+                        self.bluetoothctl,
+                        self.sdptool,
+                    )
+                    self.log("target:", self.target)
+                session = open_session(
+                    self.target["address"], self.target["channel"], debug=self.debug, retries=2
+                )
+                session.device_name = self.target.get("name") or session.model
+                return session
+            except DeviceError as exc:
+                last = exc
+                self.target = None  # force re-discovery on the next attempt
+        raise last
+
     def ensure(self):
         with self.lock:
             if self.session and self.session.alive:
                 return self.session
             try:
-                self.session = open_session(self.address, self.channel, debug=self.debug)
+                self.session = self._connect()
                 self.log("connected")
             except DeviceError as exc:
                 self.session = None
@@ -798,9 +1044,12 @@ def default_args():
 
 
 def build_parser():
-    p = argparse.ArgumentParser(description="Sony WH-1000XM5 (MDR v2) control")
-    p.add_argument("--address", default=DEFAULT_ADDRESS)
-    p.add_argument("--channel", type=int, default=DEFAULT_CHANNEL)
+    p = argparse.ArgumentParser(description="Sony headphone control (MDR v2)")
+    p.add_argument("--address", default=DEFAULT_ADDRESS, help="device MAC (empty = auto-discover)")
+    p.add_argument("--channel", type=int, default=DEFAULT_CHANNEL, help="RFCOMM channel (0 = auto)")
+    p.add_argument("--name-filter", default=None, help="substring to match the device name")
+    p.add_argument("--bluetoothctl", default=None, help="path to bluetoothctl")
+    p.add_argument("--sdptool", default=None, help="path to sdptool")
     p.add_argument("--debug", action="store_true")
     p.add_argument("--state-file", default=os.path.join(STATE_HOME, "status.json"))
     p.add_argument("--socket-file", default=os.path.join(STATE_HOME, "control.sock"))
@@ -810,6 +1059,7 @@ def build_parser():
     s.add_argument("--json", action="store_true")
     s.add_argument("--direct", action="store_true", help="ignore the daemon, talk directly")
 
+    sub.add_parser("discover")
     sub.add_parser("noise").add_argument("mode", choices=["off", "anc", "ambient"])
     sub.add_parser("ambient-level").add_argument("level", type=int)
     sub.add_parser("focus-on-voice").add_argument("value", choices=["on", "off"])
@@ -848,6 +1098,13 @@ def cli_requests(args):
 def main(argv=None):
     args = build_parser().parse_args(argv)
 
+    if args.command == "discover":
+        target = resolve_target(
+            args.address, args.channel, args.name_filter, args.bluetoothctl, args.sdptool
+        )
+        print(json.dumps(target, indent=2, sort_keys=True))
+        return 0
+
     if args.command == "daemon":
         handle = {
             "address": args.address,
@@ -857,6 +1114,9 @@ def main(argv=None):
             "poll": args.poll,
             "idle_timeout": args.idle_timeout,
             "debug": args.debug,
+            "name_filter": args.name_filter,
+            "bluetoothctl": args.bluetoothctl,
+            "sdptool": args.sdptool,
         }
         daemon = Daemon(**handle)
         try:

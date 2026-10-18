@@ -79,7 +79,7 @@ in
     ./home-modules/headroom.nix
     ./home-modules/tuxedo.nix
     ./home-modules/spotify.nix
-    ./home-modules/xm5
+    ./home-modules/sony-headset
   ];
 
   # This is the magic part:

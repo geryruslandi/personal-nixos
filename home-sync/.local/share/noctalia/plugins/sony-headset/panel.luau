@@ -1,7 +1,7 @@
 --!nonstrict
--- Control panel for gery/xm5: every XM5 feature behind one surface.
+-- Control panel for gery/sony-headset: every supported feature behind one surface.
 
-local xm5 = require("./lib/xm5.luau")
+local sony = require("./lib/sony.luau")
 
 local state = nil
 local seq = 0
@@ -88,21 +88,44 @@ local function volumeLevel()
   return state and state.volume or 0
 end
 
+local function deviceName()
+  if state == nil then
+    return "Sony headphones"
+  end
+  return state.model or state.device_name or "Sony headphones"
+end
+
+local function mainBattery()
+  if state == nil then
+    return nil
+  end
+  if type(state.battery) == "number" then
+    return state.battery
+  end
+  if type(state.battery_left) == "number" and type(state.battery_right) == "number" then
+    return math.floor((state.battery_left + state.battery_right) / 2)
+  end
+  return state.battery_left or state.battery_right
+end
+
+local function charging()
+  if state == nil then
+    return false
+  end
+  return (state.charging or state.charging_left or "not_charging") ~= "not_charging"
+end
+
 local function buildTree()
   local kids = {}
 
   -- Header -------------------------------------------------------------
   local connected = state ~= nil and state.connected == true
-  local accent = xm5.noiseColor(state and state.noise)
-  kids[#kids + 1] = ui.row({ gap = 10, align = "center", width = "fill" }, {
-    ui.glyph({ name = xm5.noiseGlyph(state and state.noise), size = 26, color = accent }),
+  local accent = sony.noiseColor(state and state.noise)
+  local batt = mainBattery()
+  kids[#kids + 1] = ui.row({ gap = 10, align = "center" }, {
+    ui.glyph({ name = sony.noiseGlyph(state and state.noise), size = 26, color = accent }),
     ui.column({ gap = 1, flexGrow = 1, align = "start" }, {
-      ui.label({
-        text = state and state.model or "Sony headphones",
-        fontSize = 15,
-        color = "on_surface",
-        fontWeight = "bold",
-      }),
+      ui.label({ text = deviceName(), fontSize = 15, color = "on_surface", fontWeight = "bold" }),
       ui.label({
         text = (state and state.firmware and ("Firmware " .. tostring(state.firmware))) or "",
         fontSize = 10,
@@ -110,14 +133,27 @@ local function buildTree()
       }),
     }),
     ui.label({
-      text = (state and type(state.battery) == "number")
-          and (tostring(state.battery) .. "%" .. (state.charging == "charging" and " \u{26a1}" or ""))
-        or "",
+      text = (type(batt) == "number") and (tostring(batt) .. "%" .. (charging() and " \u{26a1}" or "")) or "",
       fontSize = 15,
-      color = connected and xm5.batteryColor(state.battery) or xm5.COLOR_OFF,
+      color = connected and sony.batteryColor(batt) or sony.COLOR_OFF,
       fontWeight = "bold",
     }),
   })
+
+  -- Battery detail (per-bud / case) ------------------------------------
+  if connected and (state.battery_left or state.battery_right or state.battery_case) then
+    local battKids = {}
+    if state.battery_left then
+      battKids[#battKids + 1] = row("Left", ui.label({ text = tostring(state.battery_left) .. "%", fontSize = 12, color = "on_surface" }))
+    end
+    if state.battery_right then
+      battKids[#battKids + 1] = row("Right", ui.label({ text = tostring(state.battery_right) .. "%", fontSize = 12, color = "on_surface" }))
+    end
+    if state.battery_case then
+      battKids[#battKids + 1] = row("Case", ui.label({ text = tostring(state.battery_case) .. "%", fontSize = 12, color = "on_surface" }))
+    end
+    kids[#kids + 1] = card("Battery", battKids)
+  end
 
   if not connected then
     kids[#kids + 1] = ui.column({
@@ -125,14 +161,14 @@ local function buildTree()
       paddingH = 12,
       paddingV = 12,
       radius = 12,
-      fill = xm5.COLOR_LOW .. "1a",
-      border = xm5.COLOR_LOW .. "55",
+      fill = sony.COLOR_LOW .. "1a",
+      border = sony.COLOR_LOW .. "55",
       borderWidth = 1,
       align = "center",
     }, {
-      ui.label({ text = "Headphones not connected", fontSize = 12, color = xm5.COLOR_LOW, fontWeight = "medium" }),
+      ui.label({ text = "Headphones not connected", fontSize = 12, color = sony.COLOR_LOW, fontWeight = "medium" }),
       ui.label({
-        text = (state and state.error) or "Power on the WH-1000XM5 and refresh.",
+        text = (state and state.error) or "Power on the headphones and refresh.",
         fontSize = 10,
         color = "on_surface/0.7",
         textAlign = "center",
@@ -262,14 +298,14 @@ render = function()
   panel.render(buildTree())
 end
 
-noctalia.state.watch("xm5", function(value)
+noctalia.state.watch("headset", function(value)
   state = value
   pending = {}
   render()
 end)
 
 function onOpen()
-  state = noctalia.state.get("xm5")
+  state = noctalia.state.get("headset")
   pending = {}
   render()
   req("refresh")
