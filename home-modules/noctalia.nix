@@ -50,6 +50,14 @@
           alpha = 0.55;
         };
 
+        # cava's visualizer is a Stream/Input/Audio capture client (it only taps
+        # Spotify's playback node via target.object=spotify, never the mic), but
+        # Noctalia's privacy widget/OSD classify any capture stream as mic use.
+        # Ignore it by application name so the mic indicator stops false-firing.
+        privacy = {
+          mic_filter_regex = "^cava$";
+        };
+
         panel = {
           transparency_mode = "soft";
           borders = false;
