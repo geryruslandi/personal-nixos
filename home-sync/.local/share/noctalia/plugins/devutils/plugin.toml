@@ -1,0 +1,56 @@
+id         = "gery/devutils"
+name       = "Dev Utils"
+version    = "1.0.0"
+plugin_api = 24
+author     = "gery"
+icon       = "tools"
+license    = "MIT"
+
+description = "Developer utilities behind the /dev launcher: collapsible JSON tree, SQL formatter (pg_format), markdown scratchpad with live preview, and PHP dump (dd/var_dump/print_r/var_export) to JSON."
+
+# Requires the pg_format binary (pgformatter) for the SQL tool; resolved
+# through the session PATH (or an absolute path set in the settings).
+
+[[setting]]
+key             = "sql_binary"
+type            = "string"
+label_key       = "settings.sql_binary.label"
+description_key = "settings.sql_binary.description"
+default         = "pg_format"
+
+# String-typed: int settings render as a 0-100 slider in the Settings UI.
+[[setting]]
+key             = "sql_indent"
+type            = "string"
+label_key       = "settings.sql_indent.label"
+description_key = "settings.sql_indent.description"
+default         = "2"
+
+[[setting]]
+key             = "sql_keyword_case"
+type            = "select"
+label_key       = "settings.sql_keyword_case.label"
+description_key = "settings.sql_keyword_case.description"
+default         = "2"
+options = [
+  { value = "0", label_key = "settings.sql_keyword_case.option.unchanged" },
+  { value = "1", label_key = "settings.sql_keyword_case.option.lower" },
+  { value = "2", label_key = "settings.sql_keyword_case.option.upper" },
+  { value = "3", label_key = "settings.sql_keyword_case.option.capitalize" },
+]
+
+# /dev → pick a tool → opens the panel on that tab.
+[[launcher_provider]]
+id          = "search"
+entry       = "launcher.luau"
+prefix      = "dev"
+glyph       = "tools"
+debounce_ms = 80
+
+[[panel]]
+id        = "devutils-panel"
+entry     = "panel.luau"
+width     = 960
+height    = 660
+placement = "floating"
+position  = "center"

@@ -20,6 +20,9 @@
     # home" lookup in /run/current-system/sw/bin
     postgresql
 
+    # SQL beautifier used by the gery/devutils Noctalia plugin (/dev launcher)
+    pgformatter
+
     # for media keyboard shortcut
     playerctl
     # for brightness keyboard shortcut

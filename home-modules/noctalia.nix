@@ -531,6 +531,7 @@
           "gery/spotify"
           "gery/sony-headset"
           "gery/bitwarden"
+          "gery/devutils"
         ];
         auto_update = "all";
       };
