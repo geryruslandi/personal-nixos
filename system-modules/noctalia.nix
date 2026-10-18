@@ -1,4 +1,10 @@
-{ pkgs, inputs, lib, ... }:
+{
+  pkgs,
+  inputs,
+  lib,
+  secrets,
+  ...
+}:
 {
   imports = [
     inputs.noctalia.nixosModules.default
@@ -26,7 +32,7 @@
     wantedBy = [ "sleep.target" ];
     serviceConfig = {
       Type = "oneshot";
-      User = "geryruslandi";
+      User = secrets.username;
       ExecStart = pkgs.writeShellScript "noctalia-lock-before-suspend" ''
         # Derive the runtime dir + Wayland socket instead of hardcoding the
         # UID and "wayland-1" (the socket name is not stable across sessions).

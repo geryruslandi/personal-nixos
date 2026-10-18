@@ -9,12 +9,17 @@ description: Use when editing or managing secrets.nix — adding git projects, S
 
 **`projectPath` is REQUIRED**: absolute path to this repo. `configuration.nix`/`home.nix` throw at build time if it's missing or empty (it anchors the out-of-store home-sync symlinks).
 
+**`username` is the machine identity** (optional, default `"geryruslandi"`): the Linux user name. `homeDirectory` is derived as `/home/<username>`; the flake key `home-manager.users.<username>`, system user, greeter defaults and wallpaper paths all follow it — never hardcode `/home/<user>` in module code.
+
 ## Full Schema
 
 ```nix
 {
   # REQUIRED — build fails without it
-  projectPath = "/home/geryruslandi/Projects/personal-nixos";
+  projectPath = "/home/youruser/Projects/personal-nixos";
+
+  # OPTIONAL — machine identity, defaults to "geryruslandi"
+  username = "youruser";
 
   git = {
     defaultBranch = "main";            # init.defaultBranch
@@ -117,6 +122,7 @@ description: Use when editing or managing secrets.nix — adding git projects, S
 | Field | Consumer | File |
 |-------|----------|------|
 | `projectPath` | Build-time throw guard + home-sync symlink root | `configuration.nix`, `home.nix`, `home-modules/home-sync.nix` |
+| `username` | System user, HM user key, greeter default, derived `homeDirectory` | `flake.nix`, `configuration.nix`, `home.nix`, `system-modules/users.nix`, `system-modules/greeter.nix`, `system-modules/noctalia.nix` |
 | `timezone` | `time.timeZone`; Flatpak `TZ` env | `configuration.nix`, `flatpak.nix` |
 | `monitor.*` | Kanshi laptop/docked profiles | `home-modules/kanshi.nix` |
 | `exposePorts` | Firewall TCP allowlist | `configuration.nix` |

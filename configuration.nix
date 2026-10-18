@@ -28,16 +28,23 @@ let
       }; # Fallback
 
   # `projectPath` is REQUIRED — fail the build when it is missing or empty.
+  # `username` is the machine identity (optional, default keeps older
+  # secrets.nix working); every module derives the user/home from it.
   secrets =
-    if
-      rawSecrets ? projectPath && builtins.isString rawSecrets.projectPath && rawSecrets.projectPath != ""
-    then
-      rawSecrets
-    else
-      throw ''
-        secrets.nix is missing the required `projectPath` field.
-        Add it, e.g.: projectPath = "/home/geryruslandi/Projects/personal-nixos";
-      '';
+    (
+      if
+        rawSecrets ? projectPath && builtins.isString rawSecrets.projectPath && rawSecrets.projectPath != ""
+      then
+        rawSecrets
+      else
+        throw ''
+          secrets.nix is missing the required `projectPath` field.
+          Add it, e.g.: projectPath = "/home/youruser/Projects/personal-nixos";
+        ''
+    )
+    // {
+      username = rawSecrets.username or "geryruslandi";
+    };
 in
 {
   imports = [
@@ -106,10 +113,9 @@ in
     "/share/applications"
   ];
 
-  # set zsh as default shell for user geryruslandi
+  # set zsh as default shell for the user named in secrets.username
   programs.zsh.enable = true;
-  users.users.geryruslandi = {
-    # <--- Change to your actual username
+  users.users.${secrets.username} = {
     isNormalUser = true;
     shell = pkgs.zsh;
   };

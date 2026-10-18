@@ -31,7 +31,7 @@ The home-manager module runs `noctalia config validate` at build time (`validate
 
 ```bash
 nix build --impure --accept-flake-config --no-link --print-out-paths \
-  .#nixosConfigurations.nixos.config.home-manager.users.geryruslandi.xdg.configFile."noctalia/config.toml".source
+  .#nixosConfigurations.nixos.config.home-manager.users.<username>.xdg.configFile."noctalia/config.toml".source
 ```
 
 Then optionally diff the built `config.toml` against `noctalia config export merged`. Cosmetic TOML differences are expected (array spacing, float precision like `0.51` vs `0.50999998`); only substantive key/value differences matter.

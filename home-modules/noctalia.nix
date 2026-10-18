@@ -2,6 +2,7 @@
   pkgs,
   inputs,
   secrets,
+  config,
   ...
 }:
 {
@@ -91,7 +92,7 @@
 
       wallpaper = {
         enabled = true;
-        directory = "/home/geryruslandi/.config/gery/Pictures/Wallpapers";
+        directory = "${config.home.homeDirectory}/.config/gery/Pictures/Wallpapers";
         fill_mode = "crop";
         fill_color = "#000000";
         transition = [
@@ -106,12 +107,12 @@
         edge_smoothness = 0.05;
 
         default = {
-          path = "/home/geryruslandi/.config/gery/Pictures/Wallpapers/firewatch.jpg";
+          path = "${config.home.homeDirectory}/.config/gery/Pictures/Wallpapers/firewatch.jpg";
         };
 
         monitors = {
           "eDP-1" = {
-            path = "/home/geryruslandi/.config/gery/Pictures/Wallpapers/firewatch.jpg";
+            path = "${config.home.homeDirectory}/.config/gery/Pictures/Wallpapers/firewatch.jpg";
           };
         };
 

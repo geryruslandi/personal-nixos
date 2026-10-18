@@ -1,3 +1,10 @@
+let
+  # Machine identity comes from gitignored secrets.nix (same pathExists pattern
+  # as configuration.nix/home.nix; rebuild.sh git-adds secrets.nix so the flake
+  # can see it). The default keeps a secrets.nix without a `username` field working.
+  secretsFile = if builtins.pathExists ./secrets.nix then import ./secrets.nix else { };
+  username = secretsFile.username or "geryruslandi";
+in
 {
   description = "A very basic flake";
 
@@ -121,7 +128,7 @@
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
 
-            home-manager.users.geryruslandi.imports = [
+            home-manager.users.${username}.imports = [
               ./home.nix
             ];
           }

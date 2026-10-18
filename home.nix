@@ -25,16 +25,23 @@ let
       }; # Fallback
 
   # `projectPath` is REQUIRED — fail the build when it is missing or empty.
+  # `username` is the machine identity (optional, default keeps older
+  # secrets.nix working); homeDirectory is derived from it.
   secrets =
-    if
-      rawSecrets ? projectPath && builtins.isString rawSecrets.projectPath && rawSecrets.projectPath != ""
-    then
-      rawSecrets
-    else
-      throw ''
-        secrets.nix is missing the required `projectPath` field.
-        Add it, e.g.: projectPath = "/home/geryruslandi/Projects/personal-nixos";
-      '';
+    (
+      if
+        rawSecrets ? projectPath && builtins.isString rawSecrets.projectPath && rawSecrets.projectPath != ""
+      then
+        rawSecrets
+      else
+        throw ''
+          secrets.nix is missing the required `projectPath` field.
+          Add it, e.g.: projectPath = "/home/youruser/Projects/personal-nixos";
+        ''
+    )
+    // {
+      username = rawSecrets.username or "geryruslandi";
+    };
 in
 {
   # home.nix
@@ -127,8 +134,8 @@ in
     # Everything in home-sync/ is linked into $HOME as editable out-of-store
     # symlinks by home-modules/home-sync.nix — do not add entries here for
     # paths inside home-sync/.
-    username = "geryruslandi";
-    homeDirectory = "/home/geryruslandi";
+    username = secrets.username;
+    homeDirectory = "/home/${secrets.username}";
 
     packages = with pkgs; [
       # screenshot tools

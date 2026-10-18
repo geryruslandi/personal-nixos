@@ -2,6 +2,10 @@
   # REQUIRED: absolute path to this NixOS project repo (no "~" — it is used
   # verbatim as a filesystem path). Build fails if missing.
   projectPath = "/home/youruser/Projects/personal-nixos";
+  # OPTIONAL: your Linux username (defaults to "geryruslandi" when omitted).
+  # homeDirectory is derived as /home/<username>; home-side paths (wallpapers,
+  # xdg dirs, dev-script wrappers) all follow $HOME automatically.
+  username = "geryruslandi";
   git = {
     defaultBranch = "main";
     defaultUser = {
@@ -28,7 +32,11 @@
     ignores = [
       {
         path = "~/code/work/";
-        patterns = [".opencode" ".env" "*.log"];
+        patterns = [
+          ".opencode"
+          ".env"
+          "*.log"
+        ];
       }
     ];
   };
@@ -55,11 +63,33 @@
       user = "devuser";
       identityFile = "~/.ssh/airborneo-bastion-devuser";
       localForwards = [
-        { bind.port = 6443; host.address = "[IP_ADDRESS]"; host.port = 6443; }
-        { bind.port = 6444; host.address = "[IP_ADDRESS]"; host.port = 6443; }
-        { bind.port = 6445; host.address = "[IP_ADDRESS]"; host.port = 6443; }
-        { bind.port = 6300; bind.address = "localhost"; host.address = "[IP_ADDRESS]"; host.port = 6379; }
-        { bind.port = 6301; bind.address = "localhost"; host.address = "[IP_ADDRESS]"; host.port = 6379; }
+        {
+          bind.port = 6443;
+          host.address = "[IP_ADDRESS]";
+          host.port = 6443;
+        }
+        {
+          bind.port = 6444;
+          host.address = "[IP_ADDRESS]";
+          host.port = 6443;
+        }
+        {
+          bind.port = 6445;
+          host.address = "[IP_ADDRESS]";
+          host.port = 6443;
+        }
+        {
+          bind.port = 6300;
+          bind.address = "localhost";
+          host.address = "[IP_ADDRESS]";
+          host.port = 6379;
+        }
+        {
+          bind.port = 6301;
+          bind.address = "localhost";
+          host.address = "[IP_ADDRESS]";
+          host.port = 6379;
+        }
       ];
     }
   ];

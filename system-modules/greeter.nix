@@ -1,6 +1,7 @@
 {
   inputs,
   pkgs,
+  secrets,
   ...
 }:
 {
@@ -9,10 +10,10 @@
   services.displayManager.noctalia-greeter = {
     enable = true;
     # Wallpaper/palette sync from the Noctalia shell without a polkit prompt
-    passwordless-sync-users = [ "geryruslandi" ];
+    passwordless-sync-users = [ secrets.username ];
     settings = {
       session.default = "Hyprland";
-      user.default = "geryruslandi";
+      user.default = secrets.username;
       cursor = {
         theme = "Bibata-Modern-Classic";
         path = "${pkgs.bibata-cursors}/share/icons";
