@@ -7,6 +7,9 @@
    environment.systemPackages = with pkgs; [
       bitwarden-desktop
       bitwarden-cli
+      # Used by the gery/bitwarden Noctalia plugin to type secrets into the
+      # focused window on paste (avoids putting them on the clipboard).
+      wtype
    ];
 
   # Enable the GNOME Keyring service

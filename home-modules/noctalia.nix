@@ -510,7 +510,7 @@
         enabled = [
           "noctalia/screen_recorder"
           "noctalia/wallhaven"
-          "noctalia/bitwarden"
+          "gery/bitwarden"
           "dunarand/tmux-provider"
           "nightwatch75/todo"
           "tadomika_ari/w-engine"
@@ -547,7 +547,8 @@
           panel_placement = "floating";
           panel_position = "center";
         };
-        "noctalia/bitwarden" = {
+        "gery/bitwarden" = {
+          # Keep the previous local preference: lock after 30 idle minutes.
           vault_timeout = "30";
         };
         "piero-93/battery-power-management" = {

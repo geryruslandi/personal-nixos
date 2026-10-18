@@ -1,0 +1,273 @@
+# gery/bitwarden — a Raycast-style Bitwarden client for the Noctalia launcher.
+#
+# The service owns `bw` (login/unlock/reprompt, vault cache, copy/paste,
+# generator, creates, sends); the launcher exposes everything behind `/bw`;
+# the panels provide the forms (auth, generator, create login/folder/send,
+# receive send, viewer).
+
+id          = "gery/bitwarden"
+name        = "Bitwarden"
+version     = "1.0.0"
+plugin_api  = 24
+author      = "gery"
+license     = "MIT"
+icon        = "lock"
+description = "Search your Bitwarden vault from the launcher: copy/paste passwords and TOTP codes, live authenticator, password generator, create logins/folders/sends, all through the official bw CLI."
+tags = ["launcher", "privacy", "productivity", "security"]
+dependencies = ["bitwarden-cli", "wtype"]
+
+# ── settings ─────────────────────────────────────────────────────────────────
+
+[[setting]]
+key             = "bw_binary"
+type            = "string"
+label_key       = "settings.bw_binary.label"
+description_key = "settings.bw_binary.description"
+default         = "bw"
+
+[[setting]]
+key             = "server_url"
+type            = "string"
+label_key       = "settings.server_url.label"
+description_key = "settings.server_url.description"
+default         = ""
+
+[[setting]]
+key             = "server_certs_path"
+type            = "string"
+label_key       = "settings.server_certs_path.label"
+description_key = "settings.server_certs_path.description"
+default         = ""
+
+[[setting]]
+key             = "vault_timeout"
+type            = "select"
+label_key       = "settings.vault_timeout.label"
+description_key = "settings.vault_timeout.description"
+default         = "on_restart"
+options = [
+  { value = "30", label_key = "settings.vault_timeout.options.30" },
+  { value = "60", label_key = "settings.vault_timeout.options.60" },
+  { value = "240", label_key = "settings.vault_timeout.options.240" },
+  { value = "on_restart", label_key = "settings.vault_timeout.options.on_restart" },
+  { value = "never", label_key = "settings.vault_timeout.options.never" },
+  { value = "custom", label_key = "settings.vault_timeout.options.custom" },
+]
+
+[[setting]]
+key             = "vault_timeout_custom_minutes"
+type            = "int"
+label_key       = "settings.vault_timeout_custom_minutes.label"
+description_key = "settings.vault_timeout_custom_minutes.description"
+default         = 15
+min             = 1
+max             = 10080
+visible_when    = { key = "vault_timeout", values = ["custom"] }
+
+[[setting]]
+key             = "auto_sync_minutes"
+type            = "int"
+label_key       = "settings.auto_sync_minutes.label"
+description_key = "settings.auto_sync_minutes.description"
+default         = 15
+min             = 0
+max             = 1440
+
+[[setting]]
+key             = "clear_clipboard_seconds"
+type            = "int"
+label_key       = "settings.clear_clipboard_seconds.label"
+description_key = "settings.clear_clipboard_seconds.description"
+default         = 30
+min             = 0
+max             = 300
+
+[[setting]]
+key             = "notify_on_copy"
+type            = "bool"
+label_key       = "settings.notify_on_copy.label"
+description_key = "settings.notify_on_copy.description"
+default         = true
+
+[[setting]]
+key             = "primary_action"
+type            = "select"
+label_key       = "settings.primary_action.label"
+description_key = "settings.primary_action.description"
+default         = "show_details"
+options = [
+  { value = "show_details", label_key = "settings.primary_action.options.show_details" },
+  { value = "copy_password", label_key = "settings.primary_action.options.copy_password" },
+  { value = "paste_password", label_key = "settings.primary_action.options.paste_password" },
+]
+
+[[setting]]
+key             = "respect_reprompt"
+type            = "bool"
+label_key       = "settings.respect_reprompt.label"
+description_key = "settings.respect_reprompt.description"
+default         = true
+
+[[setting]]
+key             = "gen_length"
+type            = "int"
+label_key       = "settings.gen_length.label"
+description_key = "settings.gen_length.description"
+default         = 14
+min             = 5
+max             = 128
+
+[[setting]]
+key             = "gen_uppercase"
+type            = "bool"
+label_key       = "settings.gen_uppercase.label"
+description_key = "settings.gen_uppercase.description"
+default         = true
+
+[[setting]]
+key             = "gen_lowercase"
+type            = "bool"
+label_key       = "settings.gen_lowercase.label"
+description_key = "settings.gen_lowercase.description"
+default         = true
+
+[[setting]]
+key             = "gen_number"
+type            = "bool"
+label_key       = "settings.gen_number.label"
+description_key = "settings.gen_number.description"
+default         = false
+
+[[setting]]
+key             = "gen_special"
+type            = "bool"
+label_key       = "settings.gen_special.label"
+description_key = "settings.gen_special.description"
+default         = false
+
+[[setting]]
+key             = "gen_passphrase_words"
+type            = "int"
+label_key       = "settings.gen_passphrase_words.label"
+description_key = "settings.gen_passphrase_words.description"
+default         = 3
+min             = 3
+max             = 20
+
+[[setting]]
+key             = "gen_passphrase_separator"
+type            = "string"
+label_key       = "settings.gen_passphrase_separator.label"
+description_key = "settings.gen_passphrase_separator.description"
+default         = "-"
+
+[[setting]]
+key             = "gen_passphrase_capitalize"
+type            = "bool"
+label_key       = "settings.gen_passphrase_capitalize.label"
+description_key = "settings.gen_passphrase_capitalize.description"
+default         = false
+
+[[setting]]
+key             = "gen_passphrase_include_number"
+type            = "bool"
+label_key       = "settings.gen_passphrase_include_number.label"
+description_key = "settings.gen_passphrase_include_number.description"
+default         = false
+
+# ── entries ──────────────────────────────────────────────────────────────────
+
+[[service]]
+id    = "svc"
+entry = "service.luau"
+
+[[launcher_provider]]
+id                     = "search"
+entry                  = "launcher.luau"
+prefix                 = "bw"
+glyph                  = "lock"
+include_in_global_search = false
+debounce_ms            = 100
+
+[[panel]]
+id                     = "auth-unlock"
+entry                  = "auth-unlock.luau"
+width                  = 340
+height                 = 190
+placement              = "floating"
+position               = "center"
+keyboard_focus         = "exclusive"
+dismiss_on_outside_click = false
+
+[[panel]]
+id                     = "auth-login"
+entry                  = "auth-login.luau"
+width                  = 380
+height                 = 300
+placement              = "floating"
+position               = "center"
+keyboard_focus         = "exclusive"
+dismiss_on_outside_click = false
+
+[[panel]]
+id                     = "auth-reprompt"
+entry                  = "auth-reprompt.luau"
+width                  = 340
+height                 = 210
+placement              = "floating"
+position               = "center"
+keyboard_focus         = "exclusive"
+dismiss_on_outside_click = false
+
+[[panel]]
+id                     = "generator"
+entry                  = "generator.luau"
+width                  = 440
+height                 = 620
+placement              = "floating"
+position               = "center"
+dismiss_on_outside_click = false
+
+[[panel]]
+id                     = "create-login"
+entry                  = "create-login.luau"
+width                  = 440
+height                 = 480
+placement              = "floating"
+position               = "center"
+dismiss_on_outside_click = false
+
+[[panel]]
+id                     = "create-folder"
+entry                  = "create-folder.luau"
+width                  = 340
+height                 = 200
+placement              = "floating"
+position               = "center"
+dismiss_on_outside_click = false
+
+[[panel]]
+id                     = "create-send"
+entry                  = "create-send.luau"
+width                  = 460
+height                 = 720
+placement              = "floating"
+position               = "center"
+dismiss_on_outside_click = false
+
+[[panel]]
+id                     = "receive-send"
+entry                  = "receive-send.luau"
+width                  = 460
+height                 = 460
+placement              = "floating"
+position               = "center"
+dismiss_on_outside_click = false
+
+[[panel]]
+id                     = "viewer"
+entry                  = "viewer.luau"
+width                  = 560
+height                 = 560
+placement              = "floating"
+position               = "center"
