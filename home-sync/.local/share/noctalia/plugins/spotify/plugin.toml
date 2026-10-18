@@ -117,3 +117,20 @@ entry = "widget.luau"
   label_key       = "settings.viz_color.label"
   description_key = "settings.viz_color.description"
   default         = "primary"
+
+# Launcher: /sp = now playing + transport; /sp lyric = lyrics.
+[[launcher_provider]]
+id          = "search"
+entry       = "launcher.luau"
+prefix      = "sp"
+glyph       = "brand-spotify"
+debounce_ms = 80
+
+# Spotify-style lyrics view (active line centred + highlighted).
+[[panel]]
+id        = "lyrics-panel"
+entry     = "panel.luau"
+width     = 780
+height    = 640
+placement = "floating"
+position  = "center"

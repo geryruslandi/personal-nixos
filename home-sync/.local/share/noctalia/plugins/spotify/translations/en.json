@@ -31,6 +31,10 @@
   "ui.pause": "Pause",
   "ui.next": "Next",
   "ui.previous": "Previous",
+  "ui.playing": "Playing",
+  "ui.paused": "Paused",
+  "ui.launcher.open": "Open Spotify",
+  "ui.launcher.no_lyrics": "No lyrics found",
 
   "ui.error.command": "Spotify command failed",
   "ui.error.spawn": "Could not start playerctl."

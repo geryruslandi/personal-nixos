@@ -124,19 +124,30 @@ end
 M.LYRIC_LEAD = 0.5
 
 -- Last lyric whose timestamp has passed (plus the lead). `lrc` must be sorted.
+-- Returns the entry and its 1-based index (for highlighting in the launcher).
 function M.currentLine(lrc, position)
   if type(lrc) ~= "table" then
-    return nil
+    return nil, nil
   end
-  local best = nil
-  for _, entry in ipairs(lrc) do
+  local best, bestIndex = nil, nil
+  for i, entry in ipairs(lrc) do
     if entry.t <= position + M.LYRIC_LEAD then
-      best = entry
+      best, bestIndex = entry, i
     else
       break
     end
   end
-  return best
+  return best, bestIndex
+end
+
+-- First non-empty line of a parsed LRC list.
+function M.firstLineText(lrc)
+  for _, entry in ipairs(lrc or {}) do
+    if entry.text ~= "" then
+      return entry.text
+    end
+  end
+  return nil
 end
 
 -- First non-empty line of unsynced ("plain") lyrics.

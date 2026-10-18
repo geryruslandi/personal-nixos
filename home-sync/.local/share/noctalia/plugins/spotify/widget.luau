@@ -13,7 +13,6 @@ local mode = noctalia.getConfig("start_mode") == "lyric" and "lyric" or "viz"
 local vizWidth = 56
 local vizHeight = 20
 local vizColor = "primary"
-local lyricWidth = 600
 
 local DEFAULT_BARS = 24
 for i = 1, DEFAULT_BARS do
@@ -68,17 +67,14 @@ local function mediaNode()
   if mode == "lyric" then
     local text = "♪"
     local color = "on_surface_variant"
-    -- stretch the capsule while an actual lyric line is shown; keep the
-    -- fallback (no lyric) compact
-    local width = 180
     if lyric ~= nil and type(lyric.text) == "string" and lyric.text ~= "" then
       text = lyric.text
       color = "on_surface"
-      width = lyricWidth
     elseif state.active and state.title ~= "" then
       text = state.title
     end
-    return ui.label({ text = text, maxWidth = width, maxLines = 1, color = color })
+    -- no maxWidth: the capsule width follows the lyric text (dynamic)
+    return ui.label({ text = text, maxLines = 1, color = color })
   end
   return ui.graph({
     values = viz,

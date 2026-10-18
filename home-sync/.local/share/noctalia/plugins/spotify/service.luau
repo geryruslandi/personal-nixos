@@ -21,33 +21,50 @@ end
 local lyricsEnabled = true
 local lastPosition = 0
 local updateLyric -- forward declaration
-local cache = {} -- trackid -> { lrc = list|nil, plain = string|nil }
-local current = { trackid = nil, lrc = nil, plain = nil, loading = false }
-local lyric = nil -- { text = string, synced = bool } | nil
+local cache = {} -- trackid -> { lrc = list|nil, plain = string|nil, first = string|nil }
+local current = { trackid = nil, lrc = nil, plain = nil, plainFull = nil, loading = false }
+local lyric = nil -- { text = string, synced = bool, index = number|nil } | nil
+-- Last non-empty line we showed; kept across instrumental gaps and track
+-- changes so the capsule never falls back to a placeholder between lines
+-- ("show the previous lyric until it changes").
+local lastLyricText = nil
 
 local function publishLyric()
   noctalia.state.set("lyric", lyric)
 end
 
+-- Full lyrics for the launcher provider (/sp lyric).
+local function publishLyrics()
+  noctalia.state.set("lyrics", {
+    synced = current.lrc,
+    plain = current.plainFull,
+  })
+end
+
 local function resetLyrics()
-  current = { trackid = nil, lrc = nil, plain = nil, loading = false }
-  lyric = nil
-  publishLyric()
+  current = { trackid = nil, lrc = nil, plain = nil, plainFull = nil, loading = false }
+  publishLyrics()
 end
 
 updateLyric = function(position)
   lastPosition = position
-  if not lyricsEnabled or current.trackid == nil then
+  if not lyricsEnabled then
     lyric = nil
     publishLyric()
     return
   end
   if current.lrc ~= nil then
-    local entry = sp.currentLine(current.lrc, position)
-    local text = (entry ~= nil and entry.text ~= "") and entry.text or "♪"
-    lyric = { text = text, synced = true }
+    local entry, index = sp.currentLine(current.lrc, position)
+    if entry ~= nil and entry.text ~= "" then
+      lastLyricText = entry.text
+    end
+    local text = lastLyricText or sp.firstLineText(current.lrc)
+    lyric = { text = text or "♪", synced = true, index = index }
   elseif current.plain ~= nil then
-    lyric = { text = current.plain, synced = false }
+    lastLyricText = current.plain
+    lyric = { text = current.plain, synced = false, index = nil }
+  elseif lastLyricText ~= nil then
+    lyric = { text = lastLyricText, synced = false, index = nil }
   else
     lyric = nil
   end
@@ -66,10 +83,18 @@ local function requestLyrics(trackid, title, artist, album, duration)
   end
   local cached = cache[trackid]
   if cached ~= nil then
-    current = { trackid = trackid, lrc = cached.lrc, plain = cached.plain, loading = false }
+    current = {
+      trackid = trackid,
+      lrc = cached.lrc,
+      plain = cached.first,
+      plainFull = cached.plain,
+      loading = false,
+    }
+    publishLyrics()
     return
   end
-  current = { trackid = trackid, lrc = nil, plain = nil, loading = true }
+  current = { trackid = trackid, lrc = nil, plain = nil, plainFull = nil, loading = true }
+  publishLyrics()
   local started = noctalia.http({
     url = sp.lrclibUrl(title, artist, album, duration),
     headers = { "Accept: application/json", "User-Agent: gery-spotify-noctalia/1.0" },
@@ -78,20 +103,23 @@ local function requestLyrics(trackid, title, artist, album, duration)
       return -- track changed while the request was in flight
     end
     current.loading = false
-    local entry = { lrc = nil, plain = nil }
+    local entry = { lrc = nil, plain = nil, first = nil }
     if resp ~= nil and resp.ok and resp.status == 200 then
       local decoded = noctalia.json.decode(resp.body or "")
       if type(decoded) == "table" then
         if type(decoded.syncedLyrics) == "string" and decoded.syncedLyrics ~= "" then
           entry.lrc = sp.parseLrc(decoded.syncedLyrics)
         elseif type(decoded.plainLyrics) == "string" then
-          entry.plain = sp.firstPlainLine(decoded.plainLyrics)
+          entry.plain = decoded.plainLyrics
+          entry.first = sp.firstPlainLine(decoded.plainLyrics)
         end
       end
     end
     cache[trackid] = entry
     current.lrc = entry.lrc
-    current.plain = entry.plain
+    current.plain = entry.first
+    current.plainFull = entry.plain
+    publishLyrics()
     updateLyric(lastPosition)
   end)
   if not started then
@@ -327,6 +355,8 @@ noctalia.state.watch("request", function(req)
     runCommand({ "next" })
   elseif action == "previous" then
     runCommand({ "previous" })
+  elseif action == "seek" and tonumber(req.position) then
+    runCommand({ "position", tostring(tonumber(req.position)) })
   end
 end)
 
