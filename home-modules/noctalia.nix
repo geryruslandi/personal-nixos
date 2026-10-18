@@ -26,6 +26,7 @@
         avatar_path = "~/.face";
         clipboard_enabled = true;
         clipboard_auto_paste = "auto";
+        clipboard_history_max_entries = 10000;
         corner_radius_scale = 1.0;
         settings_show_advanced = true;
         show_location = true;
@@ -332,17 +333,16 @@
             "todo_2"
             "bar"
             "indicator"
-            "radio"
+            "headset_2"
             "active_window"
             "privacy"
+            "spotify_2"
           ];
           center = [ "workspaces" ];
           end = [
             "tray"
             "group:g1"
             "group:g2"
-            "headset"
-            "spotify"
             "volume"
             "widget"
             "clock"
@@ -464,6 +464,7 @@
           hide_inactive = true;
         };
         "indicator" = {
+          enabled = false;
           type = "rxtsel/portctl:indicator";
         };
         "notes" = {
@@ -501,7 +502,13 @@
         "spotify" = {
           type = "gery/spotify:spotify";
         };
+        "spotify_2" = {
+          type = "gery/spotify:spotify";
+        };
         "headset" = {
+          type = "gery/sony-headset:headset";
+        };
+        "headset_2" = {
           type = "gery/sony-headset:headset";
         };
       };
@@ -509,10 +516,7 @@
       plugins = {
         enabled = [
           "noctalia/screen_recorder"
-          "noctalia/wallhaven"
-          "gery/bitwarden"
           "dunarand/tmux-provider"
-          "nightwatch75/todo"
           "tadomika_ari/w-engine"
           "piero-93/battery-power-management"
           "jamesfeeder/special-workspaces"
@@ -520,15 +524,13 @@
           "rxtsel/portctl"
           "gery/services"
           "samuelskovbakke/calculator-plus"
-          "icefish/phone-connect"
-          "icefish/phone-operate"
-          "ahmedhossamdev/sticky-notes"
           "nilsonlinux/world-radio"
           "felipeartur/ai-usagebar"
           "gery/note-tuxedo"
           "gery/mini-docker"
           "gery/spotify"
           "gery/sony-headset"
+          "gery/bitwarden"
         ];
         auto_update = "all";
       };
@@ -537,6 +539,9 @@
         "felipeartur/ai-usagebar" = {
           panel_open_near_click = true;
           panel_placement = "floating";
+        };
+        "gery/mini-docker" = {
+          manager_position = "auto";
         };
         "gery/note-tuxedo" = {
           # Panel host settings; the panel entry is `todo-panel`.
