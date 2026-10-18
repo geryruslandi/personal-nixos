@@ -71,6 +71,120 @@ updateLyric = function(position)
   publishLyric()
 end
 
+-- lrclib is flaky (intermittent 503s), so a miss is retried after this backoff
+-- instead of being cached as "no lyrics" for the rest of the track.
+local RETRY_MS = 10000
+
+local function parseEntry(decoded)
+  local entry = { lrc = nil, plain = nil, first = nil }
+  if type(decoded) == "table" then
+    if type(decoded.syncedLyrics) == "string" and decoded.syncedLyrics ~= "" then
+      entry.lrc = sp.parseLrc(decoded.syncedLyrics)
+    elseif type(decoded.plainLyrics) == "string" and decoded.plainLyrics ~= "" then
+      entry.plain = decoded.plainLyrics
+      entry.first = sp.firstPlainLine(decoded.plainLyrics)
+    end
+  end
+  return entry
+end
+
+local function entryHasLyrics(entry)
+  return entry ~= nil and (entry.lrc ~= nil or entry.plain ~= nil)
+end
+
+local function scheduleRetry()
+  current.loading = false
+  current.failed = true
+  current.retryAt = noctalia.nowMs() + RETRY_MS
+end
+
+-- Commit a fetch result. Successful results are cached; empty/failed ones are
+-- left uncached (and retried later) so one bad response doesn't strand the
+-- track without lyrics. After MAX_ATTEMPTS we accept the miss and stop retrying.
+local MAX_ATTEMPTS = 6
+
+local function applyEntry(trackid, entry)
+  if current.trackid ~= trackid then
+    return -- track changed while the request was in flight
+  end
+  if entryHasLyrics(entry) then
+    cache[trackid] = entry
+    current.loading = false
+    current.failed = false
+    current.lrc = entry.lrc
+    current.plain = entry.first
+    current.plainFull = entry.plain
+    publishLyrics()
+    updateLyric(lastPosition)
+  elseif (current.attempts or 0) >= MAX_ATTEMPTS then
+    cache[trackid] = { lrc = nil, plain = nil, first = nil }
+    current.loading = false
+    current.failed = false
+    publishLyrics()
+  else
+    scheduleRetry()
+    publishLyrics()
+  end
+end
+
+local fetchSearch -- forward declaration
+
+local function fetchGet(trackid, title, artist, album, duration)
+  local started = noctalia.http({
+    url = sp.lrclibUrl(title, artist, album, duration),
+    headers = { "Accept: application/json", "User-Agent: gery-spotify-noctalia/1.0" },
+  }, function(resp)
+    if current.trackid ~= trackid then
+      return
+    end
+    local entry = { lrc = nil, plain = nil, first = nil }
+    if resp ~= nil and resp.ok and resp.status == 200 then
+      entry = parseEntry(noctalia.json.decode(resp.body or ""))
+    end
+    if entryHasLyrics(entry) then
+      applyEntry(trackid, entry)
+    else
+      fetchSearch(trackid, title, artist) -- /api/get missed; broaden the match
+    end
+  end)
+  if not started then
+    scheduleRetry()
+  end
+end
+
+-- Fallback for when /api/get finds no exact match: /api/search tolerates loose
+-- title/artist/album/duration. Prefer the first candidate with synced lyrics.
+fetchSearch = function(trackid, title, artist)
+  local started = noctalia.http({
+    url = sp.lrclibSearchUrl(title, artist),
+    headers = { "Accept: application/json", "User-Agent: gery-spotify-noctalia/1.0" },
+  }, function(resp)
+    if current.trackid ~= trackid then
+      return
+    end
+    local best = nil
+    if resp ~= nil and resp.ok and resp.status == 200 then
+      local list = noctalia.json.decode(resp.body or "")
+      if type(list) == "table" then
+        for _, cand in ipairs(list) do
+          local e = parseEntry(cand)
+          if e.lrc ~= nil then
+            best = e
+            break
+          end
+          if best == nil and entryHasLyrics(e) then
+            best = e
+          end
+        end
+      end
+    end
+    applyEntry(trackid, best)
+  end)
+  if not started then
+    scheduleRetry()
+  end
+end
+
 local function requestLyrics(trackid, title, artist, album, duration)
   if not lyricsEnabled then
     return
@@ -79,6 +193,13 @@ local function requestLyrics(trackid, title, artist, album, duration)
     return
   end
   if trackid == current.trackid then
+    -- Retry a previous failure once the backoff has elapsed.
+    if current.failed and not current.loading and noctalia.nowMs() >= (current.retryAt or 0) then
+      current.loading = true
+      current.failed = false
+      current.attempts = (current.attempts or 0) + 1
+      fetchGet(trackid, title, artist, album, duration)
+    end
     return
   end
   local cached = cache[trackid]
@@ -89,42 +210,14 @@ local function requestLyrics(trackid, title, artist, album, duration)
       plain = cached.first,
       plainFull = cached.plain,
       loading = false,
+      failed = false,
     }
     publishLyrics()
     return
   end
-  current = { trackid = trackid, lrc = nil, plain = nil, plainFull = nil, loading = true }
+  current = { trackid = trackid, lrc = nil, plain = nil, plainFull = nil, loading = true, failed = false, attempts = 1 }
   publishLyrics()
-  local started = noctalia.http({
-    url = sp.lrclibUrl(title, artist, album, duration),
-    headers = { "Accept: application/json", "User-Agent: gery-spotify-noctalia/1.0" },
-  }, function(resp)
-    if current.trackid ~= trackid then
-      return -- track changed while the request was in flight
-    end
-    current.loading = false
-    local entry = { lrc = nil, plain = nil, first = nil }
-    if resp ~= nil and resp.ok and resp.status == 200 then
-      local decoded = noctalia.json.decode(resp.body or "")
-      if type(decoded) == "table" then
-        if type(decoded.syncedLyrics) == "string" and decoded.syncedLyrics ~= "" then
-          entry.lrc = sp.parseLrc(decoded.syncedLyrics)
-        elseif type(decoded.plainLyrics) == "string" then
-          entry.plain = decoded.plainLyrics
-          entry.first = sp.firstPlainLine(decoded.plainLyrics)
-        end
-      end
-    end
-    cache[trackid] = entry
-    current.lrc = entry.lrc
-    current.plain = entry.first
-    current.plainFull = entry.plain
-    publishLyrics()
-    updateLyric(lastPosition)
-  end)
-  if not started then
-    current.loading = false
-  end
+  fetchGet(trackid, title, artist, album, duration)
 end
 
 -- ── cava visualizer ───────────────────────────────────────────────────────────

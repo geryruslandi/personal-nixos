@@ -95,6 +95,12 @@ function M.lrclibUrl(title, artist, album, duration)
   return url
 end
 
+-- Percent-encoded lrclib /api/search URL (loose match fallback for /api/get).
+function M.lrclibSearchUrl(title, artist)
+  local q = noctalia.string.urlEncode(tostring(title or "") .. " " .. tostring(artist or ""))
+  return "https://lrclib.net/api/search?q=" .. q
+end
+
 -- Parse LRC ("[mm:ss.xx] text", possibly several timestamps per line) into a
 -- time-sorted array of { t = seconds, text = string }.
 function M.parseLrc(text)

@@ -7,7 +7,41 @@
 local state = { active = false, playing = false, title = "", artist = "", status = "Stopped" }
 local viz = {}
 local lyric = nil
-local mode = noctalia.getConfig("start_mode") == "lyric" and "lyric" or "viz"
+
+-- Persist the last chosen media mode (viz/lyric) so a plugin reload — which
+-- happens on every config-reload / file edit — doesn't silently drop the widget
+-- back to the visualizer (the "lyric stopped" symptom).
+local function modePath()
+  local d = noctalia.pluginDataDir()
+  if d == nil then
+    return nil
+  end
+  return d .. "/mode"
+end
+
+local function loadMode()
+  local p = modePath()
+  if p == nil then
+    return nil
+  end
+  local raw = noctalia.readFile(p)
+  if type(raw) == "string" then
+    raw = noctalia.string.trim(raw)
+    if raw == "lyric" or raw == "viz" then
+      return raw
+    end
+  end
+  return nil
+end
+
+local function saveMode(m)
+  local p = modePath()
+  if p ~= nil then
+    noctalia.writeFile(p, m)
+  end
+end
+
+local mode = loadMode() or (noctalia.getConfig("start_mode") == "lyric" and "lyric" or "viz")
 
 -- render values (refreshed from settings each render)
 local vizWidth = 56
@@ -46,6 +80,7 @@ function spPrevious()
 end
 function spToggleMode()
   mode = (mode == "viz") and "lyric" or "viz"
+  saveMode(mode)
   noctalia.state.set("uiMode", mode)
   send("mode", { mode = mode })
   render()
