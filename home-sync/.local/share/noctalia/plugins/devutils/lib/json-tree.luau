@@ -266,11 +266,18 @@ end
 
 -- ── Tree renderer ────────────────────────────────────────────────────────────
 -- Returns a children array for ui.scroll plus a `truncated` flag.
+--
+-- Progressive disclosure: `collapsed` is tri-state per path — `true` = user
+-- collapsed, `false` = user expanded, `nil` = follow `opts.defaultCollapseDepth`
+-- (branch nodes at that depth or deeper start collapsed; 0/nil = expand all).
+-- The row's onClick flips the set itself and then calls `onToggle()` (no args,
+-- "please re-render"), so the renderer owns the toggle semantics.
 
 function M.render(value, collapsed, onToggle, opts)
   opts = opts or {}
   local fs = opts.fontSize or M.FONT_SIZE
   local maxNodes = opts.maxNodes or M.MAX_NODES
+  local dcd = tonumber(opts.defaultCollapseDepth) or 0
   local counter = { n = 0, truncated = false }
 
   local function leafText(v)
@@ -285,11 +292,10 @@ function M.render(value, collapsed, onToggle, opts)
     return "null", M.COLOR.null
   end
 
-  local function leafRow(path, keyText, isArrKey, v)
-    local text, color = leafText(v)
-    local kids = {
-      ui.glyph({ name = "point", size = 9, color = "outline" }),
-    }
+  local function leafRow(path, keyText, isArrKey, text, color, depth)
+    -- Indentation is baked into paddingH (flat rows, no wrapper columns —
+    -- fewer nodes per render keeps the host diff cheap).
+    local kids = {}
     if keyText ~= nil then
       kids[#kids + 1] = ui.label({
         text = keyText,
@@ -299,7 +305,17 @@ function M.render(value, collapsed, onToggle, opts)
       })
     end
     kids[#kids + 1] = ui.label({ text = text, fontSize = fs, color = color, maxLines = 1, flexGrow = 1 })
-    return ui.row({ key = "t" .. path, gap = 5, align = "center", paddingV = 1 }, kids)
+    return ui.row({
+      key = "t" .. path,
+      gap = 5,
+      align = "center",
+      paddingV = 1,
+      paddingH = 16 + 16 * depth, -- aligns key text with the branch key label
+    }, kids)
+  end
+
+  local function emptyRow(path, keyText, isArrKey, isArray, depth)
+    return leafRow(path, keyText, isArrKey, isArray and "[]" or "{}", M.COLOR.punct, depth)
   end
 
   local function build(v, path, keyText, isArrKey, rows, depth)
@@ -311,12 +327,13 @@ function M.render(value, collapsed, onToggle, opts)
 
     -- PHP dump nulls arrive as a sentinel table (Lua has no nil values).
     if opts.isNull and opts.isNull(v) then
-      rows[#rows + 1] = leafRow(path, keyText, isArrKey, v)
+      rows[#rows + 1] = leafRow(path, keyText, isArrKey, "null", M.COLOR.null, depth)
       return
     end
 
     if type(v) ~= "table" then
-      rows[#rows + 1] = leafRow(path, keyText, isArrKey, v)
+      local text, color = leafText(v)
+      rows[#rows + 1] = leafRow(path, keyText, isArrKey, text, color, depth)
       return
     end
 
@@ -328,30 +345,14 @@ function M.render(value, collapsed, onToggle, opts)
     end)()
 
     if count == 0 then
-      -- Empty container: leaf with `{}` / `[]`, no expander.
-      local kids = {
-        ui.glyph({ name = "point", size = 9, color = "outline" }),
-      }
-      if keyText ~= nil then
-        kids[#kids + 1] = ui.label({
-          text = keyText,
-          fontSize = fs,
-          color = isArrKey and M.COLOR.punct or M.COLOR.key,
-          maxLines = 1,
-        })
-      end
-      kids[#kids + 1] = ui.label({
-        text = isArray and "[]" or "{}",
-        fontSize = fs,
-        color = M.COLOR.punct,
-        maxLines = 1,
-        flexGrow = 1,
-      })
-      rows[#rows + 1] = ui.row({ key = "t" .. path, gap = 5, align = "center", paddingV = 1 }, kids)
+      rows[#rows + 1] = emptyRow(path, keyText, isArrKey, isArray, depth)
       return
     end
 
     local isCollapsed = collapsed[path] == true
+    if collapsed[path] == nil then
+      isCollapsed = dcd > 0 and depth >= dcd
+    end
 
     -- Branch header
     local head = {
@@ -377,13 +378,20 @@ function M.render(value, collapsed, onToggle, opts)
       gap = 5,
       align = "center",
       paddingV = 1,
-      onClick = function() onToggle(path) end,
+      paddingH = 16 * depth,
+      onClick = function()
+        if isCollapsed then
+          collapsed[path] = false
+        else
+          collapsed[path] = true
+        end
+        onToggle()
+      end,
     }, head)
 
     if isCollapsed then return end
 
-    -- Children
-    local childRows = {}
+    -- Children, flattened into the same rows list at depth + 1.
     local keys
     if isArray then
       keys = {}
@@ -396,12 +404,11 @@ function M.render(value, collapsed, onToggle, opts)
     for _, k in ipairs(keys) do
       local child = v[k]
       local childPath = isArray and (path .. "[" .. k .. "]") or (path .. "." .. tostring(k))
-      local childKey = isArray and ("[" .. tostring(k) .. "]") or ('"' .. tostring(k) .. '":')
-      local before = #childRows
-      build(child, childPath, childKey, isArray, childRows, depth + 1)
-      if #childRows == before then break end -- node budget exhausted
+      -- Display JSON's 0-based index; the path key keeps Lua's 1-based key.
+      local childKey = isArray and ("[" .. (k - 1) .. "]") or ('"' .. tostring(k) .. '":')
+      build(child, childPath, childKey, isArray, rows, depth + 1)
+      if counter.truncated then break end -- node budget exhausted
     end
-    rows[#rows + 1] = ui.column({ key = "c" .. path, paddingH = 14, gap = 0 }, childRows)
   end
 
   local rows = {}

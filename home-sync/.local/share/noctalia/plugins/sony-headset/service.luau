@@ -31,15 +31,25 @@ end
 
 -- Daemon lifecycle -------------------------------------------------------
 
-local function startDaemon(force)
-  noctalia.mkdirAll(sony.baseDir())
-  if not force and noctalia.fileExists(sony.socketFile()) then
-    return
-  end
+local function startDaemon()
   noctalia.runAsync(sony.daemonCommand(), function(res)
     if res and res.exitCode ~= 0 and res.stderr ~= "" then
       noctalia.log("sony-headset: daemon start: " .. tostring(res.stderr))
     end
+  end)
+end
+
+-- Start the daemon only when it is not already active. A stale control.sock
+-- (left behind after a logout/suspend) must never make us skip the start.
+local function ensureDaemon()
+  noctalia.mkdirAll(sony.baseDir())
+  local systemctl = sony.expandBinary("systemctl")
+  noctalia.runAsync({ systemctl, "--user", "is-active", "sonyd" }, function(res)
+    local state = res and (res.stdout or ""):gsub("%s+$", "") or ""
+    if res ~= nil and res.exitCode == 0 and state == "active" then
+      return
+    end
+    startDaemon()
   end)
 end
 
@@ -68,11 +78,13 @@ end)
 
 function update()
   noctalia.setUpdateInterval((tonumber(sony.cfg("refresh_seconds", 15)) or 15) * 1000)
+  ensureDaemon()
   refresh()
 end
 
 function onConfigChanged()
-  startDaemon(true)
+  -- restart unconditionally so new settings (address/channel/...) take effect
+  startDaemon()
   refresh()
 end
 
@@ -81,6 +93,6 @@ function onExit()
   -- stopping it here would drop the Bluetooth link on every reload.
 end
 
-startDaemon(false)
+ensureDaemon()
 noctalia.setUpdateInterval((tonumber(sony.cfg("refresh_seconds", 15)) or 15) * 1000)
 refresh()

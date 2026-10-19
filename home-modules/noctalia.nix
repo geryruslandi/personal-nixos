@@ -13,6 +13,19 @@
 
   home.file.".face".source = ../home-sync/.config/gery/Pictures/avatar.png;
 
+  # Patched shell: keep the launcher session (typed query, results, plugin
+  # provider state) when another panel (clipboard history, control center, ...)
+  # preempts the shared panel surface. Esc / app-launch closes still reset.
+  # Regenerate against the pinned noctalia rev when it drifts:
+  #   patches/noctalia-launcher-preserve-on-preempt.patch
+  programs.noctalia.package =
+    let
+      upstream = inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default;
+    in
+    upstream.overrideAttrs (old: {
+      patches = (old.patches or [ ]) ++ [ ../patches/noctalia-launcher-preserve-on-preempt.patch ];
+    });
+
   # configure options
   programs.noctalia = {
     enable = true;

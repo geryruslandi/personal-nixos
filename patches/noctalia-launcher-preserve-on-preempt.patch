@@ -1,0 +1,194 @@
+# Keep the launcher session (query, results, plugin provider state, selection)
+# when another panel (clipboard history, control-center, session, ...) preempts
+# it via PanelManager::openPanel. Armed through a new Panel::onPreempted()
+# virtual; LauncherPanel consumes the flag in onClose() and restores it in
+# onOpen("") by re-running the pipeline with reapplyCurrentQuery() (selection
+# restored by identity). Plugin provider caches survive the preempted close,
+# so plugin views return synchronously. Esc/app-launch closes still reset.
+#
+# Upstream: noctalia-dev/noctalia @ 47945ecb84fd6d9284cf82480273fccd20bb1fa9
+
+--- a/src/shell/panel/panel.h
++++ b/src/shell/panel/panel.h
+@@ -31,6 +31,10 @@
+   virtual void onFrameTick(float deltaMs) { (void)deltaMs; }
+   virtual void onOpen(std::string_view context) { (void)context; }
+   virtual void onClose() {}
++  // Called right before onClose() when another panel is about to reuse this
++  // panel's surface slot (openPanel preempts the active panel). Lets a panel
++  // keep its session state across the teardown/rebuild cycle.
++  virtual void onPreempted() {}
+   virtual void onIconThemeChanged() {}
+   virtual void scrollFocusedInputIntoView(InputArea* area) { (void)area; }
+   [[nodiscard]] virtual bool isContextActive(std::string_view context) const {
+--- a/src/shell/panel/panel_manager.cpp
++++ b/src/shell/panel/panel_manager.cpp
+@@ -596,6 +596,9 @@
+   if (isOpen() || m_closing) {
+     ++m_destroyGeneration;
+     m_closing = false;
++    if (m_activePanel != nullptr) {
++      m_activePanel->onPreempted();
++    }
+     destroyPanel();
+   }
+ 
+--- a/src/shell/launcher/launcher_panel.h
++++ b/src/shell/launcher/launcher_panel.h
+@@ -51,6 +51,7 @@
+   void create() override;
+   void onOpen(std::string_view context) override;
+   void onClose() override;
++  void onPreempted() override;
+   void onIconThemeChanged() override;
+ 
+   void clearUsage();
+@@ -175,6 +176,11 @@
+   bool m_categoryFilterRebuildPending = false;
+   bool m_applyDefaultViewPending = false;
+   bool m_syncingLauncherNavigation = false;
++  // Session preservation across a panel-manager preemption (another panel took
++  // the shared surface slot): m_preserveOnNextClose is armed by onPreempted(),
++  // consumed by onClose() into m_restoreSession, which onOpen("") consumes.
++  bool m_preserveOnNextClose = false;
++  bool m_restoreSession = false;
+   std::size_t m_selectedIndex = 0;
+   std::size_t m_activeCategorySlotIndex = 0;
+   bool m_browserMode = false;
+--- a/src/shell/launcher/launcher_panel.cpp
++++ b/src/shell/launcher/launcher_panel.cpp
+@@ -1482,6 +1482,9 @@
+ void LauncherPanel::setScopedProvider(std::string_view providerId, std::string_view placeholder) {
+   m_scopedProviderId = providerId;
+   m_scopedPlaceholder = placeholder;
++  // A dmenu session always starts a fresh launcher session, even when it opens
++  // with an empty context after a preempted (state-preserving) close.
++  m_restoreSession = false;
+   if (m_input != nullptr) {
+     m_input->setPlaceholder(
+         m_scopedPlaceholder.empty() ? i18n::tr("launcher.search-placeholder") : m_scopedPlaceholder
+@@ -2298,20 +2301,30 @@
+   // inotify cannot observe). Cheap stat-only check; only rescans on real change.
+   refreshDesktopEntriesIfSourcesChanged();
+ 
+-  m_activeCategoryType = All;
+-  m_activeCategorySlotIndex = 0;
+-  m_activeCategory.clear();
+-  m_currentCategories.clear();
+-  m_categoryFilterSlots.clear();
+-  m_hasRecentlyUsed = false;
+-  m_hasPinnedApplications = false;
+-  m_categoryFilterRebuildPending = true;
+-  m_applyDefaultViewPending = m_browserMode;
+-  m_showingProviderOverview = false;
+-  m_launcherProviderViewId.clear();
+-  m_sessionReturnView.reset();
++  // A session kept by onPreempted()/onClose() is restored on a plain open.
++  // Anything else (dmenu/prefilled context) opens fresh and overwrites it.
++  const bool restore = context.empty() && std::exchange(m_restoreSession, false);
++  if (!restore) {
++    m_activeCategoryType = All;
++    m_activeCategorySlotIndex = 0;
++    m_activeCategory.clear();
++    m_currentCategories.clear();
++    m_categoryFilterSlots.clear();
++    m_hasRecentlyUsed = false;
++    m_hasPinnedApplications = false;
++    m_categoryFilterRebuildPending = true;
++    m_applyDefaultViewPending = m_browserMode;
++    m_showingProviderOverview = false;
++    m_launcherProviderViewId.clear();
++    m_sessionReturnView.reset();
++  } else {
++    // The scene was rebuilt: recreate the category/navigation widgets from the
++    // preserved model, and keep the preserved view instead of the default one.
++    m_categoryFilterRebuildPending = true;
++    m_applyDefaultViewPending = false;
++  }
+ 
+-  const std::string initialValue(context);
++  const std::string initialValue(restore ? m_query : std::string(context));
+   if (m_input != nullptr) {
+     m_input->setPlaceholder(
+         m_scopedPlaceholder.empty() ? i18n::tr("launcher.search-placeholder") : m_scopedPlaceholder
+@@ -2324,10 +2337,23 @@
+   if (m_launcherSections != nullptr) {
+     m_launcherSections->scrollView().setScrollOffset(0.0F);
+   }
+-  onInputChanged(initialValue);
++  if (restore) {
++    // Re-run the pipeline on the restored query, keeping the selected result
++    // by identity. Provider caches survived the preempted close, so plugin
++    // views come back synchronously.
++    reapplyCurrentQuery();
++  } else {
++    onInputChanged(initialValue);
++  }
++}
++
++void LauncherPanel::onPreempted() {
++  m_preserveOnNextClose = true;
+ }
+ 
+ void LauncherPanel::onClose() {
++  const bool keep = std::exchange(m_preserveOnNextClose, false);
++  m_restoreSession = keep;
+   if (m_actionsMenu != nullptr && m_actionsMenu->isOpen()) {
+     m_actionsMenu->close();
+   }
+@@ -2335,32 +2361,34 @@
+     DeferredCall::callLater([asyncTextures = m_asyncTextures]() { asyncTextures->trimUnused(0); });
+   }
+ 
+-  for (auto& provider : m_providers) {
+-    provider->reset();
++  if (!keep) {
++    for (auto& provider : m_providers) {
++      provider->reset();
++    }
++
++    m_query.clear();
++    m_results.clear();
++    m_allResults.clear();
++    m_scopedProviderId.clear();
++    m_scopedPlaceholder.clear();
++    m_activeCategoryType = All;
++    m_activeCategorySlotIndex = 0;
++    m_activeCategory.clear();
++    m_currentCategories.clear();
++    m_categoryFilterSlots.clear();
++    m_hasRecentlyUsed = false;
++    m_hasPinnedApplications = false;
++    m_categoryFilterRebuildPending = false;
++    m_applyDefaultViewPending = false;
++    m_showingProviderOverview = false;
++    m_launcherProviderViewId.clear();
++    m_sessionReturnView.reset();
++    m_selectedIndex = 0;
+   }
+-
+-  m_query.clear();
+-  m_results.clear();
+-  m_allResults.clear();
+-  m_scopedProviderId.clear();
+-  m_scopedPlaceholder.clear();
+-  m_activeCategoryType = All;
+-  m_activeCategorySlotIndex = 0;
+-  m_activeCategory.clear();
+-  m_currentCategories.clear();
+-  m_categoryFilterSlots.clear();
+-  m_hasRecentlyUsed = false;
+-  m_hasPinnedApplications = false;
+-  m_categoryFilterRebuildPending = false;
+-  m_applyDefaultViewPending = false;
+   m_syncingLauncherNavigation = false;
+-  m_showingProviderOverview = false;
+-  m_launcherProviderViewId.clear();
+-  m_sessionReturnView.reset();
+   m_pendingResultsTransition = ResultsTransition::None;
+   m_resultsTransitionActive = false;
+   m_resultsTransitionBaseX = 0.0F;
+-  m_selectedIndex = 0;
+   m_usingAppGrid = false;
+   m_launcherRowHeight = 0.0F;
+ 

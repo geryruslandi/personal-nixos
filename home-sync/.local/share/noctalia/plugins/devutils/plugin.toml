@@ -1,6 +1,6 @@
 id         = "gery/devutils"
 name       = "Dev Utils"
-version    = "1.0.0"
+version    = "1.1.0"
 plugin_api = 24
 author     = "gery"
 icon       = "tools"
@@ -38,6 +38,15 @@ options = [
   { value = "2", label_key = "settings.sql_keyword_case.option.upper" },
   { value = "3", label_key = "settings.sql_keyword_case.option.capitalize" },
 ]
+
+# String-typed: int settings render as a 0-100 slider in the Settings UI.
+# 0 = expand everything (progressive disclosure off).
+[[setting]]
+key             = "tree_collapse_depth"
+type            = "string"
+label_key       = "settings.tree_collapse_depth.label"
+description_key = "settings.tree_collapse_depth.description"
+default         = "2"
 
 # /dev → pick a tool → opens the panel on that tab.
 [[launcher_provider]]

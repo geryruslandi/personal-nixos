@@ -15,30 +15,139 @@ local TOOLS = {
 }
 
 local st = {
-  json = { input = "", value = nil, error = nil, collapsed = {}, nonce = 0 },
+  json = { input = "", value = nil, error = nil, collapsed = {}, nonce = 0, viewDepth = nil },
   sql  = { input = "", output = nil, err = nil, busy = false, nonce = 0 },
   md   = { text = "", clearArmed = false, nonce = 0 },
-  php  = { input = "", value = nil, fmt = nil, err = nil, collapsed = {}, nonce = 0 },
+  php  = { input = "", value = nil, fmt = nil, err = nil, collapsed = {}, nonce = 0, viewDepth = nil },
 }
 
 local activeTool = "json"
 local PREVIEW_WIDTH = 430
 
-local render -- forward declaration
+-- Typing/pasting must NOT re-render the panel synchronously (decode + tree
+-- build + host diff of hundreds of controls = jank on every keystroke).
+-- Edits only mark a tool dirty; onFrameTick flushes the work ~250ms after the
+-- last change. Ticks run while the panel is open (enabled in onOpen).
+local DEBOUNCE_MS = 250
+local dueAt = { json = 0, php = 0, md = 0 }
+local lastInputKey = nil -- input seeding: pass `value` only on fresh keys
+
+local render, saveScratch, jsonParse, phpParse -- forward declarations
+
+local function schedule(tool)
+  dueAt[tool] = noctalia.nowMs() + DEBOUNCE_MS
+  panel.setNeedsFrameTick(true)
+end
+
+local function flushDue()
+  local now = noctalia.nowMs()
+  local needRender = false
+  for tool, at in pairs(dueAt) do
+    if at > 0 and now >= at then
+      dueAt[tool] = 0
+      if tool == "json" then
+        jsonParse()
+      elseif tool == "php" then
+        phpParse()
+      elseif tool == "md" then
+        saveScratch()
+      end
+      if tool == activeTool then needRender = true end
+    end
+  end
+  if needRender then render() end
+end
+
+function onFrameTick(_deltaMs)
+  flushDue()
+end
+
+local function schedule(tool)
+  dueAt[tool] = noctalia.nowMs() + DEBOUNCE_MS
+  panel.setNeedsFrameTick(true)
+end
+
+local function flushDue()
+  local now = noctalia.nowMs()
+  local needRender = false
+  for tool, at in pairs(dueAt) do
+    if at > 0 and now >= at then
+      dueAt[tool] = 0
+      if tool == "json" then
+        jsonParse()
+      elseif tool == "php" then
+        phpParse()
+      elseif tool == "md" then
+        saveScratch()
+      end
+      if tool == activeTool then needRender = true end
+    end
+  end
+  if needRender then render() end
+end
+
+function onFrameTick(_deltaMs)
+  flushDue()
+end
 
 local function trim(s)
   return (s == nil or s == "") and "" or (s:match("^%s*(.-)%s*$"))
 end
 
-local function makeToggle(collapsed)
-  return function(path)
-    if collapsed[path] then
-      collapsed[path] = nil
-    else
-      collapsed[path] = true
-    end
+local function makeToggle(_collapsed)
+  -- The tree renderer mutates the collapsed set itself; just re-render.
+  return function() render() end
+end
+
+-- Default progressive-disclosure depth (0 = expand everything).
+local function defaultDepth()
+  local v = tonumber(noctalia.getConfig("tree_collapse_depth"))
+  if v == nil or v < 0 then return 2 end
+  return v
+end
+
+local function currentDepth(s)
+  return s.viewDepth or defaultDepth()
+end
+
+-- Depth buttons: collapse-all / expand to level / expand-all.
+local function depthControls(s)
+  local cur = currentDepth(s)
+  local function setDepth(d)
+    s.viewDepth = d
+    s.collapsed = {}
     render()
   end
+  local nodes = {
+    ui.button({
+      key = "d-all-",
+      text = "−",
+      variant = "outline",
+      controlSize = "sm",
+      tooltip = noctalia.tr("ui.depth_none"),
+      onClick = function() setDepth(1) end,
+    }),
+  }
+  for d = 1, 3 do
+    nodes[#nodes + 1] = ui.button({
+      key = "d-" .. d,
+      text = tostring(d),
+      variant = "outline",
+      controlSize = "sm",
+      selected = cur == d,
+      tooltip = noctalia.tr("ui.depth_level", { n = d }),
+      onClick = function() setDepth(d) end,
+    })
+  end
+  nodes[#nodes + 1] = ui.button({
+    key = "d-all+",
+    text = "+",
+    variant = "outline",
+    controlSize = "sm",
+    tooltip = noctalia.tr("ui.depth_all"),
+    onClick = function() setDepth(99) end,
+  })
+  return ui.row({ gap = 4, align = "center" }, nodes)
 end
 
 -- ── Markdown scratch persistence ─────────────────────────────────────────────
@@ -51,7 +160,7 @@ do
   if raw then st.md.text = raw end
 end
 
-local function saveScratch()
+saveScratch = function()
   if mdPath == nil then return end
   if #st.md.text > 512 * 1024 then return end
   noctalia.writeFile(mdPath, st.md.text)
@@ -59,8 +168,11 @@ end
 
 -- ── Parsing ──────────────────────────────────────────────────────────────────
 
-local function jsonParse()
+jsonParse = function()
   local s = st.json
+  -- Fresh parse (new content) resets progressive disclosure to the default.
+  s.viewDepth = nil
+  s.collapsed = {}
   if trim(s.input) == "" then
     s.value, s.error = nil, nil
     return
@@ -73,8 +185,10 @@ local function jsonParse()
   end
 end
 
-local function phpParse()
+phpParse = function()
   local s = st.php
+  s.viewDepth = nil
+  s.collapsed = {}
   if trim(s.input) == "" then
     s.value, s.fmt, s.err = nil, nil, nil
     return
@@ -151,16 +265,25 @@ local function toolbarRow(defs)
   return ui.row({ gap = 6, align = "center" }, nodes)
 end
 
+-- ui.input is uncontrolled: `value` only seeds at creation. Repassing the
+-- field's current text on later renders makes the host rewrite the native
+-- text control (selection/typing jank), so a value is passed only when the
+-- key is fresh; lastInputKey resets in onOpen (native controls may not
+-- survive a panel close).
 local function inputPane(key, value, placeholder, onChange)
-  return ui.input({
+  local props = {
     key = key,
-    value = value,
     multiline = true,
     fontSize = 12,
     flexGrow = 1,
     placeholder = placeholder,
     onChange = onChange,
-  })
+  }
+  if key ~= lastInputKey then
+    props.value = value
+    lastInputKey = key
+  end
+  return ui.input(props)
 end
 
 local function jsonBody()
@@ -207,6 +330,7 @@ local function jsonBody()
     },
     status = status,
   })
+  local depthBar = depthControls(s)
 
   local right
   if empty then
@@ -214,7 +338,9 @@ local function jsonBody()
   elseif s.error ~= nil then
     right = errorRow(s.error)
   else
-    local rows, truncated = treeLib.render(s.value, s.collapsed, makeToggle(s.collapsed))
+    local rows, truncated = treeLib.render(s.value, s.collapsed, makeToggle(s.collapsed), {
+      defaultCollapseDepth = currentDepth(s),
+    })
     local kids = {}
     if truncated then
       kids[#kids + 1] = hintRow("alert-triangle", noctalia.tr("ui.truncated_tree", { max = treeLib.MAX_NODES }))
@@ -227,10 +353,10 @@ local function jsonBody()
     bar,
     ui.row({ gap = 10, flexGrow = 1 }, {
       ui.column({ gap = 6, flexGrow = 1 }, {
+        depthBar,
         inputPane("json-input-" .. s.nonce, s.input, '{"example": [1, 2, 3]}', function(v)
           s.input = v or ""
-          jsonParse()
-          render()
+          schedule("json")
         end),
       }),
       ui.column({ gap = 6, flexGrow = 1 }, { right }),
@@ -354,8 +480,7 @@ local function markdownBody()
       ui.column({ gap = 6, flexGrow = 1 }, {
         inputPane("md-input-" .. s.nonce, s.text, "# Hello", function(v)
           s.text = v or ""
-          saveScratch()
-          render()
+          schedule("md")
         end),
       }),
       ui.column({ gap = 6, flexGrow = 1 }, { preview }),
@@ -407,6 +532,7 @@ local function phpBody()
     },
     status = status,
   })
+  local depthBar = depthControls(s)
 
   local right
   if empty then
@@ -416,6 +542,7 @@ local function phpBody()
   else
     local rows, truncated = treeLib.render(s.value, s.collapsed, makeToggle(s.collapsed), {
       isNull = phpLib.isNull,
+      defaultCollapseDepth = currentDepth(s),
     })
     local kids = {}
     if truncated then
@@ -429,10 +556,10 @@ local function phpBody()
     bar,
     ui.row({ gap = 10, flexGrow = 1 }, {
       ui.column({ gap = 6, flexGrow = 1 }, {
+        depthBar,
         inputPane("php-input-" .. s.nonce, s.input, "array:2 [▼ …", function(v)
           s.input = v or ""
-          phpParse()
-          render()
+          schedule("php")
         end),
       }),
       ui.column({ gap = 6, flexGrow = 1 }, { right }),
@@ -487,6 +614,8 @@ function onOpen(_context)
   if t ~= nil and BODIES[t] ~= nil then
     activeTool = t
   end
+  lastInputKey = nil -- native controls may be recreated after a close
+  panel.setNeedsFrameTick(true) -- resume debounce ticks
   render()
 end
 
@@ -532,6 +661,11 @@ function onIpc(event, payload)
     render()
   elseif event == "format" then
     sqlFormat()
+  elseif event == "depth" then
+    local s = (activeTool == "php") and st.php or st.json
+    s.viewDepth = tonumber(payload) or 99
+    s.collapsed = {}
+    render()
   end
 end
 

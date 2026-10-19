@@ -10,6 +10,17 @@
     inputs.noctalia.nixosModules.default
   ];
 
+  # Same patched package as home-modules/noctalia.nix (launcher session survives
+  # panel preemption) so environment.systemPackages never shadows the HM build
+  # with an unpatched one.
+  programs.noctalia.package =
+    let
+      upstream = inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default;
+    in
+    upstream.overrideAttrs (old: {
+      patches = (old.patches or [ ]) ++ [ ../patches/noctalia-launcher-preserve-on-preempt.patch ];
+    });
+
   programs.noctalia = {
     enable = true;
     # Enables NetworkManager, Bluetooth, UPower and a power-profile service.

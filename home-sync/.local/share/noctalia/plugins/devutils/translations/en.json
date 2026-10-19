@@ -9,6 +9,8 @@
   "settings.sql_keyword_case.option.lower": "lowercase",
   "settings.sql_keyword_case.option.upper": "UPPERCASE",
   "settings.sql_keyword_case.option.capitalize": "Capitalize",
+  "settings.tree_collapse_depth.label": "Collapse depth",
+  "settings.tree_collapse_depth.description": "JSON/PHP tree: branches at this depth or deeper start collapsed (0 = expand everything). The −/1/2/3/+ buttons override it per session.",
 
   "tool.json.title": "JSON Formatter",
   "tool.json.subtitle": "Collapsible tree · pretty copy",
@@ -25,6 +27,9 @@
   "ui.clear": "Clear",
   "ui.confirm_clear": "Sure?",
   "ui.detected": "Detected",
+  "ui.depth_none": "Collapse all",
+  "ui.depth_level": "Expand to level {n}",
+  "ui.depth_all": "Expand everything",
   "ui.valid_json": "Valid JSON",
   "ui.invalid_json": "Invalid JSON",
   "ui.nodes": "nodes",
