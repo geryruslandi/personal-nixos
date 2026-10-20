@@ -164,6 +164,10 @@ class DeviceError(Exception):
     pass
 
 
+class ConnectionLost(DeviceError):
+    """The RFCOMM link is gone / no longer answering; force a reconnect."""
+
+
 # --------------------------------------------------------------------------
 # Device discovery (BlueZ via bluetoothctl + sdptool for the RFCOMM channel)
 # --------------------------------------------------------------------------
@@ -431,9 +435,9 @@ class Session:
             except socket.timeout:
                 continue
             except OSError as exc:
-                raise DeviceError(f"connection lost: {exc}") from exc
+                raise ConnectionLost(f"connection lost: {exc}") from exc
             if not data:
-                raise DeviceError("device closed the connection")
+                raise ConnectionLost("device closed the connection")
             self.buf += data
             parsed, self.buf = split_frames(self.buf)
             for data_type, seq, payload in parsed:
@@ -585,6 +589,8 @@ class Session:
                 continue
             try:
                 state.update(reader())
+            except ConnectionLost:
+                raise
             except (DeviceError, IndexError, ProtocolError) as exc:
                 self._log(f"read {key} failed: {exc}")
         return state
@@ -852,6 +858,26 @@ class Daemon:
                 raise
             return self.session
 
+    def _drop_session(self):
+        if self.session is not None:
+            self.session.close()
+            self.session = None
+        self.target = None  # force re-discovery on the next attempt
+
+    def _keep_last(self, reason):
+        """Keep the last good values (marked stale) while we reconnect."""
+        if self.state.get("battery") is not None or self.state.get("noise") is not None:
+            self.state = dict(self.state)
+            self.state["stale"] = True
+            self.state["stale_reason"] = reason
+        else:
+            self.state = {
+                "connected": True,
+                "address": self.address,
+                "stale": True,
+                "stale_reason": reason,
+            }
+
     def refresh(self):
         # serialise all session I/O: the poller thread and client requests must
         # never read/write the one RFCOMM socket at the same time.
@@ -859,13 +885,25 @@ class Daemon:
             try:
                 session = self.ensure()
                 state = session.read()
-                state["idle_disconnect"] = self.idle_timeout
-                self.state = state
+                # A healthy link always answers the battery query. If a whole
+                # read comes back without it, the link has gone stale/awry even
+                # though the socket still looks open — drop it and reconnect.
+                if state["capabilities"].get("battery") and "battery" not in state:
+                    self.log("partial read (no battery); reconnecting")
+                    self._keep_last("device not responding; reconnecting")
+                    self._drop_session()
+                else:
+                    state.pop("stale", None)
+                    state.pop("stale_reason", None)
+                    state["idle_disconnect"] = self.idle_timeout
+                    self.state = state
+            except ConnectionLost as exc:
+                self.log("link lost:", exc)
+                self._keep_last(str(exc))
+                self._drop_session()
             except (DeviceError, ProtocolError, OSError) as exc:
                 self.log("refresh failed:", exc)
-                if self.session is not None:
-                    self.session.close()
-                    self.session = None
+                self._drop_session()
                 self.state = {"connected": False, "address": self.address, "error": str(exc)}
             self.publish()
             return self.state
