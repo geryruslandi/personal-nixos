@@ -61,7 +61,7 @@ in
     # fork's flake, not nixpkgs). Keep nixpkgs independent — its node_modules
     # build is tuned for its own nixpkgs-unstable pin (same reasoning as the
     # noctalia input). Bump the ref manually to upgrade releases.
-    opencode.url = "github:anomalyco/opencode/v1.18.33";
+    opencode.url = "github:anomalyco/opencode/v1.19.3";
 
     aethertune.url = "github:nevermore23274/AetherTune";
     # AetherTune pins an old nixpkgs whose importCargoLock still fetches from
