@@ -33,6 +33,9 @@ end
 local search = ""
 local addCol = nil
 local addColText = ""
+-- ui.input is uncontrolled: the host keeps the text across renders unless the
+-- key changes. Every submitted add bumps this nonce so the field re-seeds empty.
+local addNonce = 0
 local editingN = nil
 local editText = ""
 -- Latest consumed openBoard sequence, so stale launcher pings don't switch
@@ -445,13 +448,14 @@ local function submitColumnAdd(g, flowKey)
   end
   addColText = ""
   addCol = nil
+  addNonce = addNonce + 1
   render()
 end
 
 local function columnAddRow(g, colId, flowKey)
   return ui.row({ key = "coladd-" .. colId, gap = 4, align = "center" }, {
     ui.input({
-      key = "coladd-input-" .. colId,
+      key = "coladd-input-" .. colId .. "-" .. addNonce,
       placeholder = noctalia.tr("ui.add_placeholder"),
       flexGrow = 1,
       fontSize = 11,
@@ -737,13 +741,14 @@ local function submitAdd()
   local text = note.trim(addRowText)
   if text ~= "" then request({ action = "add", text = text }) end
   addRowText = ""
+  addNonce = addNonce + 1
   render()
 end
 
 local function addRow()
   return ui.row({ gap = 6, align = "center", paddingH = 4, paddingV = 2 }, {
     ui.input({
-      key = "add",
+      key = "add-" .. addNonce,
       placeholder = noctalia.tr("ui.add_placeholder"),
       flexGrow = 1,
       submitOnEnter = true,

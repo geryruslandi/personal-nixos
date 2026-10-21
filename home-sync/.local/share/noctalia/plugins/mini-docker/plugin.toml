@@ -3,14 +3,15 @@
 # This data-dir copy outranks the auto-updated community source. Re-authored as
 # gery/mini-docker; local deltas:
 #   - Bar icon + running counter use the gery/services hub status palette
-#     (green running / red stopped / gray unavailable) instead of the
-#     per-theme-role color settings; glyph_color/active_color/inactive_color
-#     settings removed.
+#     (green running / red stopped) instead of the per-theme-role color
+#     settings; glyph_color/active_color/inactive_color settings removed.
+#   - The bar widget hides itself entirely while Docker is unreachable
+#     (binary missing or daemon/socket inactive).
 #   - Container rows gain "Logs" (docker logs -f) and "Shell"
 #     (docker exec -it ...) actions that open in the terminal.
 id = "gery/mini-docker"
 name = "Mini Docker"
-version = "1.1.0"
+version = "1.1.1"
 plugin_api = 9
 author = "gery"
 license = "MIT"

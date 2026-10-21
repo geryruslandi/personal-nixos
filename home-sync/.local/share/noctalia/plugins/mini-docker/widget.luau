@@ -3,11 +3,9 @@
 local PANEL_ID = "gery/mini-docker:manager"
 
 -- Status palette shared with the gery/services hub so the Docker icon and the
--- running counter read the same at a glance: green = running, red = stopped,
--- gray = unavailable.
+-- running counter read the same at a glance: green = running, red = stopped.
 local COLOR_RUNNING = "#4ade80"
 local COLOR_STOPPED = "#f87171"
-local COLOR_MISSING = "#64748b"
 
 local snapshot = noctalia.state.get("docker_snapshot") or {
   available = false,
@@ -24,20 +22,21 @@ end
 local function render()
   local runningCount = tonumber(snapshot.runningCount) or 0
   local available = snapshot.available == true
+
+  -- Only occupy bar space while Docker itself is reachable (binary present and
+  -- daemon/socket active); otherwise stay out of the way entirely.
+  barWidget.setVisible(available)
+  if not available then
+    barWidget.clearTooltip()
+    return
+  end
+
   local showCount = noctalia.getConfig("show_count") ~= false
   local statusMode = configString("status_mode", "always")
-  local showStatus = available
-    and statusMode ~= "hidden"
+  local showStatus = statusMode ~= "hidden"
     and (statusMode ~= "running_only" or runningCount > 0)
 
-  local color
-  if not available then
-    color = COLOR_MISSING
-  elseif runningCount > 0 then
-    color = COLOR_RUNNING
-  else
-    color = COLOR_STOPPED
-  end
+  local color = runningCount > 0 and COLOR_RUNNING or COLOR_STOPPED
 
   local children = {
     ui.glyph({
@@ -46,7 +45,7 @@ local function render()
       color = color,
     }),
   }
-  if showCount and available then
+  if showCount then
     table.insert(children, ui.label({
       text = tostring(runningCount),
       fontWeight = "bold",
@@ -64,9 +63,7 @@ local function render()
 
   local container = barWidget.isVertical() and ui.column or ui.row
   barWidget.render(container({ gap = 5, align = "center" }, children))
-  barWidget.setTooltip(if available
-    then noctalia.tr("widget.running", { count = runningCount })
-    else noctalia.tr("widget.unavailable"))
+  barWidget.setTooltip(noctalia.tr("widget.running", { count = runningCount }))
 end
 
 noctalia.state.watch("docker_snapshot", function(value)

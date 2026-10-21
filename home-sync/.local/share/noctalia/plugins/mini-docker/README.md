@@ -1,13 +1,14 @@
 # Mini Docker
 
 Mini Docker manages Docker containers, images, volumes, and networks from
-Noctalia. Its bar widget shows Docker availability and the number of running
-containers, while its panel provides common management actions.
+Noctalia. Its bar widget shows the number of running containers while Docker is
+reachable, while its panel provides common management actions.
 
 This is a local fork of the community plugin `8bury/mini-docker`, re-authored as
 `gery/mini-docker`. The bar icon and running counter use the `gery/services` hub
-status palette (green running, red stopped, gray unavailable), and the container
-rows can open a terminal to follow logs or exec into a shell.
+status palette (green running, red stopped); the widget hides itself while the
+Docker daemon/socket is unreachable, and the container rows can open a terminal
+to follow logs or exec into a shell.
 
 ## Plugin
 

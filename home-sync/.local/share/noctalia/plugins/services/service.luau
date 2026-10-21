@@ -368,7 +368,14 @@ stopService = function(id)
     cmd = "systemctl --user stop " .. service.unit
     setState(id, "disconnecting", {})
   elseif service.kind == "system" then
-    cmd = "systemctl stop " .. service.unit
+    if service.id == "docker" then
+      -- Stop the activation socket first: leaving docker.socket listening lets
+      -- the next `docker` client (mini-docker polls `docker ps` every few
+      -- seconds) socket-activate the daemon straight back on.
+      cmd = "systemctl stop docker.socket; systemctl stop docker.service"
+    else
+      cmd = "systemctl stop " .. service.unit
+    end
     setState(id, "disconnecting", {})
   else
     cmd = "systemctl stop " .. service.unit
