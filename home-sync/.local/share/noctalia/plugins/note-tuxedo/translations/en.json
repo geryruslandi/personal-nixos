@@ -12,7 +12,8 @@
   "settings.refresh_seconds.label": "Refresh seconds",
   "settings.refresh_seconds.description": "How often the task list is polled. Minimum 5.",
   "settings.default_group_by.label": "Default grouping",
-  "settings.default_group_by.description": "How the panel groups tasks when it opens.",
+  "settings.default_group_by.description": "How the board groups tasks when it opens (Flow = Todo / Doing / Done).",
+  "settings.default_group_by.option.flow": "Flow",
   "settings.default_group_by.option.priority": "Priority",
   "settings.default_group_by.option.project": "Project",
   "settings.default_group_by.option.context": "Context",
@@ -39,6 +40,7 @@
   "ui.show_done": "Done",
   "ui.filters": "Filters:",
   "ui.group_by": "Group by",
+  "ui.group_by.flow": "Flow",
   "ui.group_by.priority": "Priority",
   "ui.group_by.project": "Project",
   "ui.group_by.context": "Context",
@@ -67,5 +69,21 @@
   "ui.spawn_failed": "Could not start the command.",
 
   "ui.launcher.add": "Add: {text}",
-  "ui.launcher.add_sub": "Create a new task"
+  "ui.launcher.add_sub": "Create a new task",
+
+  "ui.kanban.title": "Todos · Kanban",
+  "ui.kanban.open_board": "Open Kanban board",
+  "ui.kanban.open_board_sub": "Todo · Doing · Done — drag cards between columns",
+  "ui.kanban.open_project": "Board · Project groups",
+  "ui.kanban.open_priority": "Board · Priority groups",
+  "ui.kanban.open_context": "Board · Context groups",
+  "ui.kanban.todo": "Todo",
+  "ui.kanban.doing": "Doing",
+  "ui.kanban.done": "Done",
+  "ui.kanban.all": "All",
+  "ui.kanban.empty_column": "Empty — drop a card here",
+  "ui.kanban.more": "more",
+  "ui.kanban.drag_hint": "Drag to another column to re-tag",
+  "ui.kanban.add_to_column": "Add a task to this column",
+  "ui.kanban.open_list": "Open list panel"
 }

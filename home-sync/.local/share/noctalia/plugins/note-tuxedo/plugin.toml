@@ -1,12 +1,12 @@
 id         = "gery/note-tuxedo"
 name       = "Note (tuxedo)"
-version    = "1.0.0"
+version    = "1.2.0"
 plugin_api = 24
 author     = "gery"
 icon       = "list-check"
 license    = "MIT"
 
-description = "Frontend for the tuxedo todo.txt CLI — grouped by project, context and priority."
+description = "Frontend for the tuxedo todo.txt CLI — `/todo` in the launcher opens a drag-and-drop kanban board (Todo / Doing / Done; Doing is the auto-managed @doing context)."
 
 # Every path/ENV the tuxedo CLI needs is a setting. Settings are shared by all
 # entries; defaults live here, GUI edits persist in
@@ -63,10 +63,11 @@ key             = "default_group_by"
 type            = "select"
 label_key       = "settings.default_group_by.label"
 description_key = "settings.default_group_by.description"
-default         = "priority"
+default         = "flow"
 options = [
-  { value = "priority", label_key = "settings.default_group_by.option.priority" },
+  { value = "flow",     label_key = "settings.default_group_by.option.flow" },
   { value = "project",  label_key = "settings.default_group_by.option.project" },
+  { value = "priority", label_key = "settings.default_group_by.option.priority" },
   { value = "context",  label_key = "settings.default_group_by.option.context" },
   { value = "none",     label_key = "settings.default_group_by.option.none" },
 ]
@@ -90,9 +91,21 @@ height          = 480
 placement       = "floating"
 open_near_click = true
 
+[[panel]]
+id              = "todo-kanban"
+entry           = "kanban.luau"
+width           = 1000
+height          = 560
+placement       = "floating"
+position        = "center"
+# The launcher-activation click lands outside the freshly opened board; the
+# default dismissal would close it the instant it opens.
+dismiss_on_outside_click = false
+open_near_click = false
+
 [[launcher_provider]]
 id          = "capture"
 entry       = "launcher.luau"
-prefix      = "t"
+prefix      = "todo"
 glyph       = "list-check"
 debounce_ms = 100
