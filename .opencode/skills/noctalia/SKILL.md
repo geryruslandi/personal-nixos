@@ -61,12 +61,13 @@ When unsure what a setting/widget/template accepts, query the running shell:
 - Generated themes land at login; kitty includes them via `~/.config/kitty/current-theme.conf` (`home.nix`)
 
 ### Plugins (`settings.plugins`)
-- Enabled (17): `noctalia/screen_recorder`, `noctalia/wallhaven`, `noctalia/bitwarden`, `noctalia/notes`, `dunarand/tmux-provider`, `gery/note-tuxedo` (**local**, see below), `tadomika_ari/w-engine`, `gery/services` (**local**, see below), `felipeartur/ai-usagebar`, `piero-93/battery-power-management`, `jamesfeeder/special-workspaces`, `rxtsel/portctl`, `nilsonlinux/world-radio`, `samuelskovbakke/calculator-plus`, `icefish/phone-connect`, `icefish/phone-operate`, `ahmedhossamdev/sticky-notes`
+- Enabled (17): `noctalia/screen_recorder`, `noctalia/wallhaven`, `noctalia/bitwarden`, `gery/notes-md` (**local**, replaces `noctalia/notes`), `dunarand/tmux-provider`, `gery/note-tuxedo` (**local**, see below), `tadomika_ari/w-engine`, `gery/services` (**local**, see below), `felipeartur/ai-usagebar`, `piero-93/battery-power-management`, `jamesfeeder/special-workspaces`, `rxtsel/portctl`, `nilsonlinux/world-radio`, `samuelskovbakke/calculator-plus`, `icefish/phone-connect`, `icefish/phone-operate`, `ahmedhossamdev/sticky-notes`
 - `auto_update = "all"` (enum `all|official|none` — booleans are rejected since pin 69a90183)
 - `screen_recorder` needs `gpu-screen-recorder` (installed in `home-modules/noctalia.nix` alongside `linux-wallpaperengine` and `ffmpeg`); its bar widget type is `noctalia/screen_recorder:recorder`, its control-center shortcut type is `noctalia/screen_recorder:toggle`
 - Plugin options live in Settings → Plugins; per-plugin defaults can be seeded declaratively under `settings.plugin_settings."<author>/<plugin>"`
 - **Local plugin wiring**: the `gery/services` hub owns ALL dev-server configuration (ports, passwords, datadirs, auto-start) — defaults in the plugin's `plugin.toml`, GUI edits persist to `~/.local/state/noctalia/settings.toml`. `secrets.server` was removed; nothing under `plugin_settings."gery/services"` is secrets-seeded anymore
 - **Local plugin wiring**: `gery/note-tuxedo` is a generic frontend for the `tuxedo` todo.txt CLI (source at `home-sync/.local/share/noctalia/plugins/note-tuxedo/`, binary packaged in `home-modules/tuxedo.nix`). All TODO_* ENVs (dir/file/done/notes) and the binary path are plugin settings; the panel is toggled by the bar widget or IPC (`noctalia msg panel-toggle gery/note-tuxedo:todo-panel`). It is compositor-agnostic — no keybind is created by the plugin
+- **Local plugin wiring**: `gery/notes-md` replaces the official `noctalia/notes` plugin (source at `home-sync/.local/share/noctalia/plugins/notes-md/`). Spaces = top-level folders under `notes_dir` (`~/Documents` by default), folders = nested directories, one `.md` per note. The index `[[service]]` publishes the tree, the `notes-panel` panel edits with a debounced live preview/autosave, `/n` searches names and contents, and the `notes` bar widget + `Super+N` toggle the panel (`noctalia msg panel-toggle gery/notes-md:notes-panel`)
 
 ### Launcher & clipboard
 Noctalia's built-in launcher and clipboard panels are used. Hyprland binds live in `home-modules/noctalia.nix`: `$mainMod+Space` → `noctalia msg panel-toggle launcher`, `$mainMod+V` → `panel-toggle clipboard`. Launcher/clipboard panel settings: `shell.launcher` (+ `shell.panel.launcher_placement/position`, `shell.panel.clipboard_placement/position`); clipboard features under `shell.clipboard_*` (`clipboard_enabled = true`).
@@ -76,6 +77,7 @@ Noctalia's built-in launcher and clipboard panels are used. Hyprland binds live 
 - `$mainMod + V`: `noctalia msg panel-toggle clipboard`
 - `$mainMod + R`: `noctalia msg panel-toggle control-center`
 - `$mainMod + ,`: `noctalia msg settings-toggle`
+- `$mainMod + N`: `noctalia msg panel-toggle gery/notes-md:notes-panel`
 - `$mainMod + L`: `noctalia msg session lock`
 - `XF86PowerOff`: `noctalia msg panel-toggle session`
 

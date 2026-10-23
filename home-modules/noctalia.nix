@@ -482,7 +482,7 @@
           type = "rxtsel/portctl:indicator";
         };
         "notes" = {
-          type = "noctalia/notes:notes";
+          type = "gery/notes-md:notes";
         };
         "todo" = {
           type = "nightwatch75/todo:todo";
@@ -534,7 +534,7 @@
           "tadomika_ari/w-engine"
           "piero-93/battery-power-management"
           "jamesfeeder/special-workspaces"
-          "noctalia/notes"
+          "gery/notes-md"
           "rxtsel/portctl"
           "gery/services"
           "samuelskovbakke/calculator-plus"
@@ -546,6 +546,7 @@
           "gery/sony-headset"
           "gery/bitwarden"
           "gery/devutils"
+          "gery/ajazz-keyboard"
         ];
         auto_update = "all";
       };
@@ -584,6 +585,11 @@
           # edits persist in ~/.local/state/noctalia/settings.toml. No
           # secrets-seeded values anymore.
         };
+        "gery/notes-md" = {
+          # Panel host settings; the panel entry is `notes-panel`.
+          notes-panel_placement = "floating";
+          notes-panel_position = "center";
+        };
       };
     };
   };
@@ -602,6 +608,7 @@
         "$mainMod, V, exec, noctalia msg panel-toggle clipboard"
         "$mainMod, R, exec, noctalia msg panel-toggle control-center"
         "$mainMod, comma, exec, noctalia msg settings-toggle"
+        "$mainMod, N, exec, noctalia msg panel-toggle gery/notes-md:notes-panel"
         "$mainMod, L, exec, noctalia msg session lock"
         ", XF86PowerOff, exec, noctalia msg panel-toggle session"
       ];

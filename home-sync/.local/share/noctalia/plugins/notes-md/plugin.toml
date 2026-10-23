@@ -1,0 +1,83 @@
+id           = "gery/notes-md"
+name         = "Notes"
+version      = "1.0.0"
+plugin_api   = 24
+author       = "gery"
+icon         = "notes"
+license      = "MIT"
+description  = "Markdown notes organised as Zen-style spaces and folders. Every note is a .md file; the panel edits it with a debounced live preview, and /n searches names and contents."
+tags         = ["productivity", "notes"]
+
+[[setting]]
+key             = "notes_dir"
+type            = "folder"
+label_key       = "settings.notes_dir.label"
+description_key = "settings.notes_dir.description"
+default         = "~/Documents"
+
+[[setting]]
+key             = "extension"
+type            = "string"
+label_key       = "settings.extension.label"
+description_key = "settings.extension.description"
+default         = "md"
+
+[[setting]]
+key             = "preview_mode"
+type            = "select"
+label_key       = "settings.preview_mode.label"
+description_key = "settings.preview_mode.description"
+default         = "split"
+options = [
+  { value = "split",   label_key = "settings.preview_mode.option.split" },
+  { value = "edit",    label_key = "settings.preview_mode.option.edit" },
+  { value = "preview", label_key = "settings.preview_mode.option.preview" },
+]
+
+[[setting]]
+key             = "sort_notes"
+type            = "select"
+label_key       = "settings.sort_notes.label"
+description_key = "settings.sort_notes.description"
+default         = "name"
+options = [
+  { value = "name",     label_key = "settings.sort_notes.option.name" },
+  { value = "modified", label_key = "settings.sort_notes.option.modified" },
+]
+
+[[setting]]
+key             = "ignored_dirs"
+type            = "string"
+label_key       = "settings.ignored_dirs.label"
+description_key = "settings.ignored_dirs.description"
+default         = ""
+
+[[setting]]
+key             = "content_search"
+type            = "bool"
+label_key       = "settings.content_search.label"
+description_key = "settings.content_search.description"
+default         = true
+
+[[service]]
+id    = "index"
+entry = "service.luau"
+
+[[widget]]
+id    = "notes"
+entry = "widget.luau"
+
+[[panel]]
+id        = "notes-panel"
+entry     = "panel.luau"
+width     = 1280
+height    = "fill"
+placement = "floating"
+position  = "center"
+
+[[launcher_provider]]
+id          = "search"
+entry       = "launcher.luau"
+prefix      = "n"
+glyph       = "notes"
+debounce_ms = 120

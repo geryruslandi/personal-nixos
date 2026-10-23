@@ -1,0 +1,47 @@
+id          = "gery/ajazz-keyboard"
+name        = "AJAZZ Keyboard"
+version     = "1.0.0"
+plugin_api  = 22
+author      = "gery"
+icon        = "keyboard"
+license     = "MIT"
+description = "Control the AJAZZ AK820 Max HE: keyboard RGB, RTC clock sync and the CPU/system-info mini-screen. Open with /ajazz or the bar widget."
+tags        = [ "bar", "keyboard", "hid", "rgb", "hardware", "launcher" ]
+dependencies = ["ak820ctl"]
+
+[[setting]]
+key             = "binary"
+type            = "string"
+label_key       = "settings.binary.label"
+description_key = "settings.binary.description"
+default         = "ak820ctl"
+
+[[setting]]
+key             = "device_path"
+type            = "string"
+label_key       = "settings.device_path.label"
+description_key = "settings.device_path.description"
+default         = ""
+
+[[service]]
+id    = "daemon"
+entry = "service.luau"
+
+[[widget]]
+id    = "keyboard"
+entry = "widget.luau"
+
+[[launcher_provider]]
+id          = "search"
+entry       = "launcher.luau"
+prefix      = "ajazz"
+glyph       = "keyboard"
+debounce_ms = 60
+
+[[panel]]
+id        = "keyboard-panel"
+entry     = "panel.luau"
+width     = 780
+height    = 640
+placement = "floating"
+position  = "center"
